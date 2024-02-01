@@ -1,9 +1,9 @@
-source from: https://www.hiveworkshop.com/threads/is-there-any-way-to-get-source-code-for-vexs-jasshelper.329359/
-
-this is just a fix for inline `out of memory`
-ref:
-https://www.hiveworkshop.com/threads/jasshelper-crashes-on-perfectly-compilable-code.264740/
-https://www.hiveworkshop.com/threads/cohadars-jasshelper.268332/
+source from: https://www.hiveworkshop.com/threads/is-there-any-way-to-get-source-code-for-vexs-jasshelper.329359/<br/>
+<br/>
+this is just a fix for inline `out of memory` error<br/>
+ref:<br/>
+https://www.hiveworkshop.com/threads/jasshelper-crashes-on-perfectly-compilable-code.264740/<br/>
+https://www.hiveworkshop.com/threads/cohadars-jasshelper.268332/<br/>
 
 ## old readme
 This is the source for the JASShelper. You require a win32 pascal (Delphi) to compile. I use Delphi 10 lite which is free and a really light download.<br/>
