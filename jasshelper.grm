@@ -1,0 +1,153 @@
+! -----------------------------------------------------------------------
+! Standard Pascal Grammar
+! -----------------------------------------------------------------------
+
+
+"Name"    = 'JassHelper' 
+"Version" = '2000'
+"Author"  = 'Vexorian' 
+"About"   = 'This is a grammar for a vJass extended Jass line'
+
+! 2000: revamp to do correct operator precedence
+
+"Case Sensitive" = True
+"Start Symbol"   = <Line>
+
+!{SuperPrintable} = {Printable Extended}+{Printable}
+{SuperPrintable} = {Control Codes}+{ANSI Printable}
+
+
+{String Ch 1} = {SuperPrintable} - ['']
+{String Ch 2} = {SuperPrintable} - ["\]
+
+
+
+{AlphaNumericSubScript} = {AlphaNumeric}+[_]
+
+Identifier    = {Letter}{AlphaNumericSubScript}*{AlphaNumeric} | {Letter}
+
+
+! String allows either single or double quotes
+
+
+StringLiteral = ''{String Ch 1}''
+              | '"' ( {String Ch 2} | '\'{SuperPrintable} )* '"' | ''{String Ch 1}{String Ch 1}{String Ch 1}{String Ch 1}''
+
+Commentx = '//' {SuperPrintable}*
+
+
+NumberLiteral = {Number}+|{Number}+'.'{Number}*|{Number}*'.'{Number}+
+           | '0x'[0123456789ABCDEFabcdef]+ | '$'[0123456789ABCDEFabcdef]+
+
+
+<Line> ::= <Statement> Commentx
+       |   <Statement>
+
+
+<Statement>   ::= <Expression> | <AssignVar> | <AssignMember> | <AssignLocal> | <Local> | <AssignArray>  | <AssignArraySuf> | <Call> | <SingleKeyword> | <IfElseIf> | <Exitwhen> | <Return> !| <Exit>
+
+<IfElseIf> ::= 'if' <Expression> 'then' | 'elseif' <Expression> 'then'
+
+<SingleKeyword> ::= 'loop' | 'endloop' | 'endif' | 'else'
+
+
+<Call> ::= 'call' <Function> | 'call' <Method>
+
+<AssignVar> ::= 'set' Identifier '=' <Expression>
+<AssignMember> ::= 'set' <Dotable> '.' Identifier '=' <Expression>
+<AssignArraySuf> ::= 'set' <Expression8> ':' Identifier '=' <Expression>
+<AssignLocal> ::= 'local' Identifier '=' <Expression>
+<AssignArray> ::= 'set' <Expression8> '[' <Expression> ']' '=' <Expression>
+<Local> ::= 'local' Identifier
+<Exitwhen> ::= 'exitwhen' <Expression>
+<Return> ::= 'return' <Expression> | 'return'
+
+
+
+<Braces> ::= '(' <Expression> ')'
+
+<CodeValue> ::= 'function' Identifier
+<MemberCodeValue> ::= 'function' Identifier '.' Identifier
+
+
+<Function> ::= <NothingFunction> | <ArgFunction>
+
+<NothingFunction> ::= Identifier '(' ')'
+<ArgFunction>     ::= Identifier '(' <Arguments> ')'
+
+
+
+<GetArray> ::= <Expression8> '[' <Expression> ']'
+<GetArraySuf> ::= <Expression8> ':' Identifier
+
+
+<Arguments> ::= <Expression> | <Expression> ',' <Arguments>
+
+<Dotable> ::= <Expression8>
+           |
+
+<GetMember> ::= <Dotable> '.' Identifier
+<NothingMethod> ::= <Dotable> '.' Identifier '(' ')'
+<ArgMethod> ::= <Dotable> '.' Identifier '(' <Arguments> ')'
+<Method> ::= <NothingMethod> | <ArgMethod>
+
+<Expression8> ::= <GetArray>
+               |  <GetArraySuf>
+               |  <GetMember>
+               |  <Function>
+               |  <Method>
+               |  Identifier
+               |  NumberLiteral
+               |  StringLiteral
+               |  <CodeValue>
+               |  <MemberCodeValue>
+               |  <Braces>
+
+
+
+<Not> ::= 'not' <Expression7>
+<Expression7> ::= <Not>
+               |  <Expression8>
+
+<Negative> ::= '-' <Expression6>
+<Expression6> ::= <Negative>
+               |  <Expression7>
+
+<Product> ::= <Expression6> '*' <Expression5>
+<Division> ::= <Expression6> '/' <Expression5>
+<Expression5> ::= <Product>
+               |  <Division>
+               |  <Expression6>
+
+<Addition>    ::= <Expression5> '+' <Expression4>
+<Subtraction> ::= <Expression5> '-' <Expression4>
+
+<Expression4> ::= <Addition>
+               |  <Subtraction>
+               |  <Expression5>
+
+<GreaterThan>      ::= <Expression4> '>'  <Expression4>
+<GreaterThanEqual> ::= <Expression4> '>=' <Expression4>
+<LessThan>         ::= <Expression4> '<'  <Expression4>
+<LessThanEqual>    ::= <Expression4> '<=' <Expression4>
+<Expression3> ::= <GreaterThan>
+               |  <GreaterThanEqual>
+               |  <LessThan>
+               |  <LessThanEqual>
+               |  <Expression4>
+
+<EqualTo>    ::= <Expression3> '==' <Expression3>
+<NotEqualTo> ::= <Expression3> '!=' <Expression3>
+<Expression2> ::= <EqualTo>
+               |  <NotEqualTo>
+               |  <Expression3>
+
+<And> ::= <Expression2> 'and' <Expression>
+<Or>  ::= <Expression2> 'or' <Expression>
+<LogicalBinary> ::= <And>
+                 |  <Or>
+
+<Expression> ::= <LogicalBinary>
+              |  <Expression2>
+
+

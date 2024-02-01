@@ -1,0 +1,352 @@
+"Name"    = 'Zinc grammar'
+"Version" = '0.11'
+"Author"  = 'Victor Hugo Soliz Kuncar (vexorian)'
+"About"   = 'Partially based on Java grammar'
+
+! 0.11: Allow leading zeros for reals.
+! 0.10: Add .exists for static if
+! 0.9: Added for(;;) and +=,-=,/=,*=
+! 0.8: Add anonymous methods...
+! 0.7: Allow * as requirement..
+! 0.6: Allow member get in static ifs.
+! 0.5: Add anonymous functions.
+! 0.4: Allow negating a negation...
+! 0.3: Add operator==
+
+{AlphaNumericSubScript} = {AlphaNumeric}+[_]
+Identifier    = {Letter}{AlphaNumericSubScript}*{AlphaNumeric} | {Letter}
+
+{SuperPrintable} = {Control Codes}+{ANSI Printable}
+{SuperPrintableNoLF} = {SuperPrintable}-{LF}
+PreprocessorLine = '//!'{SuperPrintableNoLF}*{LF}
+
+
+{String Ch 1} = {SuperPrintable} - ['']
+{String Ch 2} = {SuperPrintable} - ["\]
+StringLiteral = '"' ( {String Ch 2} | '\'{SuperPrintable} )* '"'
+
+CharLiteral = ''{String Ch 1}'' | ''{String Ch 1}{String Ch 1}{String Ch 1}{String Ch 1}''
+
+
+
+"Case Sensitive" = 'True'
+"Start Symbol"   = <Zinc>
+
+Comment Start = '/*'
+Comment End = '*/'
+Comment Line = '//'
+
+Decimal = [123456789][1234567890]*
+Octal = '0'[12345670]*
+Hex = '0x'[1234567890ABCDEF]+
+RealNumber = ([1234567890]*'.'[1234567890]+) | ([1234567890]+'.'[1234567890]*) 
+
+
+<IntegerLiteral> ::= Decimal
+                  |  Octal
+                  |  Hex
+                  |  CharLiteral
+
+<RealLiteral> ::= RealNumber
+
+<Literal> 
+        ::= StringLiteral
+         | <IntegerLiteral>
+         | <RealLiteral>
+
+<Type>  ::= Identifier
+
+<RequirementOptional> ::= 'optional' | 
+
+<Requirement> ::= <RequirementOptional> Identifier
+               |  '*'
+
+<RequirementList>
+         ::= <Requirement> ',' <RequirementList>
+          | <Requirement>
+
+<LibraryRequirements>
+         ::= 'requires' <RequirementList>
+          |
+
+
+<VariableName> ::= Identifier
+<VariableNameAssigned> ::= Identifier '=' <Expression>
+<ArrayName> ::= Identifier '[' ']'
+<ArrayNameSize> ::= Identifier '[' <Expression> ']'
+<ArrayNameSizeSize> ::= Identifier '[' <Expression> ']' '[' <Expression> ']'
+
+<SingleVariable> ::= <VariableName>
+                  |  <VariableNameAssigned>
+                  |  <ArrayName>
+                  |  <ArrayNameSize>
+                  |  <ArrayNameSizeSize>
+
+<VariableList> ::= <SingleVariable> ',' <VariableList>
+                |  <SingleVariable>
+
+<Constant> ::= 'constant' |
+<GlobalVariableDeclaration> ::= <PrivatePublic> <Constant> <Type> <VariableList> ';'
+
+
+<Variable> ::= Identifier
+
+
+
+<CodeValue> ::= 'function' Identifier | 'static' 'method' Identifier '.' Identifier
+
+<MemberGet> ::= <Expression8> '.' Identifier
+<ArrayGet> ::= <Expression8> '[' <Expression> ']' 
+<ColonArrayGet> ::= <Expression8> ':' Identifier
+<MethodCall> ::= <Expression8> '.' Identifier '(' <CallArgumentList> ')'
+<Expression8> ::= <ArrayGet>
+               |  <ColonArrayGet>
+               |  <MemberGet>
+               |  <FunctionCall>
+               |  <MethodCall>
+               |  <Variable>
+               |  <Literal>
+               |  <CodeValue>
+               |  <AnonymousFunction>
+               |  <Parenthesis>
+
+
+<Not> ::= '!' <Expression7>
+<Expression7> ::= <Not>
+               |  <Expression8>
+
+<SignOperator> ::= '+' | '-'
+<Sign> ::= <SignOperator> <Expression6>
+<Expression6> ::= <Sign>
+               |  <Expression7>
+
+<ProductOperator> ::= '*' | '/'
+<Product> ::= <Expression5> <ProductOperator> <Expression6>
+<Expression5> ::= <Product>
+               |  <Expression6>
+
+<AdditionOperator> ::= '+' | '-'
+<Addition> ::= <Expression4> <AdditionOperator> <Expression5>
+<Expression4> ::= <Addition>
+               |  <Expression5>
+
+<RelationOperator> ::= '>' | '>=' | '<' | '<='
+<Relation> ::= <Expression4> <RelationOperator> <Expression4>
+<Expression3> ::= <Relation>
+               |  <Expression4>
+
+<ComparissonOperator> ::= '==' | '!='
+<Comparisson> ::= <Expression3> <ComparissonOperator> <Expression3>
+<Expression2> ::= <Comparisson>
+               |  <Expression3>
+
+<Parenthesis> ::= '(' <Expression> ')'
+
+<LogicalBinaryOperator> ::= '&&' | '||'
+<LogicalBinary> ::= <Expression2> <LogicalBinaryOperator> <Expression>
+<Expression> ::= <LogicalBinary>
+              | <Expression2>
+
+<PrivatePublic> ::= 'private' | 'public' | 
+
+<ArgumentDefault> ::= '=' <Expression> | 
+<FunctionArgument> ::= <Type> Identifier <ArgumentDefault>
+<FunctionArgumentList> ::= <FunctionArgument>
+                        |  <FunctionArgument> ',' <FunctionArgumentList>
+                        |
+
+<FunctionInterfaceArgument> ::= <Type>
+<FunctionInterfaceArgumentList> ::= <FunctionInterfaceArgument>
+                        |  <FunctionInterfaceArgument> ',' <FunctionInterfaceArgumentList>
+                        |
+
+
+
+<ReturnType> ::= '->' <Type>
+              |
+
+<Assignable> ::= <Variable>
+              |  <ArrayGet>
+              |  <ColonArrayGet>
+              |  <MemberGet>
+
+<Assignment> ::= <Assignable> '=' <Expression>
+                    |   <Assignable> '+=' <Expression>
+                    |   <Assignable> '-=' <Expression>
+                    |   <Assignable> '/=' <Expression>
+                    |   <Assignable> '*=' <Expression>
+<Assignments> ::= <Assignments> ',' <Assignment>
+               |  <Assignment>
+
+<Return> ::= 'return' <Expression>
+          |  'return'
+
+<If>     ::= 'if' <Parenthesis> <StatementNoBreakOrBlock>
+<IfElse> ::= 'if' <Parenthesis> <StatementNoBreakOrBlock> 'else' <StatementNobreakOrBlock>
+
+<Exitwhen>::= 'if' <Parenthesis> 'break' ';'
+
+
+<While> ::= 'while' <Parenthesis> <StatementOrBlock>
+<DoWhile> ::= 'do' <StatementOrBlock> 'while' <Parenthesis> ';'
+<Debug> ::= 'debug' <StatementOrBlock>
+<For> ::= 'for' '(' <Expression4> <RelationOperator> <Variable> <RelationOperator> <Expression4>  ')' <StatementOrBlock>
+<ForWhile> ::= 'for' '(' <Assignments> ';' <Expression> ';' <Assignments> ')' <StatementOrBlock>
+
+
+<StaticIfRequirementNot> ::= '!'|
+
+<StaticIfRequirement> ::= <StaticIfRequirementNot> Identifier
+                       | <StaticIfRequirementNot> Identifier '.' Identifier
+                       | <StaticIfRequirementNot> Identifier '.' Identifier '.' Identifier
+
+<StaticIfExpression> ::=  <StaticIfRequirement>
+                      |   <StaticIfExpression> '&&' <StaticIfRequirement>
+
+<StaticIf> ::= 'static' 'if' '(' <StaticIfExpression> ')' <StatementOrBlock>
+            |  'static' 'if' '(' <StaticIfExpression> ')' <StatementOrBlock> 'else' <StatementOrBlock>
+
+
+
+
+<CallArgument> ::= <Expression>
+<CallArguments> ::= <CallArgument>
+                 |  <CallArgument> ',' <CallArguments>
+
+<CallArgumentList> ::= <CallArguments> | 
+
+<FunctionCall> ::= Identifier '(' <CallArgumentList> ')'
+<MethodCallStatement> ::= <MethodCall> ';'
+<FunctionCallStatement> ::= <FunctionCall> ';'
+
+<BreakStatement> ::= 'break' ';'
+
+<SingleStatement> ::=  <Return>
+                   |   <Assignments>
+
+<LocalVariable> ::= <Type> <VariableList> ';'
+
+
+
+<StatementNoBreak> ::= <Debug>
+             |  <While>
+             |  <For>
+             |  <If>
+             |  <StaticIf>
+             |  <IfElse>
+             |  <Exitwhen>
+             |  <SingleStatement> ';' 
+             |  <FunctionCallStatement>
+             |  <MethodCallStatement>
+             |  <LocalVariable>
+             |  <ForWhile>
+             |  <DoWhile>
+
+<Statement> ::= <StatementNoBreak>
+             |  <BreakStatement>
+
+<Statements> ::= <Statement> <Statements>
+              |
+
+<CodeBlock> ::= '{' <Statements> '}'
+<StatementOrBlock> ::= <Statement>
+                    | <CodeBlock>
+<StatementNoBreakOrBlock> ::= <StatementNoBreak>
+                           |  <CodeBlock>
+
+
+
+<Function> ::= <PrivatePublic> 'function' Identifier '(' <FunctionArgumentList> ')' <ReturnType> <CodeBlock>
+
+<AnonymousTag> ::= 'function'
+                |  'static' 'method'
+                |  'method'
+<AnonymousFunction> ::= <AnonymousTag> '(' <FunctionArgumentList> ')' <ReturnType> <CodeBlock>
+
+<Static> ::= 'static' | 
+<Delegate> ::= 'delegate' |
+
+<StructVariableDeclaration> ::= <PrivatePublic> <Static> <Delegate> <Constant> <Type> <VariableList> ';'
+
+
+
+<Operator> ::= 'operator' '<'
+            |  'operator' '[' ']'
+            |  'operator' '[' ']' '='
+            |  'operator' Identifier
+            |  'operator' Identifier '='
+            |  'operator' '=='
+
+
+<MethodName> ::= <Operator>
+              |  Identifier
+
+<StructMethod> ::= <PrivatePublic> <Static> 'method' <MethodName> '(' <FunctionArgumentList> ')' <ReturnType> <CodeBlock>
+<InterfaceDefaults> ::= '=' <Expression> | 
+<InterfaceMethod> ::= <PrivatePublic> <Static> 'method' <MethodName> '(' <FunctionArgumentList> ')' <ReturnType> <InterfaceDefaults> ';'
+
+<OptionalModule> ::= 'optional' | 
+<StructImplement> ::= <OptionalModule> 'module' Identifier ';'
+
+<StructMember> ::= <StructVariableDeclaration>
+                |  <StructMethod>
+                |  <StructImplement>
+                |  <StructPPBlock>
+
+<InterfaceMember> ::= <StructVariableDeclaration>
+                |  <InterfaceMethod>
+                |  <InterfacePPBlock>
+
+<StructBody> ::= <StructMember> <StructBody>
+              |
+<InterfaceBody> ::= <InterfaceMember> <InterfaceBody>
+              |
+
+<Extends> ::= 'extends' Identifier
+           |
+<StorageLimit> ::= '[' <Expression> ']'
+                |  
+<StructArray> ::= '[' ']'
+               |  '[' <Expression> ']'
+               |
+
+
+<Struct> ::= <PrivatePublic> 'struct' <StorageLimit> Identifier <StructArray> <Extends> '{' <StructBody> '}'
+<Module> ::= <PrivatePublic> 'module' Identifier '{' <StructBody> '}'
+<Interface> ::= <PrivatePublic> 'interface' <StorageLimit> Identifier   '{' <InterfaceBody> '}'
+
+<DynamicArrayStorageLimit> ::= ',' <Expression> |
+<DynamicArray> ::= <Type> '[' <Expression> <DynamicArrayStorageLimit> ']'
+
+
+<FunctionInterface> ::= 'function' '(' <FunctionInterfaceArgumentList> ')' <ReturnType>
+
+<TypeExtends> ::= <DynamicArray>
+               |  <FunctionInterface>
+
+<TypeDef> ::= <PrivatePublic> 'type' Identifier 'extends' <TypeExtends> ';'
+
+<Preprocessor> ::= PreprocessorLine
+
+<LibraryMember> ::= <GlobalVariableDeclaration>
+                |  <Function>
+                |  <Struct>
+                |  <Module>
+                |  <Interface>
+                |  <TypeDef>
+                |  <Preprocessor>
+                |  <LibraryPPBlock>
+
+<LibraryMembers> ::= <LibraryMember> <LibraryMembers>
+               |
+        
+<Library> ::= 'library' Identifier <LibraryRequirements> '{' <LibraryMembers> '}'
+
+<Zinc> ::= <Library> <Zinc>
+             |  <Preprocessor> <Zinc>
+             |
+
+<LibraryPPBlock> ::= <PrivatePublic> '{' <LibraryMembers> '}'
+<StructPPBlock> ::= <PrivatePublic> '{' <StructBody> '}'
+<InterfacePPBlock> ::= <PrivatePublic> '{' <InterfaceBody> '}'
+

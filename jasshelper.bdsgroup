@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<PersonalityInfo>
+		<Option>
+			<Option Name="Personality">Default.Personality</Option>
+			<Option Name="ProjectType"></Option>
+			<Option Name="Version">1.0</Option>
+			<Option Name="GUID">{6C29ADBC-9FF7-4FDC-A7E7-3BE0B49AFEAB}</Option>
+		</Option>
+	</PersonalityInfo>
+	<Default.Personality>  <Projects>
+      <Projects Name="jasshelperdll.dll">jasshelperdll.bdsproj</Projects>
+      <Projects Name="consolejasser.exe">consolejasser.bdsproj</Projects>
+      <Projects Name="jasshelperinstaller.exe">jasshelperinstaller.bdsproj</Projects>
+      <Projects Name="clijasshelper.exe">clijasshelper.bdsproj</Projects>
+      <Projects Name="grimoirecaller.exe">grimoirecaller.bdsproj</Projects>
+      <Projects Name="grimoirejasshelper.exe">..\delphi projects\jasser\grimoirejasshelper.bdsproj</Projects>
+      <Projects Name="Targets">jasshelperdll.dll consolejasser.exe jasshelperinstaller.exe clijasshelper.exe grimoirecaller.exe grimoirejasshelper.exe</Projects>
+    </Projects>
+    <Dependencies/>
+  </Default.Personality>
+</BorlandProject>

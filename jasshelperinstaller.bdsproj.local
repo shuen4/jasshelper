@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2006/10/30 09:02:38.109.pas,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\Unit3.pas=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\installer.pas</Transaction>
+    <Transaction>2006/10/30 09:02:38.109.dfm,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\Unit3.dfm=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\installer.dfm</Transaction>
+    <Transaction>2006/10/30 09:02:42.171.bdsproj,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\Project1.bdsproj=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\jasshelperinstaller.bdsproj</Transaction>
+  </Transactions>
+</BorlandProject>

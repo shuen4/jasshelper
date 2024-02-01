@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2006/11/23 00:39:22.484.pas,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\Unit4.pas=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\grimoirecompiler.pas</Transaction>
+    <Transaction>2006/11/23 00:39:22.500.dfm,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\Unit4.dfm=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\grimoirecompiler.dfm</Transaction>
+    <Transaction>2006/11/23 00:39:44.546.bdsproj,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\Project2.bdsproj=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\grimoirejasshelper.bdsproj</Transaction>
+    <Transaction>2006/11/23 01:05:29.890.bdsproj,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\grimoirejasshelper.bdsproj=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\grimoirejasshelper.bdsproj</Transaction>
+    <Transaction>2006/11/23 01:05:40.593.pas,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\grimoirecompiler.pas=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\grimoirecompiler.pas</Transaction>
+    <Transaction>2006/11/23 01:05:40.593.dfm,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\grimoirecompiler.dfm=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\grimoirecompiler.dfm</Transaction>
+    <Transaction>2006/12/01 23:27:44.500.pas,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\Unit5.pas=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\progress.pas</Transaction>
+    <Transaction>2006/12/01 23:27:44.500.dfm,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\Unit5.dfm=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\progress.dfm</Transaction>
+    <Transaction>2006/12/16 00:02:11.412.pas,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\Unit1.pas=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\storm.pas</Transaction>
+    <Transaction>2007/01/03 22:54:03.453.pas,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\Unit6.pas=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\grimjhconfp.pas</Transaction>
+    <Transaction>2007/01/03 22:54:03.453.dfm,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\Unit6.dfm=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\grimjhconfp.dfm</Transaction>
+    <Transaction>2007/01/09 22:38:26.000.pas,C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\Unit1.pas=C:\Documents and Settings\uvx\Mis documentos\Borland Studio Projects\jasser\slk.pas</Transaction>
+    <Transaction>2009/04/03 21:46:03.775.pas,X:\jasser\jasshelperconfigfile.pas=</Transaction>
+    <Transaction>2009/04/03 21:46:49.535.pas,X:\jasser\jasshelperconfigfile.pas=</Transaction>
+  </Transactions>
+</BorlandProject>
