@@ -913,7 +913,8 @@ begin
     end;
 
     if(s[a]='"') then begin
-        ctr:=false;
+        ctr:=false;        
+        a:=a+1;
         while(a<b) do begin
             if(ctr) then ctr:=false
             else if(s[a]='\') then ctr:=true
@@ -11701,7 +11702,9 @@ begin
                 end;
             end;
 
-         end else  i:=i+1;
+         end else if(s[i]='''') or (s[i]='"') then begin
+            SkipString(s, i, i + 2050);
+         end else i:=i+1;
 
      end;
      Result:=Result+Copy(s,k,b-k+1);

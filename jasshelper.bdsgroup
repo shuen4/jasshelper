@@ -14,7 +14,7 @@
       <Projects Name="jasshelperinstaller.exe">jasshelperinstaller.bdsproj</Projects>
       <Projects Name="clijasshelper.exe">clijasshelper.bdsproj</Projects>
       <Projects Name="grimoirecaller.exe">grimoirecaller.bdsproj</Projects>
-      <Projects Name="grimoirejasshelper.exe">..\delphi projects\jasser\grimoirejasshelper.bdsproj</Projects>
+      <Projects Name="grimoirejasshelper.exe">grimoirejasshelper.bdsproj</Projects>
       <Projects Name="Targets">jasshelperdll.dll consolejasser.exe jasshelperinstaller.exe clijasshelper.exe grimoirecaller.exe grimoirejasshelper.exe</Projects>
     </Projects>
     <Dependencies/>
