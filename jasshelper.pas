@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.2.B.1';
+const VERSION:String = '0.A.3.0';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -66,8 +66,6 @@ type TDynamicIntegerArray = array of integer;
 
    end;
 
-   const JASS_ARRAY_SIZE=8191;
-   const VJASS_MAX_ARRAY_INDEXES = 409550;
    const JASS_ARRAYS_BEFORE_SPLIT=1;
    const EXTERNAL_SIZE_LIMIT=1000;
 
@@ -286,6 +284,8 @@ var
   ZINC_MODE:boolean=false;
   MACROMODE:boolean=false;
   DEBUG_MODE:boolean=false;
+  JASS_ARRAY_SIZE:integer=0;
+  VJASS_MAX_ARRAY_INDEXES:integer=0;
 
 const UPDATEVALUE=100;
 
@@ -355,6 +355,7 @@ procedure buildIniFunctionActions(var output:string);
 
 
 function translateDotMethod(const obj:string; const memb:string; const args:string; styp:Tvtype; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromsuper:boolean=false; const evaluate:boolean=false ):boolean;
+function TryStrToIntX(const s:string;var x:integer):boolean;
 procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:string; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:string; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
     procedure generateMultiArrayPicker(const namepref:string; const namesuf:string; const indexspace:integer; const index:string; const indent:integer; const commandprefix:string; const commandsufix:string; var outs:string);
 
@@ -2511,7 +2512,10 @@ begin
        if( jasshelper.BLIZZARDJ <> '') then begin
            JassLib.parseFile(jasshelper.BLIZZARDJ);
        end;
-
+       if (JASS_ARRAY_SIZE = 0) then
+           // default to 8191
+           JASS_ARRAY_SIZE := 8191;
+       VJASS_MAX_ARRAY_INDEXES := JASS_ARRAY_SIZE * 50;
     except
         on e:JassLibException do begin
             raise Exception.Create(e.msg );

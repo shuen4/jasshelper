@@ -128,9 +128,35 @@ begin
 
 end;
 
-procedure ParseVariableLine( const s:string);
+procedure ParseVariableLine( const line:string);
+var
+    nextStartPos:integer;
+    s:string;
 begin
-   //we really don't need this yet, do we?
+    // try to find out JASS_MAX_ARRAY_SIZE (it should be safe if we only check the first occurrence since more than one is a syntax error)
+    // although the script may have JASS_ARRAY_SIZE with value 0 but who cares
+    if (JassHelper.JASS_ARRAY_SIZE <> 0) then
+        exit;
+    nextStartPos:=1;
+    // constant integer JASS_MAX_ARRAY_SIZE = value
+    GetLineToken(line,s,nextStartPos,nextStartPos);
+    if (s = 'constant') then
+        GetLineToken(line,s,nextStartPos,nextStartPos);
+    if (s <> 'integer') then
+        exit;
+    GetLineToken(line,s,nextStartPos,nextStartPos);
+    if (s <> 'JASS_MAX_ARRAY_SIZE') then
+        exit;
+    {
+    '=' is in SEPARATORS and will ignore by GetLineToken
+    GetLineToken(line,s,nextStartPos,nextStartPos);
+    if (s <> '=') then
+        exit;
+    }
+    GetLineToken(line,s,nextStartPos,nextStartPos);
+    if (not TryStrToIntX(s, nextStartPos{this variable is no longer used, so just use it for other usage})) then
+        exit;
+    JassHelper.JASS_ARRAY_SIZE := nextStartPos - 1;
 end;
 procedure ParseTypeLine( const s:string);
 begin
@@ -223,8 +249,11 @@ begin
         if(interf<>nil) and (i mod 1000 = 0) then
             interf.ProPosition(i);
         GetLineWord(input[i],word,x);
-        if ( (word <> '') and (word[1]<>'/') ) then begin
-            if(glob) then begin
+        if ( (word <> '') and (word[1]<>'/') and (word[2]<>'/') ) then begin
+            // i don't think we need to check syntax since no one except testing will pass an invalid script
+            if (word = 'globals') then
+                glob := true
+            else if(glob) then begin
                 if( word = 'endglobals') then glob:=false
                 else ParseVariableLine(input[i]);
             end else if (word ='type') then begin
