@@ -12093,9 +12093,9 @@ period:=0;
     i:=0;
     globals:=false;
     endglobals := 0;
-	inFunction := false;
-	lastValidLine := 0;
-	lastReturnLine := 0;
+    inFunction := false;
+    lastValidLine := 0;
+    lastReturnLine := 0;
     while(i<ln) do begin
         if(Interf<>nil) and (i>=nextperiod) then begin
             Interf.ProPosition(i);
@@ -12116,7 +12116,7 @@ period:=0;
                 if (lastValidLine <> lastReturnLine) and (generatedNull <> '') then
                     input[i] := '//JASSHelper null local processed: ' + input[i] + #13#10 + generatedNull + 'endfunction';
                 inFunction := false;
-				SetLength(localVariable, 0);
+                SetLength(localVariable, 0);
             end else if (word = 'return') and (inFunction) then begin
                 lastReturnLine := i;
                 if (generatedNull <> '') then begin
@@ -12137,7 +12137,7 @@ period:=0;
                     if (not compareLineWord('array',input[i],k,j)) then begin
                         GetLineWord(input[i], word, j, j);
                         generatedNull := 'set '+ word + ' = null'#13#10 + generatedNull;
-						SetLength(localVariable, Length(localVariable) + 1);
+                        SetLength(localVariable, Length(localVariable) + 1);
                         localVariable[High(localVariable)] := word;
                     end else begin
                         // TODO: handle array
