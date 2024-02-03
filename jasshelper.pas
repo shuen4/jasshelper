@@ -329,6 +329,9 @@ procedure DoJASSerReturnFixMagicF(const f1:string; const f2:string);
 procedure DoJASSerShadowHelperMagicS(sinput:string; var Result:string);
 procedure DoJASSerShadowHelperMagicF(const f1:string; const f2:string);
 
+procedure DoJASSerNullLocalMagicS(sinput:string; var Result:string);
+procedure DoJASSerNullLocalMagicF(const f1:string; const f2:string);
+
 
 procedure LoadFile(const FileName: TFileName; var result:string);
 procedure SaveFile(const FileName: TFileName; const result:string);
@@ -12028,6 +12031,256 @@ begin
     try
         LoadFile(f1,i);
         DoJASSerInlineMagicS(i,o);
+
+        AssignFile(ff2,f2);bff2:=true;
+
+        filemode:=fmOpenWrite;
+        Rewrite(ff2);
+        Write(ff2,o);
+    finally
+
+        if(bff2) then Close(ff2);
+    end;
+end;
+
+function ArrayStringContains(const arr: array of string; const value: string): Boolean;
+var
+    i: Integer;
+begin
+    for i := Low(arr) to High(arr) do begin
+        if (arr[i] = value) then begin
+            Result := True;
+            Exit;
+        end;
+    end;
+    Result := False;
+end;
+
+procedure NullLocalDo( var Result:string);
+var
+    i, j, k, period, nextperiod, endglobals, lastValidLine, lastReturnLine: integer;
+    word, tmpWord: string;
+    globals: boolean;
+    inFunction: boolean;
+    returnHandleType: array of string;
+    generatedNull, currentFuncReturnType: string;
+
+begin
+nextperiod:=0;
+period:=0;
+
+    InlineFuncHash:=TStringHash.Create;
+    NoStateFunctionsHash:=TStringHash.Create;
+    InlineInitExceptionsHash;
+    InlineResizeArrays(5);
+    InlineFuncN:=0;
+
+ try
+    if (Interf<>nil) then begin
+        Interf.ProMax(ln);
+        Interf.ProPosition(0);
+        Interf.ProStatus('NullLocal: Processing...');
+        period:= ln div UPDATEVALUE +1 ;
+        nextperiod:=period;
+    end;
+
+    Result:='';
+    // final script rumble, normalized! There are only two things we can expect, the first globals block
+    // and a bunch of functions, everything else is probably a syntax error, but it might be a better idea
+    // to let PJASS handle it, so we try to ignore it.
+
+    //by this time, unclosed function/globals errors should have been caught by libraries or struct parser
+    i:=0;
+    globals:=false;
+    endglobals := 0;
+	inFunction := false;
+	lastValidLine := 0;
+	lastReturnLine := 0;
+    while(i<ln) do begin
+        if(Interf<>nil) and (i>=nextperiod) then begin
+            Interf.ProPosition(i);
+            nextperiod:=i+period;
+
+        end;
+
+        if(not IsWhitespace(input[i])) then begin
+            GetLineWord(input[i],word,j);
+            if(globals) then begin
+                if(word='endglobals') then begin
+                    globals:=false;
+                    endglobals:=i;
+                end
+            end else if(word='globals') then
+                globals:=true
+            else if (word = 'endfunction') and (inFunction) then begin
+                if (lastValidLine <> lastReturnLine) and (generatedNull <> '') then
+                    input[i] := '//JASSHelper null local processed: ' + input[i] + #13#10 + generatedNull + 'endfunction';
+                inFunction := false;
+            end else if (word = 'return') and (inFunction) then begin
+                lastReturnLine := i;
+                if (generatedNull <> '') then begin
+                    GetLineWord(input[i], word, j, j);
+                    tmpWord := input[i];
+                    input[i] := '//JASSHelper null local processed: ' + input[i];
+                    if (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
+                         input[i] := input[i] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word;
+                    input[i] := input[i] + #13#10 + generatedNull;
+                    if (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
+                        input[i] := input[i] + 'return sn__' + currentFuncReturnType
+                    else
+                        input[i] := input[i] + tmpWord;
+                end
+            end else if (word = 'local') and (inFunction) then begin
+                GetLineWord(input[i], word, j, j);
+                if (word <> 'integer') and (word <> 'real') and (word <> 'boolean') and (word <> 'string') and (word <> 'code') then begin
+                    if (not compareLineWord('array',input[i],k,j)) then begin
+                        GetLineWord(input[i], word, j, j);
+                        generatedNull := 'set '+ word + ' = null'#13#10 + generatedNull;
+                    end else begin
+                        // TODO: handle array
+                    end
+                end
+            end
+            else begin
+                //[constant] function?
+                if((word='constant') and (compareLineWord('function',input[i],j,j))) or (word='function') then begin
+                    inFunction := true;
+                    generatedNull := '';
+                    GetLineWord(input[i], word, j, j);
+                    GetLineWord(input[i], word, j, j);
+                    if (word = 'takes') then begin
+                        GetLineWord(input[i], word, j, j);
+                        if (word = 'nothing') then begin
+                            GetLineWord(input[i], word, j, j);
+                        end else begin
+                            while (word <> 'returns') do begin
+                                GetLineToken(input[i], word, j, j);
+                                GetLineToken(input[i], word, j, j);
+                            end;
+                        end;
+                        GetLineWord(input[i], word, j, j);
+                        currentFuncReturnType := word;
+                        if (not ArrayStringContains(returnHandleType , word)) and (word <> 'nothing') and (word <> 'integer') and (word <> 'real') and (word <> 'boolean') and (word <> 'string') and (word <> 'code') then begin
+                            SetLength(returnHandleType, Length(returnHandleType) + 1);
+                            returnHandleType[High(returnHandleType)] := word;
+                        end
+                    end
+                end;
+            end;
+            lastValidLine := i;
+        end;
+
+        i:=i+1;
+    end;
+    for i := Low(returnHandleType) to High(returnHandleType) do begin
+        input[endglobals] := returnHandleType[i] + ' sn__' + returnHandleType[i] + #13#10 + input[endglobals];
+    end;
+    input[endglobals] := '//JASSHelper null local generated globals:'#13#10 + input[endglobals];
+    
+    if (Interf<>nil) then begin
+        Interf.ProMax(ln);
+        Interf.ProPosition(0);
+        Interf.ProStatus('NullLocal: Writing...');
+        period:= ln div UPDATEVALUE +1 ;
+        nextperiod:=period;
+    end;
+    
+    i:=0;
+    while(i<ln) do begin
+        if(Interf<>nil) and (i>=nextperiod) then begin
+            Interf.ProPosition(i);
+            nextperiod:=i+period;
+        end;
+        
+        SWriteLn(Result,input[i]);
+        i:=i+1;
+    end;
+    
+ finally
+     InlineFuncHash.Destroy;
+     NoStateFunctionsHash.Destroy;
+ end;
+
+
+end;
+
+procedure DoJASSerNullLocalMagicS(sinput:string; var Result:string);
+var i,L,eln,period,nextperiod,k:integer;
+begin
+
+    i:=1;L:=Length(sinput);
+    eln:=L div 50 + 1; //estimated ln
+    SetLength(input,eln);
+
+    Result:='ERROR';
+
+    period:=0;nextperiod:=0;
+
+    ln:=0;
+    k:=1;
+
+
+    if (Interf<>nil) then begin
+        Interf.ProMax(L);
+        Interf.ProPosition(0);
+        Interf.ProStatus('NullLocal: Loading script...');
+        period:= L div UPDATEVALUE +1 ;
+        nextperiod:=period;
+    end;
+
+
+
+    while (i<=L) do begin
+        if(Interf<>nil) then begin
+            if(i>=nextperiod) then begin
+                interf.ProPosition(i);
+                nextperiod:=i+period;
+            end;
+        end;
+        if (sinput[i]=#10) then begin
+            ln:=ln+1;
+            if (ln>eln) then begin
+                eln:=ln+((L-i) div 25)+1;
+                SetLength(input,eln);
+            end;
+            if ((i>1) and (sinput[i-1]=#13)) then begin
+                input[ln-1]:=Copy(sinput,k,i-1-k);
+                k:=i+1;
+            end else begin
+                input[ln-1]:=Copy(sinput,k,i-k);
+                k:=i+1;
+            end;
+        end;
+
+        i:=i+1;
+
+    end;
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
+
+    SetLength(offset,ln);
+    SetLength(textmacrotrace,ln);
+    for i := 0 to ln - 1 do begin
+        offset[i]:=0;
+        textmacrotrace[i]:=0;
+    end;
+
+
+        NullLocalDo(Result);
+
+
+end;
+
+procedure DoJASSerNullLocalMagicF(const f1:string;const f2:string);
+var
+   ff2:textfile;
+   bff2:boolean;
+   i,o:string;
+begin
+
+    bff2:=false;
+    try
+        LoadFile(f1,i);
+        DoJASSerNullLocalMagicS(i,o);
 
         AssignFile(ff2,f2);bff2:=true;
 

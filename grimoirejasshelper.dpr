@@ -68,7 +68,7 @@ FUNCTION GetProcessID(ExeName:STRING):DWORD;
    test:=Process32First(h,pe);
    WHILE test DO
     BEGIN
-//    MessageDlg(ExtractFileName(pe.szExeFile),mtWarning,[mbOK],0	);
+//    MessageDlg(ExtractFileName(pe.szExeFile),mtWarning,[mbOK],0   );
      IF (GetCurrentProcessId<>pe.th32ProcessID) and (ExtractFileName(pe.szExeFile)=ExeName) THEN GetProcessID:=pe.th32ProcessID;
      test:=Process32Next(h,pe);
     END;
@@ -335,7 +335,7 @@ begin
    if (WEWARLOCK_PATH='') then Exit; //it could be that the user wants to run wewarlock himself?
 
    if (not FileExists(WEWARLOCK_PATH)) then begin
-       MessageBox(0, pchar('File does not exist: '+WEWARLOCK_PATH), 'JASSHelper - Error' , MB_YESNOCANCEL	);
+       MessageBox(0, pchar('File does not exist: '+WEWARLOCK_PATH), 'JASSHelper - Error' , MB_YESNOCANCEL   );
    end;
 
 
@@ -371,7 +371,7 @@ begin
           result:=true;
       end else if i < 0 then begin
 
-         MessageBox(0, pchar('Unable to call : '+WEWARLOCK_PATH), 'Error' , MB_YESNOCANCEL	);
+         MessageBox(0, pchar('Unable to call : '+WEWARLOCK_PATH), 'Error' , MB_YESNOCANCEL  );
 
 
       end else begin
@@ -383,7 +383,7 @@ begin
 
     except
     on e:Exception do begin
-        MessageBox(0, pchar(e.Message), 'Error' , MB_YESNOCANCEL	);
+        MessageBox(0, pchar(e.Message), 'Error' , MB_YESNOCANCEL    );
         result:=true;
     end;
 
@@ -620,10 +620,11 @@ try
             jasshelper.DoJasserReturnFixMagicF('logs\currentmapscript.j',compiled);
             CopyFile(compiled,'logs\currentmapscript.j');
 
+            progress.StatusMsg('calling Jass syntax checker again ...');
             temi:= WinExec.StartApp(
-             JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
-             JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
-             GetCurrentDir,0,f3,'logs\pjass.txt',f2);
+                JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
+                JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
+                GetCurrentDir,0,f3,'logs\pjass.txt',f2);
 
             if(temi<>0) then begin
                progress.StatusMsg('Found errors, please wait...');
@@ -639,39 +640,58 @@ try
             jasshelper.DoJasserShadowHelperMagicF('logs\currentmapscript.j',compiled);
             CopyFile(compiled,'logs\currentmapscript.j');
 
+            progress.StatusMsg('calling Jass syntax checker again ...');
             temi:= WinExec.StartApp(
-             JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
-             JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
-             GetCurrentDir,0,f3,'logs\pjass.txt',f2);
+                JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
+                JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
+                GetCurrentDir,0,f3,'logs\pjass.txt',f2);
 
             if(temi<>0) then begin
-               progress.StatusMsg('Found errors, please wait...');
-               dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
-               halt(1);
+                progress.StatusMsg('Found errors, please wait...');
+                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                halt(1);
             end;
 
 
         end;
 
-            if (not debug) and (not noopt) then begin
-                 progress.StatusMsg('copying ...');
-                 CopyFile(compiled,'logs\currentmapscript.j');
-                 jasshelper.DoJasserInlineMagicF('logs\currentmapscript.j',compiled);
-                 CopyFile(compiled,'logs\currentmapscript.j');
+        if (not debug) and (not noopt) then begin
+            progress.StatusMsg('copying ...');
+            CopyFile(compiled,'logs\currentmapscript.j');
+            jasshelper.DoJasserInlineMagicF('logs\currentmapscript.j',compiled);
+            CopyFile(compiled,'logs\currentmapscript.j');
 
-                 progress.StatusMsg('calling Jass syntax checker again ...');
-                 temi:= WinExec.StartApp(
-                 JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
-                 JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
-                 GetCurrentDir,0,f3,'logs\pjass.txt',f2);
+            progress.StatusMsg('calling Jass syntax checker again ...');
+            temi:= WinExec.StartApp(
+                JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
+                JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
+                GetCurrentDir,0,f3,'logs\pjass.txt',f2);
 
-                 if(temi<>0) then begin
-                     progress.StatusMsg('Found errors, please wait...');
-                     dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
-                     halt(1);
-
-                 end;
+            if(temi<>0) then begin
+                progress.StatusMsg('Found errors, please wait...');
+                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                halt(1);
             end;
+             
+            // should this use another command line flag ?
+            progress.StatusMsg('copying ...');
+            CopyFile(compiled,'logs\currentmapscript.j');
+            jasshelper.DoJasserNullLocalMagicF('logs\currentmapscript.j',compiled);
+            CopyFile(compiled,'logs\currentmapscript.j');
+
+            progress.StatusMsg('calling Jass syntax checker again ...');
+            temi:= WinExec.StartApp(
+                JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
+                JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
+                GetCurrentDir,0,f3,'logs\pjass.txt',f2);
+
+            if(temi<>0) then begin
+                progress.StatusMsg('Found errors, please wait...');
+                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                halt(1);
+            end;
+             
+        end;
 
      end;
 
