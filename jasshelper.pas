@@ -12062,7 +12062,7 @@ var
     word, tmpWord: string;
     globals: boolean;
     inFunction: boolean;
-    returnHandleType: array of string;
+    returnHandleType, localVariable: array of string;
     generatedNull, currentFuncReturnType: string;
 
 begin
@@ -12116,16 +12116,17 @@ period:=0;
                 if (lastValidLine <> lastReturnLine) and (generatedNull <> '') then
                     input[i] := '//JASSHelper null local processed: ' + input[i] + #13#10 + generatedNull + 'endfunction';
                 inFunction := false;
+				SetLength(localVariable, 0);
             end else if (word = 'return') and (inFunction) then begin
                 lastReturnLine := i;
                 if (generatedNull <> '') then begin
                     GetLineWord(input[i], word, j, j);
                     tmpWord := input[i];
                     input[i] := '//JASSHelper null local processed: ' + input[i];
-                    if (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
+                    if (ArrayStringContains(localVariable, word)) and (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
                          input[i] := input[i] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word;
                     input[i] := input[i] + #13#10 + generatedNull;
-                    if (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
+                    if (ArrayStringContains(localVariable, word)) and (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
                         input[i] := input[i] + 'return sn__' + currentFuncReturnType
                     else
                         input[i] := input[i] + tmpWord;
@@ -12136,6 +12137,8 @@ period:=0;
                     if (not compareLineWord('array',input[i],k,j)) then begin
                         GetLineWord(input[i], word, j, j);
                         generatedNull := 'set '+ word + ' = null'#13#10 + generatedNull;
+						SetLength(localVariable, Length(localVariable) + 1);
+                        localVariable[High(localVariable)] := word;
                     end else begin
                         // TODO: handle array
                     end
