@@ -12135,7 +12135,7 @@ period:=0;
                 GetLineWord(input[i], word, j, j);
                 if (word <> 'integer') and (word <> 'real') and (word <> 'boolean') and (word <> 'string') and (word <> 'code') then begin
                     if (not compareLineWord('array',input[i],k,j)) then begin
-                        GetLineWord(input[i], word, j, j);
+                        GetLineToken(input[i], word, j, j);
                         generatedNull := 'set '+ word + ' = null'#13#10 + generatedNull;
                         SetLength(localVariable, Length(localVariable) + 1);
                         localVariable[High(localVariable)] := word;

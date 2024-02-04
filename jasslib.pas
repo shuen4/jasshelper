@@ -149,6 +149,7 @@ begin
         exit;
     {
     '=' is in SEPARATORS and will ignore by GetLineToken
+	we dont use GetLineWord because it fails if there are no spaces before/after "="
     GetLineToken(line,s,nextStartPos,nextStartPos);
     if (s <> '=') then
         exit;
