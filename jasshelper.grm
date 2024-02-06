@@ -4,11 +4,12 @@
 
 
 "Name"    = 'JassHelper' 
-"Version" = '2000'
+"Version" = '2001'
 "Author"  = 'Vexorian' 
 "About"   = 'This is a grammar for a vJass extended Jass line'
 
 ! 2000: revamp to do correct operator precedence
+! 2001: add % operator
 
 "Case Sensitive" = True
 "Start Symbol"   = <Line>
@@ -119,11 +120,13 @@ NumberLiteral = {Number}+|{Number}+'.'{Number}*|{Number}*'.'{Number}+
                |  <Division>
                |  <Expression6>
 
+<Modulo>      ::= <Expression5> '%' <Expression4>
 <Addition>    ::= <Expression5> '+' <Expression4>
 <Subtraction> ::= <Expression5> '-' <Expression4>
 
 <Expression4> ::= <Addition>
                |  <Subtraction>
+               |  <Modulo>
                |  <Expression5>
 
 <GreaterThan>      ::= <Expression4> '>'  <Expression4>
