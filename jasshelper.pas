@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.5.1';
+const VERSION:String = '0.A.5.2';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -12051,7 +12051,7 @@ end;
 
 function ArrayStringContains(const arr: array of string; const value: string): Boolean;
 var
-    i: Integer;
+    i: integer;
 begin
     for i := Low(arr) to High(arr) do begin
         if (arr[i] = value) then begin
@@ -12062,15 +12062,129 @@ begin
     Result := False;
 end;
 
+function ArrayIntegerContains(const arr: array of integer; const value: integer): Boolean;
+var
+    i: integer;
+begin
+    for i := Low(arr) to High(arr) do begin
+        if (arr[i] = value) then begin
+            Result := True;
+            Exit;
+        end;
+    end;
+    Result := False;
+end;
+
+type TLocalArrayVariable = class
+public
+    name: string;
+    usedIndex: array of integer;
+    constructor Create(varName: string);
+end;
+type TLocalArrayVariableStorage = class
+public
+    arr: array of TLocalArrayVariable;
+    function GenerateNull(): string;
+    function Exist(const varName: string): boolean;
+    procedure Add(const varName: string);
+    procedure AddIndex(const varName: string; index: integer);
+    procedure Clear();
+end;
+
+constructor TLocalArrayVariable.Create(varName: string);
+begin
+    inherited Create;
+    name := varName;
+end;
+function TLocalArrayVariableStorage.GenerateNull(): string;
+var
+    i,j: integer;
+    ret: string;
+begin
+    ret := '';
+    for i := Low(arr) to High(arr) do begin
+        for j := Low(arr[i].usedIndex) to High(arr[i].usedIndex) do begin
+            ret := 'set ' + arr[i].name + '[' + IntToStr(arr[i].usedIndex[j]) + '] = null'#13#10 + ret;
+        end;
+    end;
+    Result := ret;
+end;
+function TLocalArrayVariableStorage.Exist(const varName: string): boolean;
+var
+    i: integer;
+begin
+    for i := Low(arr) to High(arr) do begin
+        if (arr[i].name = varName) then begin
+            Result := true;
+            exit;
+        end
+    end;
+    Result := false;
+    exit;
+end;
+procedure TLocalArrayVariableStorage.add(const varName: string);
+begin
+    SetLength(arr, Length(arr) + 1);
+    arr[High(arr)] := TLocalArrayVariable.Create(varName);
+end;
+procedure TLocalArrayVariableStorage.AddIndex(const varName: string; index: integer);
+var
+    i: integer;
+begin
+    for i := Low(arr) to High(arr) do begin
+        if (arr[i].name = varName) then begin
+            // check duplicate
+            if (not ArrayIntegerContains(arr[i].usedIndex, index)) then begin
+                SetLength(arr[i].usedIndex, Length(arr[i].usedIndex) + 1);
+                arr[i].usedIndex[High(arr[i].usedIndex)] := index;
+            end;
+        end;
+    end;
+end;
+procedure TLocalArrayVariableStorage.Clear();
+begin
+    SetLength(arr, 0);
+end;
+
+// snip prefix whitespace, suffix whitespace and comment
+function SnipUselessWhitespace(s: string): string;
+var
+    i, subStringStart, subStringEnd: integer;
+begin
+    i := 0;
+    subStringStart := 0;
+    subStringEnd := 0;
+    for i := 1 to Length(s) do begin
+        if (not (s[i] in WHITESPACE_SEPARATORS)) then begin
+            subStringStart := i;
+            break;
+        end;
+    end;
+    for i := 1 to Length(s) do begin
+        if ((i + 1 >= Length(s)) and (s[i] = '/') and (s[i + 1] = '/')) then begin
+            subStringEnd := i;
+            break;
+        end;
+        if (not (s[i] in WHITESPACE_SEPARATORS)) then begin
+            subStringEnd := i;
+        end;
+    end;
+    if (subStringStart >= subStringEnd) then begin
+        Result := Copy(s, subStringStart, subStringEnd - subStringStart + 1);
+    end else begin
+        Result := ''
+    end;
+end;
+
 procedure NullLocalDo( var Result:string);
 var
-    i, j, k, period, nextperiod, endglobals, lastValidLine, lastReturnLine: integer;
-    word, tmpWord: string;
-    globals: boolean;
-    inFunction: boolean;
+    i, j, k, period, nextperiod, endglobals, lastValidLine, arrayIndex: integer;
+    word, origLine, arrayIndexStr: string;
+    globals, inFunction, cannotResolveArrayIndex: boolean;
     returnHandleType, localVariable: array of string;
     generatedNull, currentFuncReturnType: string;
-
+    localArrayVariable: TLocalArrayVariableStorage;
+    savedReturnLoc: array of integer;
 begin
 nextperiod:=0;
 period:=0;
@@ -12101,7 +12215,9 @@ period:=0;
     endglobals := 0;
     inFunction := false;
     lastValidLine := 0;
-    lastReturnLine := 0;
+    cannotResolveArrayIndex := false;
+    localArrayVariable := TLocalArrayVariableStorage.Create;
+    
     while(i<ln) do begin
         if(Interf<>nil) and (i>=nextperiod) then begin
             Interf.ProPosition(i);
@@ -12119,24 +12235,43 @@ period:=0;
             end else if(word='globals') then
                 globals:=true
             else if (word = 'endfunction') and (inFunction) then begin
-                if (lastValidLine <> lastReturnLine) and (generatedNull <> '') then
-                    input[i] := '//JASSHelper null local processed: ' + input[i] + #13#10 + generatedNull + 'endfunction';
-                inFunction := false;
-                SetLength(localVariable, 0);
-            end else if (word = 'return') and (inFunction) then begin
-                lastReturnLine := i;
+                generatedNull := localArrayVariable.GenerateNull() + generatedNull;
                 if (generatedNull <> '') then begin
-                    GetLineWord(input[i], word, j, j);
-                    tmpWord := input[i];
-                    input[i] := '//JASSHelper null local processed: ' + input[i];
-                    if (ArrayStringContains(localVariable, word) and ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then
-                         input[i] := input[i] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word;
-                    input[i] := input[i] + #13#10 + generatedNull;
-                    if (ArrayStringContains(localVariable, word) and ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then
-                        input[i] := input[i] + 'return sn__' + currentFuncReturnType
-                    else
-                        input[i] := input[i] + tmpWord;
-                end
+                    for k := Low(savedReturnLoc) to High(savedReturnLoc) do begin
+                        GetLineToken(input[savedReturnLoc[k]], word, j, j);
+                        origLine := input[savedReturnLoc[k]];
+                        input[savedReturnLoc[k]] := '//JASSHelper null local processed: ' + origLine;
+                        if (ArrayStringContains(localVariable, word) and ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then begin
+                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word;
+                        end else if (localArrayVariable.Exist(word)) then begin
+                            arrayIndexStr := SnipUselessWhitespace(Copy(origLine, j, Length(origLine) - j));
+                            arrayIndexStr := Copy(arrayIndexStr, 2, Length(arrayIndexStr) - 2); // remove []
+                            arrayIndexStr := SnipUselessWhitespace(arrayIndexStr);
+                            if (not TryStrToIntX(arrayIndexStr, arrayIndex)) then begin
+                                // cannot convert to int
+                                // example: S2I("123") , varName, (123) <-- i have no idea how to get this value without messing up
+                                cannotResolveArrayIndex := true;
+                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn___arrayIndex = ' + arrayIndexStr;
+                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word + '[sn___arrayIndex]';
+                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set ' + word + '[sn___arrayIndex] = null';
+                            end else begin
+                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word + '[' + IntToStr(arrayIndex) + ']';
+                            end;
+                        end;
+                        input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
+                        if (ArrayStringContains(localVariable, word) and ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then begin
+                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
+                        end else begin
+                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + origLine;
+                        end;
+                    end;
+                    if ((Length(savedReturnLoc) = 0) or (savedReturnLoc[High(savedReturnLoc)] <> lastValidLine)) then
+                        input[i] := '//JASSHelper null local processed: ' + input[i] + #13#10 + generatedNull + 'endfunction';
+                end;
+                inFunction := false;
+            end else if (word = 'return') and (inFunction) then begin
+                SetLength(savedReturnLoc, Length(savedReturnLoc) + 1);
+                savedReturnLoc[High(savedReturnLoc)] := i;
             end else if (word = 'local') and (inFunction) then begin
                 GetLineWord(input[i], word, j, j);
                 if (ArrayStringContains(reference_counted_obj, word)) then begin
@@ -12146,16 +12281,45 @@ period:=0;
                         SetLength(localVariable, Length(localVariable) + 1);
                         localVariable[High(localVariable)] := word;
                     end else begin
-                        // TODO: handle array
-                        // probably handle explicit used array index only
+                        // handle explicit used array index only
+                        GetLineToken(input[i], word, j, j); // array
+                        GetLineToken(input[i], word, j, j);
+                        localArrayVariable.Add(word);
                     end
                 end
-            end
-            else begin
+            end else if (word = 'set') and (inFunction) then begin
+				GetLineToken(input[i], word, j, j);
+				if (localArrayVariable.Exist(word)) then begin
+					// probably array
+					origLine{tmp} := input[i][j];
+					while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+						j := j + 1;
+						origLine := input[i][j];
+					end;
+					if (origLine[1] = '[') then begin
+						// array
+						GetLineToken(input[i], arrayIndexStr, j, j);
+                        if (TryStrToIntX(arrayIndexStr, arrayIndex)) then begin
+							// array index is valid integer
+							origLine := input[i][j];
+							while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+								j := j + 1;
+								origLine := input[i][j];
+							end;
+							if (origLine[1] = ']') then begin
+								localArrayVariable.AddIndex(word, arrayIndex);
+							end;
+						end;
+					end;
+				end;
+            end else begin
                 //[constant] function?
                 if((word='constant') and (compareLineWord('function',input[i],j,j))) or (word='function') then begin
                     inFunction := true;
                     generatedNull := '';
+                    localArrayVariable.Clear();
+                    SetLength(savedReturnLoc, 0);
+                    SetLength(localVariable, 0);
                     GetLineWord(input[i], word, j, j);
                     GetLineWord(input[i], word, j, j);
                     if (word = 'takes') then begin
@@ -12184,6 +12348,9 @@ period:=0;
     end;
     for i := Low(returnHandleType) to High(returnHandleType) do begin
         input[endglobals] := returnHandleType[i] + ' sn__' + returnHandleType[i] + #13#10 + input[endglobals];
+    end;
+    if (cannotResolveArrayIndex) then begin
+        input[endglobals] := 'integer sn___arrayIndex'#13#10 + input[endglobals];
     end;
     input[endglobals] := '//JASSHelper null local generated globals:'#13#10 + input[endglobals];
     
