@@ -159,9 +159,31 @@ begin
         exit;
     JassHelper.JASS_ARRAY_SIZE := nextStartPos - 1;
 end;
-procedure ParseTypeLine( const s:string);
+procedure ParseTypeLine( const line:string);
+var
+    nextStartPos:integer;
+    typename, parentname {used as a temporary variable until actual use}:string;
 begin
-   //we really don't need this yet, do we?
+    nextStartPos:=1;
+    GetLineToken(line,typename,nextStartPos,nextStartPos);
+    if (typename <> 'type') then
+        exit;
+    GetLineToken(line,typename,nextStartPos,nextStartPos);
+    GetLineToken(line,parentname,nextStartPos,nextStartPos);
+    if (parentname <> 'extends') then
+        exit;
+    GetLineToken(line,parentname,nextStartPos,nextStartPos);
+    
+    // just in case
+    if (not ArrayStringContains(JassHelper.all_handle, parentname)) then
+        exit;
+    
+    if ((typename = 'agent'{don't really know how to find it, so just hardcoding here}) or ArrayStringContains(JassHelper.reference_counted_obj, parentname)) then begin
+        SetLength(JassHelper.reference_counted_obj, Length(JassHelper.reference_counted_obj) + 1);
+        JassHelper.reference_counted_obj[High(JassHelper.reference_counted_obj)] := typename;
+    end;
+    SetLength(JassHelper.all_handle, Length(JassHelper.all_handle) + 1);
+    JassHelper.all_handle[High(JassHelper.all_handle)] := typename;
 end;
 
 var

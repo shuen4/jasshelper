@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.5.0';
+const VERSION:String = '0.A.5.1';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -286,6 +286,7 @@ var
   DEBUG_MODE:boolean=false;
   JASS_ARRAY_SIZE:integer=0;
   VJASS_MAX_ARRAY_INDEXES:integer=0;
+  all_handle, reference_counted_obj:array of string;
 
 const UPDATEVALUE=100;
 
@@ -329,6 +330,7 @@ procedure DoJASSerReturnFixMagicF(const f1:string; const f2:string);
 procedure DoJASSerShadowHelperMagicS(sinput:string; var Result:string);
 procedure DoJASSerShadowHelperMagicF(const f1:string; const f2:string);
 
+function ArrayStringContains(const arr: array of string; const value: string): Boolean;
 procedure DoJASSerNullLocalMagicS(sinput:string; var Result:string);
 procedure DoJASSerNullLocalMagicF(const f1:string; const f2:string);
 
@@ -2508,17 +2510,21 @@ open2:boolean;
 begin
     DEBUG_MODE:=debug;
     try
-       JassLib.init;
-       if( jasshelper.COMMONJ <> '') then begin
-           JassLib.parseFile(jasshelper.COMMONJ);
-       end;
-       if( jasshelper.BLIZZARDJ <> '') then begin
-           JassLib.parseFile(jasshelper.BLIZZARDJ);
-       end;
-       if (JASS_ARRAY_SIZE = 0) then
-           // default to 8191
-           JASS_ARRAY_SIZE := 8191;
-       VJASS_MAX_ARRAY_INDEXES := JASS_ARRAY_SIZE * 50;
+        SetLength(all_handle, Length(all_handle) + 1);
+        all_handle[High(all_handle)] := 'handle';
+    
+        JassLib.init;
+        if( jasshelper.COMMONJ <> '') then begin
+            JassLib.parseFile(jasshelper.COMMONJ);
+        end;
+        if( jasshelper.BLIZZARDJ <> '') then begin
+            JassLib.parseFile(jasshelper.BLIZZARDJ);
+        end;
+        // should we just only parse from common.j ?
+        if (JASS_ARRAY_SIZE = 0) then
+            // default to 8191
+            JASS_ARRAY_SIZE := 8191;
+        VJASS_MAX_ARRAY_INDEXES := JASS_ARRAY_SIZE * 50;
     except
         on e:JassLibException do begin
             raise Exception.Create(e.msg );
@@ -12123,17 +12129,17 @@ period:=0;
                     GetLineWord(input[i], word, j, j);
                     tmpWord := input[i];
                     input[i] := '//JASSHelper null local processed: ' + input[i];
-                    if (ArrayStringContains(localVariable, word)) and (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
+                    if (ArrayStringContains(localVariable, word) and ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then
                          input[i] := input[i] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word;
                     input[i] := input[i] + #13#10 + generatedNull;
-                    if (ArrayStringContains(localVariable, word)) and (currentFuncReturnType <> 'nothing') and (currentFuncReturnType <> 'integer') and (currentFuncReturnType <> 'real') and (currentFuncReturnType <> 'boolean') and (currentFuncReturnType <> 'string') and (currentFuncReturnType <> 'code') then
+                    if (ArrayStringContains(localVariable, word) and ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then
                         input[i] := input[i] + 'return sn__' + currentFuncReturnType
                     else
                         input[i] := input[i] + tmpWord;
                 end
             end else if (word = 'local') and (inFunction) then begin
                 GetLineWord(input[i], word, j, j);
-                if (word <> 'integer') and (word <> 'real') and (word <> 'boolean') and (word <> 'string') and (word <> 'code') then begin
+                if (ArrayStringContains(reference_counted_obj, word)) then begin
                     if (not compareLineWord('array',input[i],k,j)) then begin
                         GetLineToken(input[i], word, j, j);
                         generatedNull := 'set '+ word + ' = null'#13#10 + generatedNull;
@@ -12141,6 +12147,7 @@ period:=0;
                         localVariable[High(localVariable)] := word;
                     end else begin
                         // TODO: handle array
+                        // probably handle explicit used array index only
                     end
                 end
             end
@@ -12163,7 +12170,7 @@ period:=0;
                         end;
                         GetLineWord(input[i], word, j, j);
                         currentFuncReturnType := word;
-                        if (not ArrayStringContains(returnHandleType , word)) and (word <> 'nothing') and (word <> 'integer') and (word <> 'real') and (word <> 'boolean') and (word <> 'string') and (word <> 'code') then begin
+                        if (not ArrayStringContains(returnHandleType , word)) and ArrayStringContains(reference_counted_obj, word) then begin
                             SetLength(returnHandleType, Length(returnHandleType) + 1);
                             returnHandleType[High(returnHandleType)] := word;
                         end
