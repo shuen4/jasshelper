@@ -539,7 +539,11 @@ try
 
 
      progress.StatusMsg('Checking tool existance...');
+	 {
+	 because sfmpq.dll is linked to the executable at compile time
+	 windows executable loader will help us to check sfmpq.dll
      if (not FileExists(JASSHELPER_PATH+'sfmpq.dll')) then raise Exception.CReate('Unable to find '+JASSHELPER_PATH+'sfmpq.dll');
+	 }
 
 
      if(not scriptmode) then

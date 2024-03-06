@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.6.0';
+const VERSION:String = '0.A.6.1';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
