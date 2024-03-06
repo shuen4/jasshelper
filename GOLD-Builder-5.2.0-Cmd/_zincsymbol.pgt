@@ -1,0 +1,24 @@
+##ID-CASE UPPERCASE
+##ID-SEPARATOR '_'
+##ID-SYMBOL-PREFIX 'SYMBOL'
+##ID-RULE-PREFIX 'RULE'
+unit ZincSymbols;
+
+interface
+
+type SymbolConstants = (
+##SYMBOLS
+##DELIMITER ','
+   %ID.Padded% = %Value.Padded%%Delimiter% (* %Description% *)
+##END-SYMBOLS
+);
+
+type RuleConstants = (
+##RULES
+##DELIMITER ','
+   %ID.Padded% = %Value.Padded%%Delimiter% (* %Description% *)
+##END-RULES
+);
+implementation
+
+end.

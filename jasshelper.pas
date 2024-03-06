@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.5.2';
+const VERSION:String = '0.A.6.0';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -5855,7 +5855,7 @@ begin
 
        end;
 
-       RULE_NOTHINGMETHOD_DOT_IDENTIFIER_LPARAN_RPARAN:
+       RULE_NOTHINGMETHOD_DOT_IDENTIFIER_LPAREN_RPAREN:
        // something.method()
        begin
              if not structs_evaluate_rec(red.Tokens[0],s1,i1,fromstruct,pos)
@@ -5873,7 +5873,7 @@ begin
              end;
 
        end;
-       RULE_ARGMETHOD_DOT_IDENTIFIER_LPARAN_RPARAN:
+       RULE_ARGMETHOD_DOT_IDENTIFIER_LPAREN_RPAREN:
        begin
        //something.method(args)
              if not structs_evaluate_rec(red.Tokens[0],s1,i1,fromstruct,pos)
@@ -5898,7 +5898,7 @@ begin
        end;
 
 
-       RULE_NOTHINGFUNCTION_IDENTIFIER_LPARAN_RPARAN: (* <NothingFunction> ::= Identifier ( ) *)
+       RULE_NOTHINGFUNCTION_IDENTIFIER_LPAREN_RPAREN: (* <NothingFunction> ::= Identifier ( ) *)
        // functionname ( )
        begin
            s1:=red.Tokens[0].DataVar;
@@ -5934,7 +5934,7 @@ begin
 
        end;
 
-       RULE_ARGFUNCTION_IDENTIFIER_LPARAN_RPARAN:
+       RULE_ARGFUNCTION_IDENTIFIER_LPAREN_RPAREN:
        // functionname ( args )
        begin
            if not structs_evaluate_rec(red.Tokens[2],s1,i1,fromstruct,pos)
