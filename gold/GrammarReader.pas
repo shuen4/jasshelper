@@ -116,7 +116,10 @@ var uchr: integer;
 begin
   uchr := ReadInt16;
   while (uchr <> 0) do begin
-    Result := Result + chr(uchr);
+    // silently ignore val > 0xFF
+    if (uchr < 256) then begin
+        Result := Result + chr(uchr);
+    end;
     uchr := ReadInt16;
   end;
 end;

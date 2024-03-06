@@ -2636,7 +2636,7 @@ pendingline, zinc:boolean;
 localzinc:integer;
 
     // some signatures:
-    procedure addFileLine( const line:string; ignorecom:boolean=false); forward
+    procedure addFileLine( const line:string; ignorecom:boolean=false); forward;
     procedure importPhase(const sinput: string ); forward;
 
     procedure doImport( const line: string; start:integer);
@@ -7770,7 +7770,7 @@ var i,x,y,j:integer;
 begin
     GetLineWord(line,typename,i);
     if ((typename<>'') and CompareLineWord('array',line,i,i) ) then begin
-        GetLineToken(line,name,i,i,);
+        GetLineToken(line,name,i,i);
         if (name='') then raise JasserLineException(p,'Expected a name.');
         if (not ValidIdentifierName(name))  then raise JasserLineException(p,'Invalid variable name: "'+name+'"');
 
@@ -12288,30 +12288,30 @@ period:=0;
                     end
                 end
             end else if (word = 'set') and (inFunction) then begin
-				GetLineToken(input[i], word, j, j);
-				if (localArrayVariable.Exist(word)) then begin
-					// probably array
-					origLine{tmp} := input[i][j];
-					while (origLine[1] in WHITESPACE_SEPARATORS) do begin
-						j := j + 1;
-						origLine := input[i][j];
-					end;
-					if (origLine[1] = '[') then begin
-						// array
-						GetLineToken(input[i], arrayIndexStr, j, j);
+                GetLineToken(input[i], word, j, j);
+                if (localArrayVariable.Exist(word)) then begin
+                    // probably array
+                    origLine{tmp} := input[i][j];
+                    while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                        j := j + 1;
+                        origLine := input[i][j];
+                    end;
+                    if (origLine[1] = '[') then begin
+                        // array
+                        GetLineToken(input[i], arrayIndexStr, j, j);
                         if (TryStrToIntX(arrayIndexStr, arrayIndex)) then begin
-							// array index is valid integer
-							origLine := input[i][j];
-							while (origLine[1] in WHITESPACE_SEPARATORS) do begin
-								j := j + 1;
-								origLine := input[i][j];
-							end;
-							if (origLine[1] = ']') then begin
-								localArrayVariable.AddIndex(word, arrayIndex);
-							end;
-						end;
-					end;
-				end;
+                            // array index is valid integer
+                            origLine := input[i][j];
+                            while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                                j := j + 1;
+                                origLine := input[i][j];
+                            end;
+                            if (origLine[1] = ']') then begin
+                                localArrayVariable.AddIndex(word, arrayIndex);
+                            end;
+                        end;
+                    end;
+                end;
             end else begin
                 //[constant] function?
                 if((word='constant') and (compareLineWord('function',input[i],j,j))) or (word='function') then begin
