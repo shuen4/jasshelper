@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.6.3';
+const VERSION:String = '0.A.7.0';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -7335,11 +7335,7 @@ begin
     for c := 0 to cn - 1 do begin
         b:=childs[c];
         tmstruct2:=StructList[b];
-        if(c=0) then begin
-            Concatenate3(tem,'    if (f__arg_integer1==',IntToStr(b),') then');
-        end else begin
-            Concatenate3(tem,'    elseif (f__arg_integer1==',IntToStr(b),') then');
-        end;
+        Concatenate3(tem,'    if (f__arg_integer1==',IntToStr(b),') then');
         SWriteLn(outs,tem);
 
         if(tmstruct2.customcreate) then begin
@@ -7374,13 +7370,13 @@ begin
             end;
 
         end;
+        SWriteLn(outs,'        return true');
+        SWriteLn(outs,'    endif');
 
     end;
     if(debug) then begin
-        SWriteLn(outs,'    else');
-        SWriteLn(outs, '        call DisplayTimedTextToPlayer(GetLocalPlayer(),0,0,1000.,"Unable to allocate id for an object of type: '+st.name+', given a wrong typeid: "+I2S(f__arg_integer1))');
+        SWriteLn(outs, '    call DisplayTimedTextToPlayer(GetLocalPlayer(),0,0,1000.,"Unable to allocate id for an object of type: '+st.name+', given a wrong typeid: "+I2S(f__arg_integer1))');
     end;
-    SWriteLn(outs,'    endif');
     SWriteLn(outs,'    return true');
     SWriteLn(outs,'endfunction'#13#10);
 
