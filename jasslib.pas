@@ -131,31 +131,40 @@ end;
 procedure ParseVariableLine( const line:string);
 var
     nextStartPos:integer;
-    s:string;
+    typename, variablename, value:string;
 begin
     // try to find out JASS_MAX_ARRAY_SIZE (it should be safe if we only check the first occurrence since more than one is a syntax error)
     // although the script may have JASS_ARRAY_SIZE with value 0 but who cares
-    if (JassHelper.JASS_ARRAY_SIZE <> 0) then
-        exit;
     nextStartPos:=1;
     // constant integer JASS_MAX_ARRAY_SIZE = value
-    GetLineToken(line,s,nextStartPos,nextStartPos);
-    if (s = 'constant') then
-        GetLineToken(line,s,nextStartPos,nextStartPos);
-    if (s <> 'integer') then
+    GetLineToken(line,typename,nextStartPos,nextStartPos);
+    if (typename = 'constant') then
+        GetLineToken(line,typename,nextStartPos,nextStartPos);
+        
+    GetLineToken(line,variablename,nextStartPos,nextStartPos);
+    if (variablename = 'array') then
+        GetLineToken(line,variablename,nextStartPos,nextStartPos);
+    
+    SetLength(JassHelper.CJ_BJ_globals, Length(JassHelper.CJ_BJ_globals) + 1);
+    JassHelper.CJ_BJ_globals[High(JassHelper.CJ_BJ_globals)] := variablename;
+    
+    if (JassHelper.JASS_ARRAY_SIZE <> 0) then
         exit;
-    GetLineToken(line,s,nextStartPos,nextStartPos);
-    if (s <> 'JASS_MAX_ARRAY_SIZE') then
+    if (typename <> 'integer') then
         exit;
+    if (variablename <> 'JASS_MAX_ARRAY_SIZE') then
+        exit;
+        
     {
     '=' is in SEPARATORS and will ignore by GetLineToken
     we dont use GetLineWord because it fails if there are no spaces before/after "="
-    GetLineToken(line,s,nextStartPos,nextStartPos);
-    if (s <> '=') then
+    GetLineToken(line,variablename,nextStartPos,nextStartPos);
+    if (variablename <> '=') then
         exit;
     }
-    GetLineToken(line,s,nextStartPos,nextStartPos);
-    if (not TryStrToIntX(s, nextStartPos{this variable is no longer used, so just use it for other usage})) then
+    
+    GetLineToken(line,value,nextStartPos,nextStartPos);
+    if (not TryStrToIntX(value, nextStartPos{this variable is no longer used, so just use it for other usage})) then
         exit;
     JassHelper.JASS_ARRAY_SIZE := nextStartPos - 1;
 end;
