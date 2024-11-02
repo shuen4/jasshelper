@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.7.1';
+const VERSION:String = '0.A.7.2';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -12283,7 +12283,7 @@ period:=0;
                             end;
                             input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
                             input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
-                        end else if (ArrayStringContains(globalVariable, word)) or (ArrayStringContains(CJ_BJ_globals, word)) or (word='null') or (word='false') or (word='true') or (word='.') or (TryStrToIntX(Copy(word, 1, 1), arrayIndex{unused})) then begin // return global variable / return literals
+                        end else if (ArrayStringContains(globalVariable, word)) or (ArrayStringContains(CJ_BJ_globals, word)) or (word='null') or (word='false') or (word='true') or (word='.') or (TryStrToIntX(Copy(word, 1, 1), arrayIndex{unused})) or (currentFuncReturnType='nothing') then begin // return global variable / return literals / return nothing
                             input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
                             input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + origLine;
                         end else begin // return + function call / return non-agent
