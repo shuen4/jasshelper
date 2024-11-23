@@ -87,6 +87,46 @@ begin
     DeleteFile('logs\compileerrors.txt');
 end;
 
+// TMemo has a limit of 1024 characters per line
+// Longer characters will be truncated to new lines
+// Leading to incorrect line calculations
+// This limitation may related to hardcoded values in Windows Multiline Edit Control
+function fix_long_line(input:string): string;
+var
+    i,L,k,ln:integer;
+    lines: array of string;
+begin
+
+    i:=1;
+    L:=Length(input);
+    k:=1;
+    ln:=0;
+    
+    while (i<=L) do begin
+        if (input[i]=#10) then begin
+            ln:=ln+1;
+            SetLength(lines,ln);
+            if ((i>1) and (input[i-1]=#13)) then begin
+                lines[ln-1]:=Copy(input,k,i-1-k);
+                k:=i+1;
+            end else begin
+                lines[ln-1]:=Copy(input,k,i-k);
+                k:=i+1;
+            end;
+            if (Length(lines[ln-1]) > 1024) then
+                SetLength(lines[ln-1], 1024);
+        end;
+        i:=i+1;
+    end;
+    
+    i:=0;
+    Result := '';
+    while(i<ln) do begin
+        SWriteLn(Result,lines[i]);
+        i:=i+1;
+    end;
+end;
+
 procedure load;
 var
    title:string;
@@ -118,7 +158,7 @@ begin
     Form4:=TForm4.Create(nil);
 
     JASShelper.LoadFile(f,x);
-    Form4.Memo1.Text:=x;
+    Form4.Memo1.Text:=fix_long_line(x);
     Form4.Label1.Caption:=title;
 
     while(not EoF(filevar)) do begin
