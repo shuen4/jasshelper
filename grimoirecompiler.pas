@@ -184,6 +184,7 @@ begin
     JASShelper.LoadFile(f,ANSI_text);
     UTF8_text:=fix_long_line(u2a(ANSI_text));
     ANSI_text:=fix_long_line(ANSI_text);
+    Form4.Memo1.DoubleBuffered:=true;
     Form4.Memo1.Text:=ANSI_text;
     Form4.Label1.Caption:=title;
 
@@ -403,11 +404,12 @@ begin
         Memo1.Text := UTF8_text;
         // try revert scrollbar
         // EM_LINELENGTH returns incorrect length
-        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count - 1,0);
-        Memo1.SelLength := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0) - Memo1.SelStart - 1;
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0);
+        Memo1.SelLength := 0;
         Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,visibleline,0);
         Memo1.SelLength := 0;
         Memo1.SetFocus;
+        updateLineLabel;
     end else begin
         IsANSI := true;
         visibleline := Memo1.Perform(EM_GETFIRSTVISIBLELINE,0,0);
@@ -415,11 +417,12 @@ begin
         Memo1.Text := ANSI_text;
         // try revert scrollbar
         // EM_LINELENGTH returns incorrect length
-        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count - 1,0);
-        Memo1.SelLength := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0) - Memo1.SelStart - 1;
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0);
+        Memo1.SelLength := 0;
         Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,visibleline,0);
         Memo1.SelLength := 0;
         Memo1.SetFocus;
+        updateLineLabel;
     end;
 end;
 
