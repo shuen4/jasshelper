@@ -394,12 +394,10 @@ end;
 
 procedure TForm4.SwitchEncoding(Sender: TObject);
 var
-    line:integer;
     visibleline:integer;
 begin
     if (IsANSI) then begin
         IsANSI := false;
-        line := binarySearchusrijiyus(1,Memo1.Lines.Count,Memo1.SelStart+1);
         visibleline := Memo1.Perform(EM_GETFIRSTVISIBLELINE,0,0);
         // setting the text will reset the scrollbars and selected text
         Memo1.Text := UTF8_text;
@@ -409,13 +407,9 @@ begin
         Memo1.SelLength := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0) - Memo1.SelStart - 1;
         Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,visibleline,0);
         Memo1.SelLength := 0;
-        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,line - 1,0);
-        // its inpossible to reselect "same" text
-        Memo1.SelLength := 0;
         Memo1.SetFocus;
     end else begin
         IsANSI := true;
-        line := binarySearchusrijiyus(1,Memo1.Lines.Count,Memo1.SelStart+1);
         visibleline := Memo1.Perform(EM_GETFIRSTVISIBLELINE,0,0);
         // setting the text will reset the scrollbars and selected text
         Memo1.Text := ANSI_text;
@@ -424,9 +418,6 @@ begin
         Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count - 1,0);
         Memo1.SelLength := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0) - Memo1.SelStart - 1;
         Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,visibleline,0);
-        Memo1.SelLength := 0;
-        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,line - 1,0);
-        // its inpossible to reselect "same" text
         Memo1.SelLength := 0;
         Memo1.SetFocus;
     end;
