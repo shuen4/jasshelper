@@ -138,4 +138,13 @@ object Form4: TForm4
     TabOrder = 4
     OnClick = Button2Click
   end
+  object SwitchEncodingButton: TButton
+    Left = 250
+    Top = 387
+    Width = 90
+    Height = 25
+    Caption = 'Switch encoding'
+    TabOrder = 5
+    OnClick = SwitchEncoding
+  end
 end

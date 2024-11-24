@@ -16,6 +16,7 @@ type
     Label3: TLabel;
     Edit1: TEdit;
     Button2: TButton;
+    SwitchEncodingButton: TButton;
     procedure Button2Click(Sender: TObject);
     procedure Memo1KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Memo1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -25,6 +26,7 @@ type
     procedure ListBox1Click(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure SwitchEncoding(Sender: TObject);
   private
     function binarySearchusrijiyus(ini:integer; endi:integer; val:integer):integer;
     procedure updateLineLabel;
@@ -39,6 +41,8 @@ var
   Form4: TForm4;
   filevar: textfile;
   errorn:integer=0;
+  IsANSI: boolean=true;
+  ANSI_text, UTF8_text: string;
 
 
 procedure start(const f:string; const title:string);
@@ -127,6 +131,26 @@ begin
     end;
 end;
 
+// UTF8 to ANSI
+// Utf8ToAnsi returns an empty string if one or more bytes are malformed
+// Windows MultiByteToWideChar + WideCharToMultiByte simply replace these with '?'
+function u2a(str:string): string;
+var
+    len:integer;
+    wstr:widestring;
+begin
+    result := '';
+    // UTF8 to WideChar
+    len := MultiByteToWideChar(CP_UTF8, 0, pchar(str), Length(str), 0, 0);
+    SetLength(wstr, len);
+    MultiByteToWideChar(CP_UTF8, 0, pchar(str), Length(str), pwchar(wstr), len);
+    
+    // WideChar to ANSI
+    len := WideCharToMultiByte(CP_ACP, 0, pwchar(wstr), Length(wstr), 0, 0, 0, 0);
+    SetLength(result, len);
+    WideCharToMultiByte(CP_ACP, 0, pwchar(wstr), Length(wstr), pchar(result), Length(result), 0, 0);
+end;
+
 procedure load;
 var
    title:string;
@@ -157,8 +181,10 @@ begin
 
     Form4:=TForm4.Create(nil);
 
-    JASShelper.LoadFile(f,x);
-    Form4.Memo1.Text:=fix_long_line(x);
+    JASShelper.LoadFile(f,ANSI_text);
+    UTF8_text:=fix_long_line(u2a(ANSI_text));
+    ANSI_text:=fix_long_line(ANSI_text);
+    Form4.Memo1.Text:=ANSI_text;
     Form4.Label1.Caption:=title;
 
     while(not EoF(filevar)) do begin
@@ -229,6 +255,8 @@ begin
     Button1.Top := ClientHeight - Button1.Height - 6;
     Button2.Top := Button1.Top;
     Button2.Left := Button1.Left - Button2.Width - 5;
+    SwitchEncodingButton.Top := Button2.Top;
+    SwitchEncodingButton.Left := Button2.Left - SwitchEncodingButton.Width - 5;
     Label3.Top:=Button1.Top+2;
     Edit1.Top:=Button1.Top;
 
@@ -362,6 +390,46 @@ end;
 procedure TForm4.Memo1KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
     updateLineLabel;
+end;
+
+procedure TForm4.SwitchEncoding(Sender: TObject);
+var
+    line:integer;
+    visibleline:integer;
+begin
+    if (IsANSI) then begin
+        IsANSI := false;
+        line := binarySearchusrijiyus(1,Memo1.Lines.Count,Memo1.SelStart+1);
+        visibleline := Memo1.Perform(EM_GETFIRSTVISIBLELINE,0,0);
+        // setting the text will reset the scrollbars and selected text
+        Memo1.Text := UTF8_text;
+        // try revert scrollbar
+        // EM_LINELENGTH returns incorrect length
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count - 1,0);
+        Memo1.SelLength := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0) - Memo1.SelStart - 1;
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,visibleline,0);
+        Memo1.SelLength := 0;
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,line - 1,0);
+        // its inpossible to reselect "same" text
+        Memo1.SelLength := 0;
+        Memo1.SetFocus;
+    end else begin
+        IsANSI := true;
+        line := binarySearchusrijiyus(1,Memo1.Lines.Count,Memo1.SelStart+1);
+        visibleline := Memo1.Perform(EM_GETFIRSTVISIBLELINE,0,0);
+        // setting the text will reset the scrollbars and selected text
+        Memo1.Text := ANSI_text;
+        // try revert scrollbar
+        // EM_LINELENGTH returns incorrect length
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count - 1,0);
+        Memo1.SelLength := Memo1.Perform(EM_LINEINDEX,Memo1.Lines.Count,0) - Memo1.SelStart - 1;
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,visibleline,0);
+        Memo1.SelLength := 0;
+        Memo1.SelStart := Memo1.Perform(EM_LINEINDEX,line - 1,0);
+        // its inpossible to reselect "same" text
+        Memo1.SelLength := 0;
+        Memo1.SetFocus;
+    end;
 end;
 
 end.
