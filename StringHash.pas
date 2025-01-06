@@ -12,7 +12,7 @@ type
   PHashItem = ^THashItem;
   THashItem = record
     Next: PHashItem;
-    Key: string;
+    Key: AnsiString;
     Value: Integer;
   end;
 
@@ -20,16 +20,16 @@ type
   private
     Buckets: array of PHashItem;
   protected
-    function Find(const Key: string): PPHashItem;
-    function HashOf(const Key: string): Cardinal; virtual;
+    function Find(const Key: AnsiString): PPHashItem;
+    function HashOf(const Key: AnsiString): Cardinal; virtual;
   public
     constructor Create(Size: Cardinal = 256);
     destructor Destroy; override;
-    procedure Add(const Key: string; Value: Integer);
+    procedure Add(const Key: AnsiString; Value: Integer);
     procedure Clear;
-    procedure Remove(const Key: string);
-    function Modify(const Key: string; Value: Integer): Boolean;
-    function ValueOf(const Key: string): Integer;
+    procedure Remove(const Key: AnsiString);
+    function Modify(const Key: AnsiString; Value: Integer): Boolean;
+    function ValueOf(const Key: AnsiString): Integer;
   end;
 
 
@@ -37,7 +37,7 @@ implementation
 
 { TStringHash }
 
-procedure TStringHash.Add(const Key: string; Value: Integer);
+procedure TStringHash.Add(const Key: AnsiString; Value: Integer);
 var
   Hash: Integer;
   Bucket: PHashItem;
@@ -80,7 +80,7 @@ begin
   inherited Destroy;
 end;
 
-function TStringHash.Find(const Key: string): PPHashItem;
+function TStringHash.Find(const Key: AnsiString): PPHashItem;
 var
   Hash: Integer;
 begin
@@ -95,7 +95,7 @@ begin
   end;
 end;
 
-function TStringHash.HashOf(const Key: string): Cardinal;
+function TStringHash.HashOf(const Key: AnsiString): Cardinal;
 var
   I: Integer;
 begin
@@ -105,7 +105,7 @@ begin
       Ord(Key[I]);
 end;
 
-function TStringHash.Modify(const Key: string; Value: Integer): Boolean;
+function TStringHash.Modify(const Key: AnsiString; Value: Integer): Boolean;
 var
   P: PHashItem;
 begin
@@ -119,7 +119,7 @@ begin
     Result := False;
 end;
 
-procedure TStringHash.Remove(const Key: string);
+procedure TStringHash.Remove(const Key: AnsiString);
 var
   P: PHashItem;
   Prev: PPHashItem;
@@ -133,7 +133,7 @@ begin
   end;
 end;
 
-function TStringHash.ValueOf(const Key: string): Integer;
+function TStringHash.ValueOf(const Key: AnsiString): Integer;
 var
   P: PHashItem;
 begin

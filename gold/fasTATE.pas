@@ -56,7 +56,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure AddEdge(Characters: string; Target: Integer);
+    procedure AddEdge(Characters: AnsiString; Target: Integer);
 
     property AcceptSymbol: Integer read FAcceptSymbol write SetAcceptSymbol;
     property EdgeCount: Integer read GetEdgeCount;
@@ -92,7 +92,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TFAState.AddEdge(Characters: string; Target: Integer);
+procedure TFAState.AddEdge(Characters: AnsiString; Target: Integer);
 var n: Integer;
 begin
   if Characters = '' then Add(0, Target)

@@ -18,7 +18,7 @@ type
   public
     { Public declarations }
   end;
-procedure ShowError(stdout,stderr:string; modal:boolean=false);
+procedure ShowError(stdout,stderr:AnsiString; modal:boolean=false);
 //var
 //  Form1: TForm1;
 
@@ -28,7 +28,7 @@ implementation
 
 {$R *.dfm}
 
-procedure ShowError(stdout,stderr:string;modal:boolean=false);
+procedure ShowError(stdout,stderr:AnsiString;modal:boolean=false);
 var
    err:TForm2;
 begin

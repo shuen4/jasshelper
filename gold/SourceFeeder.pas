@@ -10,17 +10,17 @@ type
   TSourceFeeder = class
   private
     FStream : TStringStream;
-    procedure SetText(const Value: string);
-    function GetText: string;
+    procedure SetText(const Value: AnsiString);
+    function GetText: AnsiString;
   public
     constructor Create;
     destructor Destroy; override;
 
-    function ReadCharFromBuffer(Pos: integer; var r:char ):boolean;
-    function ReadFromBuffer(Size: Integer; DiscardReadText: Boolean; ReturnAllText: Boolean): String;
+    function ReadCharFromBuffer(Pos: integer; var r:AnsiChar ):boolean;
+    function ReadFromBuffer(Size: Integer; DiscardReadText: Boolean; ReturnAllText: Boolean): AnsiString;
     function Done: Boolean;
-    function ReadLine: String;
-    property Text: string read GetText write SetText;
+    function ReadLine: AnsiString;
+    property Text: AnsiString read GetText write SetText;
     property Stream : TStringStream read FStream;
   end;
 
@@ -43,13 +43,13 @@ begin
   Result := Stream.Position >= Stream.Size;
 end;
 
-function TSourceFeeder.GetText: string;
+function TSourceFeeder.GetText: AnsiString;
 begin
   Result := Stream.DataString;
 end;
 
 
-function TSourceFeeder.ReadCharFromBuffer(Pos: Integer; var r: Char):boolean;
+function TSourceFeeder.ReadCharFromBuffer(Pos: Integer; var r: AnsiChar):boolean;
 var SavePos : integer;
 
 begin
@@ -60,14 +60,14 @@ begin
       result:=false;
   end else begin
       result:=true;
-      r := Stream.DataString[Stream.Position+Pos];
+      r := AnsiChar(Stream.DataString[Stream.Position+Pos]);
   end;
 
   Stream.Position := SavePos;
 end;
 
 
-function TSourceFeeder.ReadFromBuffer(Size: Integer; DiscardReadText: Boolean; ReturnAllText: Boolean): String;
+function TSourceFeeder.ReadFromBuffer(Size: Integer; DiscardReadText: Boolean; ReturnAllText: Boolean): AnsiString;
 var SavePos : integer;
     Available: Integer;
 begin
@@ -83,9 +83,9 @@ begin
   if not DiscardReadText then Stream.Position := SavePos;
 end;
 
-function TSourceFeeder.ReadLine: String;
+function TSourceFeeder.ReadLine: AnsiString;
 var EndReached: Boolean;
-    ch: string;
+    ch: AnsiString;
 begin
   EndReached := False;
   while not (EndReached) and (not Done) do begin
@@ -98,7 +98,7 @@ begin
   end;
 end;
 
-procedure TSourceFeeder.SetText(const Value: string);
+procedure TSourceFeeder.SetText(const Value: AnsiString);
 begin
   FStream.Size := 0;
   FStream.WriteString(Value);

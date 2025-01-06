@@ -3,8 +3,8 @@ unit clierrors;
 interface
 
 
-procedure start(const f:string; const title:string);
-procedure add(const line:integer; const msg:string; error:boolean);
+procedure start(const f:AnsiString; const title:AnsiString);
+procedure add(const line:integer; const msg:AnsiString; error:boolean);
 procedure show;
 
 procedure load;
@@ -18,7 +18,7 @@ var
   filevar: textfile;
   errorn:integer=0;
 
-procedure start(const f:string; const title:string);
+procedure start(const f:AnsiString; const title:AnsiString);
 begin
 
     AssignFile(filevar,'logs\compileerrors.txt');
@@ -32,7 +32,7 @@ begin
 
 end;
 
-procedure add(const line:integer; const msg:string; error:boolean);
+procedure add(const line:integer; const msg:AnsiString; error:boolean);
 begin
     WriteLn(filevar,'Line '+IntToStr(line)+': '+msg);
     if(error) then errorn:=errorn+1;
@@ -47,7 +47,7 @@ begin
 
 end;
 
-function ParseLineNumber(const s:string):integer;
+function ParseLineNumber(const s:AnsiString):integer;
 var
    i:integer;
 begin
@@ -72,11 +72,11 @@ end;
 
 procedure load;
 var
-   title:string;
-   f,x:string;
+   title:AnsiString;
+   f,x:AnsiString;
     errored:textfile;
 
-   line:string;
+   line:AnsiString;
    linecount,y, lastprint, printedlines:integer;
 
    errorlines: Tlist;

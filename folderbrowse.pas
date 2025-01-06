@@ -3,7 +3,7 @@ unit folderbrowse;
 
 interface
 uses SysUtils, ShlObj, Windows;
-function GetFolderDialog(Handle: Integer; Caption: string; var strFolder: string): Boolean;
+function GetFolderDialog(Handle: Integer; Caption: AnsiString; var strFolder: AnsiString): Boolean;
 
 
 implementation
@@ -15,7 +15,7 @@ begin
   BrowseCallbackProc := 0;
 end;
 
-function GetFolderDialog(Handle: Integer; Caption: string; var strFolder: string): Boolean;
+function GetFolderDialog(Handle: Integer; Caption: AnsiString; var strFolder: AnsiString): Boolean;
 const
   BIF_STATUSTEXT           = $0004;
   BIF_NEWDIALOGSTYLE       = $0040;
@@ -27,7 +27,7 @@ var
   BrowseInfo: TBrowseInfo;
   ItemIDList: PItemIDList;
   JtemIDList: PItemIDList;
-  Path: PAnsiChar;
+  Path: PWideChar;
 begin
   Result := False;
   Path := StrAlloc(MAX_PATH);

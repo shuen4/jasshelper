@@ -20,7 +20,7 @@ type
     public
 
     end;}
-  nametype=Array[1..260] of char;
+  nametype=Array[1..260] of AnsiChar;
 
   FILELISTENTRY = record
     dwFileExists: dword;
@@ -116,7 +116,11 @@ type
   end;
 
 const
+{$ifdef WIN64}
+  SFMPQ_DLL = 'bin\SFmpq_x64.dll';
+{$else}
   SFMPQ_DLL = 'bin\SFmpq.dll';
+{$endif}
 //  BUFSIZE = 166777216;
 
   //MpqOpenArchiveForUpdate flags
@@ -215,18 +219,18 @@ function SFileListFiles(hMPQ:THandle;  lpFileLists:LPCSTR; lpListBuffer:TFileLis
 
 //Utility functions
 //READING
-function MPQOpenArchive(sFileName: PChar): THandle;
+function MPQOpenArchive(sFileName: PAnsiChar): THandle;
 procedure MPQCloseArchive(hMPQ: THandle);
-function MPQOpenFile(hMPQ: THandle; sMPQFileName: PChar): THandle;
+function MPQOpenFile(hMPQ: THandle; sMPQFileName: PAnsiChar): THandle;
 procedure MPQCloseFile(hMPQFile: THandle);
 function MPQGetFileSize(hMPQFile: THandle): DWORD;
-procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PChar; sPath: String);
-procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PChar; targetfile: String; dwbf:dword=0);
+procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PAnsiChar; sPath: AnsiString);
+procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PAnsiChar; targetfile: AnsiString; dwbf:dword=0);
 function MPQGetInternalList(hMPQ: THandle): TStringList;
 function MPQListFiles(hMPQ: THandle): TStringList; overload;
 function MPQListFiles(hMPQ: THandle; List: TStringList; bUseInternal: Boolean): TStringList; overload;
-function MPQFileExists(hMPQ: THandle; sFileName: PChar): Boolean;
-function MPQGetFileInfo(hMPQ: THandle; sFileName: PChar; dwInfoType:dword): dword;
+function MPQFileExists(hMPQ: THandle; sFileName: PAnsiChar): Boolean;
+function MPQGetFileInfo(hMPQ: THandle; sFileName: PAnsiChar; dwInfoType:dword): dword;
 
 { Extra archive editing functions}
 function MpqAddFileFromBufferEx(hMPQ: THANDLE;  lpBuffer: pointer;  dwLength: DWORD;  lpFileName: LPCSTR;  dwFlags: DWORD;  dwCompressionType: DWORD;  dwCompressLevel: DWORD): BOOL; stdcall; external SFMPQ_DLL;
@@ -234,13 +238,13 @@ function MpqAddFileFromBuffer(hMPQ: THANDLE;  lpBuffer: pointer;  dwLength: DWOR
 function MpqAddWaveFromBuffer(hMPQ: THANDLE;  lpBuffer: pointer;  dwLength: DWORD;  lpFileName: LPCSTR;  dwFlags: DWORD;  dwQuality: DWORD): BOOL; stdcall; external SFMPQ_DLL;
 function MpqSetFileLocale(hMPQ: THANDLE;  lpFileName: LPCSTR;  nOldLocale: LCID;  nNewLocale: LCID): BOOL; stdcall; external SFMPQ_DLL;
 
-procedure MPQExtractFileToStream(hMPQ: THandle; sMPQFileName: PChar; var target:TMemoryStream; dwbf:dword=0);
+procedure MPQExtractFileToStream(hMPQ: THandle; sMPQFileName: PAnsiChar; var target:TMemoryStream; dwbf:dword=0);
 
 
 //WRITING
 implementation
 
-function MPQOpenArchive(sFileName: PChar): THandle;
+function MPQOpenArchive(sFileName: PAnsiChar): THandle;
   begin
     if not SFileOpenArchive(sFileName, 0, 0, Result) then
       raise ESFileOpenArchive.Create('Error opening archive');
@@ -252,7 +256,7 @@ procedure MPQCloseArchive(hMPQ: THandle);
       raise ESFileCloseArchive.Create('Error closing archive');
   end;
 
-function MPQOpenFile(hMPQ: THandle; sMPQFileName: PChar): THandle;
+function MPQOpenFile(hMPQ: THandle; sMPQFileName: PAnsiChar): THandle;
   begin
     if not SFileOpenFileEx(hMPQ, sMPQFileName, 0, Result) then
       raise ESFileOpenFileEx.Create('Error opening file: '+sMPQFileName);
@@ -275,7 +279,7 @@ function MPQGetFileSize(hMPQFile: THandle): DWORD;
     Result:= SFileGetFileSize(hMPQFile, nil);
   end;
 
-function MPQFileExists(hMPQ: THandle; sFileName: PChar): Boolean;
+function MPQFileExists(hMPQ: THandle; sFileName: PAnsiChar): Boolean;
   var
     hMPQFile: THandle;
   begin
@@ -284,7 +288,7 @@ function MPQFileExists(hMPQ: THandle; sFileName: PChar): Boolean;
   end;
 
 {Vexorian}
-function MPQGetFileInfo(hMPQ: THandle; sFileName: PChar; dwInfoType:dword): dword;
+function MPQGetFileInfo(hMPQ: THandle; sFileName: PAnsiChar; dwInfoType:dword): dword;
   var
     hMPQFile: THandle;
   begin
@@ -296,7 +300,7 @@ function MPQGetFileInfo(hMPQ: THandle; sFileName: PChar; dwInfoType:dword): dwor
   end;
 
 
-procedure MPQExtractFileToStream(hMPQ: THandle; sMPQFileName: PChar; var target:TMemoryStream; dwbf:dword=0);
+procedure MPQExtractFileToStream(hMPQ: THandle; sMPQFileName: PAnsiChar; var target:TMemoryStream; dwbf:dword=0);
 var
  hMPQFile: THandle;
 // buf: array[0..BUFSIZE] of byte;
@@ -349,7 +353,7 @@ end;
 
 
 //By Vexorian, slight variation of last function:
-procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PChar; targetfile: String; dwbf:dword=0);
+procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PAnsiChar; targetfile: AnsiString; dwbf:dword=0);
 var
  MemSt:TMemoryStream;
  FileStream:TFileStream;
@@ -367,7 +371,7 @@ end;
 
 
 
-procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PChar; sPath: String);
+procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PAnsiChar; sPath: AnsiString);
 begin
     MPQExtractFileTo(hMPQ, sMPQFileName, sPath+'\'+sMPQFileName);
 end;
@@ -387,7 +391,7 @@ function MPQListFiles(hMPQ: THandle): TStringList; overload;
     i:= 0;
     while i <= Result.Count - 1 do
       begin
-        if not MPQFileExists(hMPQ, PChar(Result.Strings[i])) then
+        if not MPQFileExists(hMPQ, PAnsiChar(Result.Strings[i])) then
           begin
             Result.Delete(i);
             i:= i - 1;
@@ -406,7 +410,7 @@ function MPQListFiles(hMPQ: THandle; List: TStringList; bUseInternal: Boolean): 
     i:= 0;
     while i <= Result.Count - 1 do
       begin
-        if not MPQFileExists(hMPQ, PChar(Result.Strings[i])) then
+        if not MPQFileExists(hMPQ, PAnsiChar(Result.Strings[i])) then
           begin
             Result.Delete(i);
             i:= i - 1;
@@ -423,11 +427,11 @@ begin
     for i:=0 to (l1.Count-1) do if Result.IndexOf(l2[i])=-1 then Result.Add(l2[i]);
 end;
 
-procedure MergeListFiles(l1,l2,target:string);
+procedure MergeListFiles(l1,l2,target:AnsiString);
 var
  f1,f2,t:TextFile;
  res:TStrings;
- s: string;
+ s: AnsiString;
  i:integer;
 begin
     res:=TStrings.Create;

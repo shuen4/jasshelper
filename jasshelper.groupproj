@@ -1,0 +1,96 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{D68D10E7-9171-4843-A1EF-047B5CFF4176}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="grimoirejasshelper.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="clijasshelper.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="jasshelperinstaller.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="jasshelperdll.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="grimoirecaller.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="consolejasser.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="grimoirejasshelper">
+        <MSBuild Projects="grimoirejasshelper.dproj"/>
+    </Target>
+    <Target Name="grimoirejasshelper:Clean">
+        <MSBuild Projects="grimoirejasshelper.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="grimoirejasshelper:Make">
+        <MSBuild Projects="grimoirejasshelper.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="clijasshelper">
+        <MSBuild Projects="clijasshelper.dproj"/>
+    </Target>
+    <Target Name="clijasshelper:Clean">
+        <MSBuild Projects="clijasshelper.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="clijasshelper:Make">
+        <MSBuild Projects="clijasshelper.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="jasshelperinstaller">
+        <MSBuild Projects="jasshelperinstaller.dproj"/>
+    </Target>
+    <Target Name="jasshelperinstaller:Clean">
+        <MSBuild Projects="jasshelperinstaller.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="jasshelperinstaller:Make">
+        <MSBuild Projects="jasshelperinstaller.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="jasshelperdll">
+        <MSBuild Projects="jasshelperdll.dproj"/>
+    </Target>
+    <Target Name="jasshelperdll:Clean">
+        <MSBuild Projects="jasshelperdll.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="jasshelperdll:Make">
+        <MSBuild Projects="jasshelperdll.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="grimoirecaller">
+        <MSBuild Projects="grimoirecaller.dproj"/>
+    </Target>
+    <Target Name="grimoirecaller:Clean">
+        <MSBuild Projects="grimoirecaller.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="grimoirecaller:Make">
+        <MSBuild Projects="grimoirecaller.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="consolejasser">
+        <MSBuild Projects="consolejasser.dproj"/>
+    </Target>
+    <Target Name="consolejasser:Clean">
+        <MSBuild Projects="consolejasser.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="consolejasser:Make">
+        <MSBuild Projects="consolejasser.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="grimoirejasshelper;clijasshelper;jasshelperinstaller;jasshelperdll;grimoirecaller;consolejasser"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="grimoirejasshelper:Clean;clijasshelper:Clean;jasshelperinstaller:Clean;jasshelperdll:Clean;grimoirecaller:Clean;consolejasser:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="grimoirejasshelper:Make;clijasshelper:Make;jasshelperinstaller:Make;jasshelperdll:Make;grimoirecaller:Make;consolejasser:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -5,14 +5,14 @@ uses
 
 
 type
-  FileSpec = array [0..32767] of char;
+  FileSpec = array [0..32767] of AnsiChar;
 
 
-function StartApp(AppName, ArgStr, workdir :String; Visibility : integer; input,output,error:string):integer;
+function StartApp(AppName, ArgStr, workdir :AnsiString; Visibility : integer; input,output,error:AnsiString):integer;
 
 implementation
 { TWinExec }
-function StartApp(AppName, ArgStr, workdir :String; Visibility : integer; input,output,error:string):integer;
+function StartApp(AppName, ArgStr, workdir :AnsiString; Visibility : integer; input,output,error:AnsiString):integer;
 var
   zAppName : FileSpec;
 
@@ -37,22 +37,22 @@ begin
   StrPCopy(zAppName, AppName);
 
   if(workdir='') then wd:=nil
-  else wd:=pchar(workdir);
+  else wd:=pwidechar(widestring(workdir));
   FillChar(StartupInfo, Sizeof(StartupInfo), #0);
   StartupInfo.cb := Sizeof(StartupInfo);
   if(input='') then begin
       StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
   end else begin
       if( FileExists(input) ) then begin
-          StartupInfo.hStdInput := CreateFile(pchar(input),GENERIC_READ or GENERIC_WRITE,FILE_SHARE_READ or	FILE_SHARE_WRITE	,@SecAtrrs,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
+          StartupInfo.hStdInput := CreateFile(pwidechar(widestring(input)),GENERIC_READ or GENERIC_WRITE,FILE_SHARE_READ or	FILE_SHARE_WRITE	,@SecAtrrs,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
       end else begin
-          StartupInfo.hStdInput := CreateFile(pchar(input),GENERIC_READ or GENERIC_WRITE,FILE_SHARE_READ or	FILE_SHARE_WRITE	,@SecAtrrs,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
+          StartupInfo.hStdInput := CreateFile(pwidechar(widestring(input)),GENERIC_READ or GENERIC_WRITE,FILE_SHARE_READ or	FILE_SHARE_WRITE	,@SecAtrrs,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
       end;
 
       StartupInfo.dwFlags := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES	;
 
-      StartupInfo.hStdOutput := CreateFile(pchar(output),GENERIC_WRITE or GENERIC_READ,FILE_SHARE_READ or	FILE_SHARE_WRITE	,@SecAtrrs,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
-      StartupInfo.hStdError := CreateFile(pchar(error),GENERIC_WRITE or GENERIC_READ,FILE_SHARE_READ or	FILE_SHARE_WRITE,@SecAtrrs,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
+      StartupInfo.hStdOutput := CreateFile(pwidechar(widestring(output)),GENERIC_WRITE or GENERIC_READ,FILE_SHARE_READ or	FILE_SHARE_WRITE	,@SecAtrrs,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
+      StartupInfo.hStdError := CreateFile(pwidechar(widestring(error)),GENERIC_WRITE or GENERIC_READ,FILE_SHARE_READ or	FILE_SHARE_WRITE,@SecAtrrs,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
 
 
   end;
@@ -62,7 +62,7 @@ begin
 
   if not CreateProcess(
     nil,                           { pointer to executable}
-    zAppName,                      { pointer to command line string }
+    (pwidechar(widestring(zAppName))),                      { pointer to command line AnsiString }
     nil,                           { pointer to process security attributes }
     nil,                           { pointer to thread security attributes }
     true,                         { handle inheritance flag }

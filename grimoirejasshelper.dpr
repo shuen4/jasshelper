@@ -27,17 +27,17 @@ var
    scriptmode:boolean=false;
    temi:integer=0;
    stage:integer=1;
-   war3mapj,f1,f2,f3,map,{output,}compiled,folder,blizzardj,commonj:string;
+   war3mapj,f1,f2,f3,map,{output,}compiled,folder,blizzardj,commonj:AnsiString;
    mpq:THandle;
 
    Exter:Texternalusage;
-   CONFIG_PATH:string='';
-   JASSHELPER_PATH:string='';
+   CONFIG_PATH:AnsiString='';
+   JASSHELPER_PATH:AnsiString='';
 
 
 
 
-function GetSuffixedName(x,suf:string):string;
+function GetSuffixedName(x,suf:AnsiString):AnsiString;
 var
    i,L:integer;
 begin
@@ -54,7 +54,7 @@ begin
 end;
 
 
-FUNCTION GetProcessID(ExeName:STRING):DWORD;
+FUNCTION GetProcessID(ExeName:AnsiString):DWORD;
  VAR pe: TProcessEntry32;
      h: THandle;
      test: boolean;
@@ -77,7 +77,7 @@ FUNCTION GetProcessID(ExeName:STRING):DWORD;
    END;
  END;
 
-function Terminate(const e:string):boolean  ;
+function Terminate(const e:AnsiString):boolean  ;
 var
 c: THandle;
 dw:DWORD;
@@ -95,16 +95,16 @@ begin
 
 end;
 
-procedure CopyFile(const i:string;const o:string);
+procedure CopyFile(const i:AnsiString;const o:AnsiString);
 begin
-    windows.CopyFile(pchar(i),pchar(o),false);
+    windows.CopyFile(pchar(widestring(i)),pchar(widestring(o)),false);
 end;
 
-procedure takeBackup(const m:string);
-var dat:string;
-    procedure save(const i:char);
+procedure takeBackup(const m:AnsiString);
+var dat:AnsiString;
+    procedure save(const i:AnsiChar);
     var
-       s:string;
+       s:AnsiString;
     begin
         s:='backups\'+i+'.w3x';
         if (FileExists(s)) then DeleteFile(pchar(s));
@@ -132,7 +132,7 @@ begin
 
 end;
 
-function FixScriptFileName(const f:string):string;
+function FixScriptFileName(const f:AnsiString):AnsiString;
 var
     i,L,st:integer;
 begin
@@ -150,10 +150,10 @@ begin
 end;
 
 
-procedure dopjasserrors(const war3mapj:string; const errors:string; const tries:integer=0);
+procedure dopjasserrors(const war3mapj:AnsiString; const errors:AnsiString; const tries:integer=0);
 var
    f:textfile;
-   line,sect:string;
+   line,sect:AnsiString;
    blizz,comm,maa:boolean;
    L,i,k,n,counter:integer;
 
@@ -228,9 +228,9 @@ begin
    grimoirecompiler.show;
 end;
 
-procedure doTool(const name:string; const prog:string;  args:string; const ext:string; const stdin:string);
+procedure doTool(const name:AnsiString; const prog:AnsiString;  args:AnsiString; const ext:AnsiString; const stdin:AnsiString);
 var
-   s,f,tem, tem2,tem3,tem4,nargs:string;
+   s,f,tem, tem2,tem3,tem4,nargs:AnsiString;
    ftem:Textfile;
 begin
 
@@ -323,11 +323,11 @@ end;
 //=======
 
 // do warlock
-function doWEWarlock(const m:string):boolean;
+function doWEWarlock(const m:AnsiString):boolean;
 var
 
-  f1:string;
-  f2,f3,compiled,backup,dir:string;
+  f1:AnsiString;
+  f2,f3,compiled,backup,dir:AnsiString;
   i:integer;
 
 begin
@@ -547,7 +547,7 @@ try
 
 
      if(not scriptmode) then
-         mpq:=MpqOpenArchiveForUpdate(pchar(map),MOAU_OPEN_EXISTING + MOAU_MAINTAIN_LISTFILE,0);
+         mpq:=MpqOpenArchiveForUpdate(PAnsiChar(map),MOAU_OPEN_EXISTING + MOAU_MAINTAIN_LISTFILE,0);
      progress.SetPosition(1-progress.GetPosition);
 
 {     temi:= WinExec.StartApp(
@@ -581,12 +581,12 @@ try
 
              if(jasshelper.REQUIREFOUND<>0) then begin
                  if(scriptmode) then raise Exception.Create('//! require found, but --scriptonly is in use');
-                 storm.MpqAddFileToArchiveEx(mpq,pchar(compiled),'war3map.j',MAFA_REPLACE_EXISTING+MAFA_COMPRESS,MAFA_COMPRESS_DEFLATE,Z_BEST_COMPRESSION);
+                 storm.MpqAddFileToArchiveEx(mpq,PAnsiChar(compiled),'war3map.j',MAFA_REPLACE_EXISTING+MAFA_COMPRESS,MAFA_COMPRESS_DEFLATE,Z_BEST_COMPRESSION);
                  storm.MpqCloseUpdatedArchive(mpq,0);
                  if dowewarlock(map) then begin
                      raise Exception.Create('There were errors while running wewarlock');
                  end;
-                 mpq:=MpqOpenArchiveForUpdate(pchar(map),MOAU_OPEN_EXISTING + MOAU_MAINTAIN_LISTFILE,0);
+                 mpq:=MpqOpenArchiveForUpdate(PAnsiChar(map),MOAU_OPEN_EXISTING + MOAU_MAINTAIN_LISTFILE,0);
                  storm.MPQExtractFileTo(mpq,'war3map.j',pchar('logs\currentmapscript.j'));
              end else begin
                  progress.StatusMsg('copying ...');
@@ -712,7 +712,7 @@ try
          progress.SetPosition(1-progress.GetPosition);
          progress.StatusMsg('Replacing war3map.j ...');
 
-         storm.MpqAddFileToArchiveEx(mpq,pchar(compiled),'war3map.j',MAFA_REPLACE_EXISTING+MAFA_COMPRESS,MAFA_COMPRESS_DEFLATE,Z_BEST_COMPRESSION);
+         storm.MpqAddFileToArchiveEx(mpq,PAnsiChar(compiled),'war3map.j',MAFA_REPLACE_EXISTING+MAFA_COMPRESS,MAFA_COMPRESS_DEFLATE,Z_BEST_COMPRESSION);
          progress.StatusMsg('Compacting MPQ archive ...');
          storm.MpqCompactArchive(mpq);
          progress.StatusMsg('Closing MPQ archive ...');

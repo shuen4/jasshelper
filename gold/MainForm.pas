@@ -29,14 +29,14 @@ type
     procedure cmdParseClick(Sender: TObject);
     procedure DrawReductionTree(TheReduction: TReduction);
     procedure DrawReduction(TheReduction: TReduction; Indent: Integer);
-    procedure PrintParseTree(Text: String);
+    procedure PrintParseTree(Text: AnsiString);
     procedure cmdCloseClick(Sender: TObject);
     procedure cmdOpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
     SL : TStringList;
-    procedure AddToReport(Msg1, Msg2, Msg3, Msg4 : string; LN : integer);
+    procedure AddToReport(Msg1, Msg2, Msg3, Msg4 : AnsiString; LN : integer);
     procedure DrawTTree(Reduction : TReduction);
   public
     { Public declarations }
@@ -97,7 +97,7 @@ const
 procedure TMain.cmdParseClick(Sender: TObject);
 var
    GP: TGOLDParser;
-   txt: string;
+   txt: AnsiString;
    Response: Integer;
    Done: Boolean;
    ReductionNumber: Integer;
@@ -203,7 +203,7 @@ Const
    kIndentText = '|  ';
 var
    n: Integer;
-   IndentText: string;
+   IndentText: AnsiString;
 begin
    //This is a simple recursive procedure that draws an ASCII version of the parse
    //tree
@@ -230,7 +230,7 @@ begin
 
 end;
 
-procedure TMain.PrintParseTree(Text: String);
+procedure TMain.PrintParseTree(Text: AnsiString);
 begin
    //This sub just appends the Text to the end of the txtParseTree textbox.
 
@@ -262,7 +262,7 @@ begin
 
 end;
 
-procedure TMain.AddToReport(Msg1, Msg2, Msg3, Msg4: string; LN: integer);
+procedure TMain.AddToReport(Msg1, Msg2, Msg3, Msg4: AnsiString; LN: integer);
 begin
   SL.Add(Format('"%s" , "%s" , "%s" , "%s" , "%d"', [Msg1,Msg2,Msg3,Msg4,LN]));
 end;

@@ -60,26 +60,26 @@ const
 
 type
 
-   kQuotedChars = set of Char;
+   kQuotedChars = set of AnsiChar;
 
 
    TSymbol = class
    private
-      FName: String;
+      FName: AnsiString;
       FKind: Integer;
       FTableIndex: Integer;
-      function GetText: string;
-      function PatternFormat(Source: string): string;
+      function GetText: AnsiString;
+      function PatternFormat(Source: AnsiString): AnsiString;
    public
-      constructor Create(aTableIndex : integer; aName : string; aKind : integer);
+      constructor Create(aTableIndex : integer; aName : AnsiString; aKind : integer);
       property Kind: Integer read FKind;
       // Returns an enumerated data type that denotes
       // the class of symbols that the object belongs to.
       property TableIndex: Integer read FTableIndex;
       // Returns the index of the symbol in the GOLDParser object's Symbol Table.
-      property Name: string read FName;
+      property Name: AnsiString read FName;
       // Returns the name of the symbol.
-      property Text: string read GetText;
+      property Text: AnsiString read GetText;
       // Returns the text representation of the symbol.
       // In the case of nonterminals, the name is delimited by angle brackets,
       // special terminals are delimited by parenthesis
@@ -108,7 +108,7 @@ implementation
 
 //In test condition:
 //The number of Symbols created = the number of symbols destroyed.
-constructor TSymbol.Create(aTableIndex : integer; aName : string; aKind : integer);
+constructor TSymbol.Create(aTableIndex : integer; aName : AnsiString; aKind : integer);
 begin
   inherited Create;
   FTableIndex := aTableIndex;
@@ -116,7 +116,7 @@ begin
   FKind := aKind;
 end;
 
-function TSymbol.GetText: string;
+function TSymbol.GetText: AnsiString;
 begin
   case Kind of
   SymbolTypeNonterminal: Result := '<' + Name + '>';
@@ -125,7 +125,7 @@ begin
   end;
 end;
 
-function TSymbol.PatternFormat(Source: string): string;
+function TSymbol.PatternFormat(Source: AnsiString): AnsiString;
 var i : integer;
 begin
   for i := 1 to Length(Source) do

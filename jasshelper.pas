@@ -7,8 +7,8 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.7.5';
-type TDynamicStringArray = array of string;
+const VERSION:AnsiString = '0.A.7.5';
+type TDynamicStringArray = array of AnsiString;
 type TDynamicIntegerArray = array of integer;
 
 
@@ -17,10 +17,10 @@ type TDynamicIntegerArray = array of integer;
 
    public
       linen:integer;
-      msg:string;
+      msg:AnsiString;
       two:boolean;
       linen2:integer;
-      msg2:string;
+      msg2:AnsiString;
       macro1:integer;
       macro2:integer;
    end;
@@ -29,39 +29,39 @@ type TDynamicIntegerArray = array of integer;
    //options than push and pop.
    Tscopestack = class(TObject)
    private
-      ascope: array of string;
+      ascope: array of AnsiString;
       adecl: array of integer;
-      aprivpref:array of string;
-      apblicpref:array of string;
-      adescope: array of string;
+      aprivpref:array of AnsiString;
+      apblicpref:array of AnsiString;
+      adescope: array of AnsiString;
       n:integer;
    public
        constructor create;
-       procedure push(const scope:string; const descope:string; const decl:integer; const privpref:string; const pblicpref:string);
-       procedure top(var scope:string; var descope:string; var decl:integer; var privpref:string; var pblicpref:string);
+       procedure push(const scope:AnsiString; const descope:AnsiString; const decl:integer; const privpref:AnsiString; const pblicpref:AnsiString);
+       procedure top(var scope:AnsiString; var descope:AnsiString; var decl:integer; var privpref:AnsiString; var pblicpref:AnsiString);
        procedure pop;
        function empty:boolean;
-       procedure makeprivate(d:integer;var s:string; id:integer);
-       procedure makepublic(d:integer;var s:string; id:integer);
+       procedure makeprivate(d:integer;var s:AnsiString; id:integer);
+       procedure makepublic(d:integer;var s:AnsiString; id:integer);
        function bottomline:integer;
-       function GetScopeDecl(d:integer): string;
-       function list(ignoretop:boolean=false ) :string;
+       function GetScopeDecl(d:integer): AnsiString;
+       function list(ignoretop:boolean=false ) :AnsiString;
        function GetScopeId(d:integer): integer;
-       function MakePrefix(pri:boolean):string;
+       function MakePrefix(pri:boolean):AnsiString;
    end;
 
    Ttextmacro = class(TObject)
    private
-       contents:array of string;
+       contents:array of AnsiString;
        contentssize:integer;
-       args:array of string;
+       args:array of AnsiString;
        argsn:integer;
    public
        decl:integer;
        constructor create;
        procedure run(var replaceto:TDynamicStringArray);
-       procedure addArgument(const s:string);
-       procedure add(const s:string);
+       procedure addArgument(const s:AnsiString);
+       procedure add(const s:AnsiString);
        procedure reserveSpace(s:integer);
 
    end;
@@ -91,22 +91,22 @@ type TDynamicIntegerArray = array of integer;
        fromparent:boolean;
        stub:boolean;
 
-       oninit_value:string;
-       oninit_struct:string;
-       name:string;
-       returntype:string;
+       oninit_value:AnsiString;
+       oninit_struct:AnsiString;
+       name:AnsiString;
+       returntype:AnsiString;
        argnumber:integer;
-       argtypes:array of string;
-       argnames:array of string;
+       argtypes:array of AnsiString;
+       argnames:array of AnsiString;
 
        arraydummy:integer;
-       interdefault: string;
+       interdefault: AnsiString;
 
        //1:attribute, 2:private attribute, 3:method, 4:private method, 5:constructor, 6:private constructor, 7:destructor, 8:private destructor.
        //11: static attribute
        //12: static private attribute-
-       constructor create(d:integer; const s:string; accs:integer; sta:boolean; method:boolean);
-       procedure addarg(const t:string; const n:string);
+       constructor create(d:integer; const s:AnsiString; accs:integer; sta:boolean; method:boolean);
+       procedure addarg(const t:AnsiString; const n:AnsiString);
        procedure abuseexecset(const b:boolean);
 
        property abuseexec:boolean read abuseexecv write abuseexecset;
@@ -117,7 +117,7 @@ type TDynamicIntegerArray = array of integer;
        PrototypeId: integer;
        decl:integer;
        abuse:boolean;
-       name:string;
+       name:AnsiString;
 
 
    end;
@@ -126,8 +126,8 @@ type TDynamicIntegerArray = array of integer;
    public
 
 
-       args:Array of string;
-       res: string;
+       args:Array of AnsiString;
+       res: AnsiString;
        argn:Integer;
 
        addedtoscript : boolean;
@@ -137,24 +137,24 @@ type TDynamicIntegerArray = array of integer;
        funccount:integer;
        abuse:boolean;
 
-       function GetId(const s:string):integer;
-       constructor Create( iargs:TDynamicStringArray; iargsn:integer; ires:string);
+       function GetId(const s:AnsiString):integer;
+       constructor Create( iargs:TDynamicStringArray; iargsn:integer; ires:AnsiString);
        destructor Destroy; override;
    end;
 
    Tstruct = class(TObject)
    private
-       oninitv:string;
-       function getOnInit:string;
+       oninitv:AnsiString;
+       function getOnInit:AnsiString;
    public
 
 
        decl:integer;
        endline:integer;
        typeid:integer;
-       name:string;
+       name:AnsiString;
 
-       modulesOnInit:string;
+       modulesOnInit:AnsiString;
 
 
        membershash:TStringHash;
@@ -170,7 +170,7 @@ type TDynamicIntegerArray = array of integer;
        zincstruct:boolean;
        parent:integer;
        parentstruct : integer;
-       parentname:string;
+       parentname:AnsiString;
        isarraystruct:boolean;
        isinterface:boolean;
        gotstructchildren:boolean;
@@ -179,13 +179,13 @@ type TDynamicIntegerArray = array of integer;
        nchildren:integer;
 
        customarray:integer;
-       customarraytype:string;
+       customarraytype:AnsiString;
 
        requiredspace: integer;
 
        maximum:integer;
 
-       lessthan: string;
+       lessthan: AnsiString;
 
        forInternalUse:boolean;
 
@@ -201,39 +201,39 @@ type TDynamicIntegerArray = array of integer;
 
        constructor create(d:integer;int:boolean);
        procedure addchild(i:integer);
-       function addmember(d:integer; const s:string;accs:integer; sta:boolean; method:boolean):tmember;
+       function addmember(d:integer; const s:AnsiString;accs:integer; sta:boolean; method:boolean):tmember;
        procedure addDelegate(memb:tmember);
-       function getmember(const s:string; var res:Tmember):boolean;
+       function getmember(const s:AnsiString; var res:Tmember):boolean;
 
        procedure makeArrayStruct();
 
-       procedure dropmember(const s:string);
-       procedure addModuleOnInit(const s:string);
+       procedure dropmember(const s:AnsiString);
+       procedure addModuleOnInit(const s:AnsiString);
        procedure BeforeDestruction; override;
 
-       function GetSuperParentName:string;
-       function GetSuperParentNameForMethod(const methodname:string):string;
-       property oninit:string read GetOnInit write oninitv;
-       property superparentname:  string read GetSuperParentName;
+       function GetSuperParentName:AnsiString;
+       function GetSuperParentNameForMethod(const methodname:AnsiString):AnsiString;
+       property oninit:AnsiString read GetOnInit write oninitv;
+       property superparentname:  AnsiString read GetSuperParentName;
    end;
 
    Tarray = class(Tobject)
    public
        decl:integer;
-       name:string;
-       oftype:string;
+       name:AnsiString;
+       oftype:AnsiString;
    end;
 
    TexternalUsage=class(TObject)
    public
         n:integer;
-        name:array of string;
-        args:array of string;
-        stdin:array of string;
-        ext:array of string;
+        name:array of AnsiString;
+        args:array of AnsiString;
+        stdin:array of AnsiString;
+        ext:array of AnsiString;
         pos:array of integer;
         constructor create;
-        procedure add(const na:string; const a:string; const i:integer; const ex:string = ''; const si:string = '' );
+        procedure add(const na:AnsiString; const a:AnsiString; const i:integer; const ex:AnsiString = ''; const si:AnsiString = '' );
         procedure reset;
    end;
 
@@ -241,21 +241,21 @@ type TDynamicIntegerArray = array of integer;
    Tdynamicstructarray = array of Tstruct;
 {   Toutputstring =class(Tobject)
    private
-       c:array of char;
+       c:array of AnsiChar;
        n:integer;
-       function strread:string;
+       function strread:AnsiString;
    public
        constructor Create(inisz:integer);
-       procedure add(c:char);overload;
-       procedure add(s:string);overload;
-       property str:string read strread;
+       procedure add(c:AnsiChar);overload;
+       procedure add(s:AnsiString);overload;
+       property str:AnsiString read strread;
    end;}
 
 TJHIProPosition = procedure(p:integer); stdcall;
 TJHIProMax = procedure(max:integer); stdcall;
 TJHIGetProMax = function:integer ; stdcall;
 TJHIGetProPosition = function:integer ; stdcall;
-TJHIStatus = procedure(const msg:string); stdcall;
+TJHIStatus = procedure(const msg:AnsiString); stdcall;
 
 type
   TJASSHelperInterface = class(TObject)
@@ -272,8 +272,8 @@ var
   REQUIREFOUND:integer=0;
   FORGETIMPORT:boolean=false;
   AUTOMETHODEVALUATE:boolean = false;
-  AFTERIMPORT:string;
-  GRAMMARPATH:string='jasshelper.cgt';
+  AFTERIMPORT:AnsiString;
+  GRAMMARPATH:AnsiString='jasshelper.cgt';
 
   IMPORTUSED:boolean;
   Parser:TGoldParser=nil;
@@ -286,7 +286,7 @@ var
   DEBUG_MODE:boolean=false;
   JASS_ARRAY_SIZE:integer=0;
   VJASS_MAX_ARRAY_INDEXES:integer=0;
-  all_handle, reference_counted_obj, CJ_BJ_globals:array of string;
+  all_handle, reference_counted_obj, CJ_BJ_globals:array of AnsiString;
 
 const UPDATEVALUE=100;
 
@@ -294,19 +294,19 @@ type
     Tvtype = class(Tobject)
     public
         id:integer;
-        name:string;
-        tag:string;
+        name:AnsiString;
+        tag:AnsiString;
     end;
 
 function MakeType(const id:integer):Tvtype; overload; forward;
-function MakeType(const id:integer; const name:string):Tvtype; overload; forward;
-function MakeType(const id:integer; const name:string; const tag:string):Tvtype; overload; forward;
+function MakeType(const id:integer; const name:AnsiString):Tvtype; overload; forward;
+function MakeType(const id:integer; const name:AnsiString; const tag:AnsiString):Tvtype; overload; forward;
 
 
-procedure DoJASSerMagic(f1:string; f2:string; debug:boolean);overload;
+procedure DoJASSerMagic(f1:AnsiString; f2:AnsiString; debug:boolean);overload;
 
 
-function DoJASSerMagic(sinput:string; debug:boolean):string; overload;
+function DoJASSerMagic(sinput:AnsiString; debug:boolean):AnsiString; overload;
 procedure DoJasserBlocksMagic;
 
 procedure DoStructModuleMagic();
@@ -316,74 +316,74 @@ function getExternalUsage(var r:Texternalusage):boolean;
 
 procedure processTextMacros;
 procedure ProcessZinc(const debug:boolean);
-function CompareSubString(const s:string; st:integer; en:integer; const val:string):boolean;
+function CompareSubString(const s:AnsiString; st:integer; en:integer; const val:AnsiString):boolean;
 
-procedure DoJASSerStructMagic(sinput:string;const debug:boolean; var Result:string);overload;
-procedure DoJASSerStructMagic(f1:string;f2:string;const debug:boolean);overload;
+procedure DoJASSerStructMagic(sinput:AnsiString;const debug:boolean; var Result:AnsiString);overload;
+procedure DoJASSerStructMagic(f1:AnsiString;f2:AnsiString;const debug:boolean);overload;
 
-procedure DoJASSerInlineMagicS(sinput:string; var Result:string);
-procedure DoJASSerInlineMagicF(const f1:string; const f2:string);
+procedure DoJASSerInlineMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerInlineMagicF(const f1:AnsiString; const f2:AnsiString);
 
-procedure DoJASSerReturnFixMagicS(sinput:string; var Result:string);
-procedure DoJASSerReturnFixMagicF(const f1:string; const f2:string);
+procedure DoJASSerReturnFixMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerReturnFixMagicF(const f1:AnsiString; const f2:AnsiString);
 
-procedure DoJASSerShadowHelperMagicS(sinput:string; var Result:string);
-procedure DoJASSerShadowHelperMagicF(const f1:string; const f2:string);
+procedure DoJASSerShadowHelperMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerShadowHelperMagicF(const f1:AnsiString; const f2:AnsiString);
 
-function ArrayStringContains(const arr: array of string; const value: string): Boolean;
-procedure DoJASSerNullLocalMagicS(sinput:string; var Result:string);
-procedure DoJASSerNullLocalMagicF(const f1:string; const f2:string);
+function ArrayStringContains(const arr: array of AnsiString; const value: AnsiString): Boolean;
+procedure DoJASSerNullLocalMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerNullLocalMagicF(const f1:AnsiString; const f2:AnsiString);
 
 
-procedure LoadFile(const FileName: TFileName; var result:string);
-procedure SaveFile(const FileName: TFileName; const result:string);
-procedure doJassHelperExternals(const maplocation:string);
+procedure LoadFile(const FileName: TFileName; var result:AnsiString);
+procedure SaveFile(const FileName: TFileName; const result:AnsiString);
+procedure doJassHelperExternals(const maplocation:AnsiString);
 
 procedure importPathsClear;
-procedure addImportPath(const s:string);
+procedure addImportPath(const s:AnsiString);
 
-function fetchPath(var path:string; const current:string=''):boolean;
+function fetchPath(var path:AnsiString; const current:AnsiString=''):boolean;
 
 procedure InitFunctionPrototypes;
 procedure CleanFunctionPrototypes;
-function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:string):integer;
-procedure parseFunction(const s:string; decl:integer);
-function translateMethodOfFunction(const f:string; const fid:integer; const memb:string; const args:string; var res:string; var typ:Tvtype):boolean;
-function translateMemberOfFunction(const f:string; const fid:integer; const memb:string; var res:string; var typ:Tvtype):boolean;
-function translateMethodOfFunctionPointer(const f:string; const st:tstruct; const memb:string; const args:string; var res:string; var typ:Tvtype):boolean;
-function translateMemberOfFunctionInterface(const f:string; const st:tstruct; const memb:string; var res:string; var typ:Tvtype):boolean;
+function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:AnsiString):integer;
+procedure parseFunction(const s:AnsiString; decl:integer);
+function translateMethodOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function translateMemberOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function translateMethodOfFunctionPointer(const f:AnsiString; const st:tstruct; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function translateMemberOfFunctionInterface(const f:AnsiString; const st:tstruct; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
 
-procedure MakeFunctionCallers(var output:string);
+procedure MakeFunctionCallers(var output:AnsiString);
 procedure NormalizeFunctionArguments;
-procedure buildFunctionActions(var output:string);
-procedure buildIniFunctionActions(var output:string);
+procedure buildFunctionActions(var output:AnsiString);
+procedure buildIniFunctionActions(var output:AnsiString);
 
 
-function translateDotMethod(const obj:string; const memb:string; const args:string; styp:Tvtype; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromsuper:boolean=false; const evaluate:boolean=false ):boolean;
-function TryStrToIntX(const s:string;var x:integer):boolean;
-procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:string; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:string; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
-    procedure generateMultiArrayPicker(const namepref:string; const namesuf:string; const indexspace:integer; const index:string; const indent:integer; const commandprefix:string; const commandsufix:string; var outs:string);
+function translateDotMethod(const obj:AnsiString; const memb:AnsiString; const args:AnsiString; styp:Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromsuper:boolean=false; const evaluate:boolean=false ):boolean;
+function TryStrToIntX(const s:AnsiString;var x:integer):boolean;
+procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:AnsiString; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:AnsiString; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
+    procedure generateMultiArrayPicker(const namepref:AnsiString; const namesuf:AnsiString; const indexspace:integer; const index:AnsiString; const indent:integer; const commandprefix:AnsiString; const commandsufix:AnsiString; var outs:AnsiString);
 
 
-procedure Concatenate3(var res:string; const s1,s2,s3:string);
-procedure Concatenate4(var res:string; const s1,s2,s3,s4:string);
-procedure Concatenate5(var res:string; const s1,s2,s3,s4,s5:string);
-procedure Concatenate6(var res:string; const s1,s2,s3,s4,s5,s6:string);
-procedure Concatenate7(var res:string; const s1,s2,s3,s4,s5,s6,s7:string);
-procedure Concatenate8(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8:string);
-procedure Concatenate9(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9:string);
-procedure Concatenate10(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:string);
-procedure Concatenate13(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:string);
-function RConcatenate3(const s1,s2,s3:string):string;
-function RConcatenate6(const s1,s2,s3,s4,s5,s6:string):string;
+procedure Concatenate3(var res:AnsiString; const s1,s2,s3:AnsiString);
+procedure Concatenate4(var res:AnsiString; const s1,s2,s3,s4:AnsiString);
+procedure Concatenate5(var res:AnsiString; const s1,s2,s3,s4,s5:AnsiString);
+procedure Concatenate6(var res:AnsiString; const s1,s2,s3,s4,s5,s6:AnsiString);
+procedure Concatenate7(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7:AnsiString);
+procedure Concatenate8(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8:AnsiString);
+procedure Concatenate9(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9:AnsiString);
+procedure Concatenate10(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:AnsiString);
+procedure Concatenate13(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:AnsiString);
+function RConcatenate3(const s1,s2,s3:AnsiString):AnsiString;
+function RConcatenate6(const s1,s2,s3,s4,s5,s6:AnsiString):AnsiString;
 
-procedure GetLineWord(const  line:string; var st:string ; var sti:integer; ival:integer=1);
-function CompareLineWord(const match:string; const  line:string; var sti:integer; ival:integer=1):boolean;
-procedure GetLineToken(const line: string; var st:string ; out sti:integer; ival:integer=1);
+procedure GetLineWord(const  line:AnsiString; var st:AnsiString ; var sti:integer; ival:integer=1);
+function CompareLineWord(const match:AnsiString; const  line:AnsiString; var sti:integer; ival:integer=1):boolean;
+procedure GetLineToken(const line: AnsiString; var st:AnsiString ; out sti:integer; ival:integer=1);
 
-procedure SWriteLn(var s:string; const l:string);
+procedure SWriteLn(var s:AnsiString; const l:AnsiString);
 
-const   SEPARATORS: set of char=[ '.', '(',' ',#9,')' , ',', '+', '-', '*', '/' ,'"', '''', '=','!', '<', '>','[',']',':' ];
+const   SEPARATORS: set of AnsiChar=[ '.', '(',' ',#9,')' , ',', '+', '-', '*', '/' ,'"', '''', '=','!', '<', '>','[',']',':' ];
 
 implementation
 uses ZincParser, JassHelperConfigFile;
@@ -399,7 +399,7 @@ type
        struct:Tstruct;
    end;
    THookedNative = class(Tobject)
-       nativename:string;
+       nativename:AnsiString;
        hooks: Tlist;
    end;
 var
@@ -410,51 +410,51 @@ var
 type
    TLibrary = class(TObject)
    public
-       name: string;
-       req: array of string;
+       name: AnsiString;
+       req: array of AnsiString;
        req_opt: array of boolean;
        reqn: integer;
-       contents: string;
-       globals: string;
+       contents: AnsiString;
+       globals: AnsiString;
        validatedinit:boolean;
        declaration: integer;
-       Init: string;
+       Init: AnsiString;
 
    end;
 var
-   importpaths:array of string;
+   importpaths:array of AnsiString;
    importpathn:integer=0;
 
-   input: array of string;
+   input: array of AnsiString;
    offset:array of integer;
    textmacrotrace:array of integer;
    globaltextmacrotrace:integer;
    globaloffset:integer;
 
-   globals: string='';
+   globals: AnsiString='';
 
-   premainarea: string;
-   postmainarea: string;
+   premainarea: AnsiString;
+   postmainarea: AnsiString;
    libraries: array of TLibrary;
    library_usedinit:boolean=false;
    libraryn:integer;
 
-   ScopeInit:array of string;
+   ScopeInit:array of AnsiString;
    ScopeInitN:integer;
 
 
 
    ln:integer;
    writefactor:integer=1;
-   WHITESPACE_SEPARATORS : set of char=[' ',#9];
+   WHITESPACE_SEPARATORS : set of AnsiChar=[' ',#9];
 
-   NUMBERS: set of char=['0','1','2','3','4','5','6','7','8','9'];
-   NONNUMBERSIDENTIFCHAR: set of char=[ 'a'..'z', 'A'..'Z', '_'];
-   IDENTIFCHARS: set of char=[ '0'..'9' , '_' , 'a'..'z', 'A'..'Z'];
+   NUMBERS: set of AnsiChar=['0','1','2','3','4','5','6','7','8','9'];
+   NONNUMBERSIDENTIFCHAR: set of AnsiChar=[ 'a'..'z', 'A'..'Z', '_'];
+   IDENTIFCHARS: set of AnsiChar=[ '0'..'9' , '_' , 'a'..'z', 'A'..'Z'];
 
    Exter: Texternalusage=nil;
 
-   datafunctions: array of string;
+   datafunctions: array of AnsiString;
    datafunctions_N:integer;
    datafunctions_Current:integer;
 
@@ -474,8 +474,8 @@ var
    //globals for global big arrays:
    BigArrayN:integer;
    BigArrayHash:Tstringhash;
-   BigArrayTypes: array of string;
-   BigArrayNames: array of string;
+   BigArrayTypes: array of AnsiString;
+   BigArrayNames: array of AnsiString;
    BigArraySizes: array of integer;
    BigArrayWidths: array of integer;
    BigArrayStructs: array of integer;
@@ -508,7 +508,7 @@ procedure Texternalusage.reset;
 begin
     N:=0;
 end;
-procedure Texternalusage.add(const na:string; const a:string; const i:integer; const ex:string; const si:string);
+procedure Texternalusage.add(const na:AnsiString; const a:AnsiString; const i:integer; const ex:AnsiString; const si:AnsiString);
 begin
     if(Length(name)<=N) then begin
         SetLength(name,N+1);
@@ -541,7 +541,7 @@ constructor TScopeStack.Create;
 begin
     n:=0;
 end;
-procedure TScopeStack.push (const scope:string; const descope:string; const decl:integer; const privpref:string; const pblicpref:string);
+procedure TScopeStack.push (const scope:AnsiString; const descope:AnsiString; const decl:integer; const privpref:AnsiString; const pblicpref:AnsiString);
 begin
     n:=n+1;
     SetLength(ascope,n);
@@ -555,7 +555,7 @@ begin
     aprivpref[n-1]:=privpref;
     apblicpref[n-1]:=pblicpref;
 end;
-procedure TScopeStack.top(var scope:string;var descope:string; var decl:integer; var privpref:string; var pblicpref:string);
+procedure TScopeStack.top(var scope:AnsiString;var descope:AnsiString; var decl:integer; var privpref:AnsiString; var pblicpref:AnsiString);
 begin
    scope:=ascope[n-1];
    descope:=adescope[n-1];
@@ -571,20 +571,20 @@ function TScopeStack.empty:boolean;
 begin
     Result:=(n<=0);
 end;
-procedure TScopeStack.MakePrivate(d:integer;var s:string; id:integer);
+procedure TScopeStack.MakePrivate(d:integer;var s:AnsiString; id:integer);
 begin
     if(d>=n) or (adecl[d]<>id) then Exit;
     s:=aprivpref[d]+s;
 end;
 
-function TScopeStack.MakePrefix(pri:boolean):string;
+function TScopeStack.MakePrefix(pri:boolean):AnsiString;
 begin
    if(pri) then result:='"'+aprivpref[n-1]+'"'
    else result:='"'+apblicpref[n-1]+'"';
 end;
 
 
-function TScopeStack.GetScopeDecl(d:integer): string;
+function TScopeStack.GetScopeDecl(d:integer): AnsiString;
 begin
      if(d>=n) then begin
          Result:='';
@@ -598,7 +598,7 @@ begin
      end else
          Result:=adecl[d];
 end;
-procedure TScopeStack.MakePublic(d:integer;var s:string; id:integer);
+procedure TScopeStack.MakePublic(d:integer;var s:AnsiString; id:integer);
 begin
     if(d>=n) or (adecl[d]<>id) then Exit;
     if (s='InitTrig') then s:=s+'_'+Copy(apblicpref[d],1,Length(apblicpref[d])-1)
@@ -608,7 +608,7 @@ function TScopeStack.bottomline:integer;
 begin
     Result:=adecl[0];
 end;
-function TScopeStack.list(ignoretop:boolean=false ):string;
+function TScopeStack.list(ignoretop:boolean=false ):AnsiString;
 var
    i:integer;
 begin
@@ -629,13 +629,13 @@ end;
 
 //</TTextMacro>
 
-procedure SWriteLn(var s:string; const l:string);
+procedure SWriteLn(var s:AnsiString; const l:AnsiString);
 begin
     Insert(l, s, VERYBIG);
     Insert(#13#10, s, VERYBIG);
 end;
 
-procedure SWriteLnSmart(var s:string; const l:string);
+procedure SWriteLnSmart(var s:AnsiString; const l:AnsiString);
 var len:integer;
 begin
     Insert(l, s, VERYBIG);
@@ -645,7 +645,7 @@ begin
 end;
 
 
-procedure SWrite(var s:string; const l:string);
+procedure SWrite(var s:AnsiString; const l:AnsiString);
 begin
     Insert(l, s, VERYBIG);
 end;
@@ -657,7 +657,7 @@ line : '     call    BJDebugMsg() '
 st   : 'call'
 sti  : 10
 }
-procedure GetLineWord(const  line:string; var st:string ; var sti:integer; ival:integer=1);
+procedure GetLineWord(const  line:AnsiString; var st:AnsiString ; var sti:integer; ival:integer=1);
 var
  i,L:integer;
  commprotect:boolean;
@@ -691,7 +691,7 @@ begin
    st:=Copy(line,i,sti-i);
 end;
 
-function CompareLineWord(const match:string; const  line:string; var sti:integer; ival:integer=1):boolean;
+function CompareLineWord(const match:AnsiString; const  line:AnsiString; var sti:integer; ival:integer=1):boolean;
 var
  i,L:integer;
 begin
@@ -721,7 +721,7 @@ begin
    Result:=CompareSubString(line,i,sti-1,match);
 end;
 
-function CompareLineToken(const match:string; const  line:string; var sti:integer; ival:integer=1):boolean;
+function CompareLineToken(const match:AnsiString; const  line:AnsiString; var sti:integer; ival:integer=1):boolean;
 var
  i,L:integer;
 begin
@@ -750,7 +750,7 @@ end;
 
 
 
-function nonNumeralPrefix(const s:string; p:integer):boolean;
+function nonNumeralPrefix(const s:AnsiString; p:integer):boolean;
 
 begin
     result:=false;
@@ -764,7 +764,7 @@ begin
 
 end;
 
-procedure GetLineToken(const line: string; var st:string ; out sti:integer; ival:integer=1);
+procedure GetLineToken(const line: AnsiString; var st:AnsiString ; out sti:integer; ival:integer=1);
 var
  i,L:integer;
 
@@ -816,13 +816,13 @@ begin
 end;
 
 
-function TestGetLineWord(line:string;i:integer):string;
+function TestGetLineWord(line:AnsiString;i:integer):AnsiString;
 var j:integer;
 begin
     GetLineWord(line,Result,j,i);
 end;
 
-procedure GetLineWordAlsoComma(line:string; var st:string ; var sti:integer; ival:integer=1);
+procedure GetLineWordAlsoComma(line:AnsiString; var st:AnsiString ; var sti:integer; ival:integer=1);
 var
  i,L:integer;
 begin
@@ -847,7 +847,7 @@ begin
    st:=Copy(line,i,sti-i);
 end;
 
-function IsWhitespace(const s:string; const st:integer=1):boolean;
+function IsWhitespace(const s:AnsiString; const st:integer=1):boolean;
 var i,L:integer;
 begin
     i:=st;
@@ -863,7 +863,7 @@ begin
 
 end;
 
-function GetEndOfUsefulLine(const s:string):integer;
+function GetEndOfUsefulLine(const s:AnsiString):integer;
 var i,L,j:integer;
 ctr:boolean;
 begin
@@ -906,9 +906,9 @@ begin
 
 end;
 
-// s[a] is the beginning of a string, moves a to the end of such string or b,
+// s[a] is the beginning of a AnsiString, moves a to the end of such AnsiString or b,
 // whatever comes first.
-procedure SkipString(const s:string; var a:integer; const b:integer);
+procedure SkipString(const s:AnsiString; var a:integer; const b:integer);
 var ctr:boolean;
 begin
     if(s[a]='''') then begin
@@ -932,7 +932,7 @@ begin
     end;
 end;
 
-procedure SkipUselessBrackets(const s:string; var a:integer; var b:integer);
+procedure SkipUselessBrackets(const s:AnsiString; var a:integer; var b:integer);
 var i,par,ra,rb:integer;
 
 
@@ -964,7 +964,7 @@ begin
     b:=rb;
 end;
 
-function JASSerLineException(i:integer;msg:string):JASSerException;
+function JASSerLineException(i:integer;msg:AnsiString):JASSerException;
 begin
    Result:=JASSerException.Create(msg  );
    Result.msg:=msg;
@@ -976,7 +976,7 @@ begin
 
 end;
 
-procedure VerifyEndOfLine(const s:string; const st:integer; LineNumber:integer);
+procedure VerifyEndOfLine(const s:AnsiString; const st:integer; LineNumber:integer);
 var i,L:integer;
 begin
    if(not IsWhitespace(s,st)) then begin
@@ -995,7 +995,7 @@ begin
 end;
 
 
-function JASSerLineExceptionNoTextMacro(i:integer;msg:string):JASSerException;
+function JASSerLineExceptionNoTextMacro(i:integer;msg:AnsiString):JASSerException;
 begin
    Result:=JASSerException.Create(msg);
    Result.msg:=msg;
@@ -1007,7 +1007,7 @@ begin
 end;
 
 
-function JASSerLineDoubleException(i:integer;msg:string; j:integer; msg2:string):JASSerException;
+function JASSerLineDoubleException(i:integer;msg:AnsiString; j:integer; msg2:AnsiString):JASSerException;
 begin
    Result:=JASSerException.Create(msg);
    Result.msg:=msg;
@@ -1021,7 +1021,7 @@ begin
 
 end;
 
-function JASSerLineDoubleExceptionNoTextMacro(i:integer;msg:string; j:integer; msg2:string):JASSerException;
+function JASSerLineDoubleExceptionNoTextMacro(i:integer;msg:AnsiString; j:integer; msg2:AnsiString):JASSerException;
 begin
    Result:=JASSerException.Create(msg);
    Result.msg:=msg;
@@ -1038,12 +1038,12 @@ end;
 
 
 
-procedure GetRealLine(var i:integer; var line:string );
+procedure GetRealLine(var i:integer; var line:AnsiString );
 var
  j,L,anchor, strcount:integer;
  ctl,str,raw:boolean;
 
- c:char;
+ c:AnsiChar;
 
 
 begin
@@ -1053,9 +1053,9 @@ begin
     raw:=false;
 
     { lots of threats, for example "aaa
-     aa f f"  is a valid string, also "aaa\"aaa" and "aaadf\\"
+     aa f f"  is a valid AnsiString, also "aaa\"aaa" and "aaadf\\"
 
-      There is also the infamous '"' which does not open an string
+      There is also the infamous '"' which does not open an AnsiString
      }
     anchor:=i;
 
@@ -1076,7 +1076,7 @@ begin
                 end
                 else if (c='\') then ctl:=true;
                 if (strcount>1100) then begin
-                    raise JASSerLineException(anchor,'String literal size limit exceeded /unclosed string');
+                    raise JASSerLineException(anchor,'AnsiString literal size limit exceeded /unclosed AnsiString');
                 end;
 
             end else if (raw) then begin
@@ -1098,7 +1098,7 @@ begin
         if (i<>anchor) then Insert(input[i],line, VERYBIG );
 
         if (str) then begin
-            //doh, string didn't end the line yet;
+            //doh, AnsiString didn't end the line yet;
             i:=i+1;
             Insert('\n',line, VERYBIG ); //It is handy and prevents pjass from returning the wrong line number
 
@@ -1106,7 +1106,7 @@ begin
         end
         else break;
     end;
-    if (str) then raise JASSerLineException(anchor,'Unclosed string');
+    if (str) then raise JASSerLineException(anchor,'Unclosed AnsiString');
 
 
 
@@ -1114,7 +1114,7 @@ begin
 end;
 
 
-function validScopeName(const s:string):boolean;
+function validScopeName(const s:AnsiString):boolean;
 var
    i,L:integer;
 begin
@@ -1133,7 +1133,7 @@ begin
 end;
 
 
-function validIdentifierName(const s:string):boolean;
+function validIdentifierName(const s:AnsiString):boolean;
 var
    i,L:integer;
 begin
@@ -1153,10 +1153,10 @@ end;
 
 
 // requires a,b,c,d,
-procedure parseLibrary(var line:string; var lib:TLibrary; beginp:integer; linenumber:integer; const libraryname:string);
+procedure parseLibrary(var line:AnsiString; var lib:TLibrary; beginp:integer; linenumber:integer; const libraryname:AnsiString);
 var
    j,k:integer;
-   word:string;
+   word:AnsiString;
    optional:boolean;
 begin
     lib.reqn:=0;
@@ -1221,9 +1221,9 @@ end;
 
 
 
-procedure ReplaceTokens(var hash:TStringHash; var currenthash:TStringHash; var stack:TScopeStack; var s:string; deleteprivate:boolean);
+procedure ReplaceTokens(var hash:TStringHash; var currenthash:TStringHash; var stack:TScopeStack; var s:AnsiString; deleteprivate:boolean);
 var
-  o,token:string;
+  o,token:AnsiString;
   i,L,k,x,d:integer;
   str,ctr,now:boolean;
 
@@ -1313,7 +1313,7 @@ begin
 
 end;
 
-function ReplaceIdentifier(const s:string; const orig:string; const newt:string):string;
+function ReplaceIdentifier(const s:AnsiString; const orig:AnsiString; const newt:AnsiString):AnsiString;
 var
     i,L,k:integer;
     inraw,instring,ctr, incom,add:boolean;
@@ -1355,11 +1355,11 @@ begin
 
 end;
 
-function ReplaceIdentifiersByHash(const s:string; var hash:TStringHash; const prefix:string):string;
+function ReplaceIdentifiersByHash(const s:AnsiString; var hash:TStringHash; const prefix:AnsiString):AnsiString;
 var
     i,L,k:integer;
     inraw,instring,ctr, incom,add:boolean;
-    tem:string;
+    tem:AnsiString;
 //    IDENTIFCHARS
 
 begin
@@ -1400,7 +1400,7 @@ begin
 end;
 
 
-function CompareSubString(const s:string; st:integer; en:integer; const val:string):boolean;
+function CompareSubString(const s:AnsiString; st:integer; en:integer; const val:AnsiString):boolean;
 var
   L1,L2,j:integer;
 begin
@@ -1429,9 +1429,9 @@ begin
 end;
 
 
-procedure VerifyValidForDebug(const s:string; decl:integer);
+procedure VerifyValidForDebug(const s:AnsiString; decl:integer);
 var x:integer;
-    word:string;
+    word:AnsiString;
 begin
 {s's first 'word' is debug}
 
@@ -1457,7 +1457,7 @@ var
 
  globalsdecl,anchor,structdecl:integer;
  period,nextperiod,injectpos:integer;
- word{,line},libpreffix_private,libpreffix_public,tmp,scope,declscopename,injectmain,postinjectmain,injectconfig:string;
+ word{,line},libpreffix_private,libpreffix_public,tmp,scope,declscopename,injectmain,postinjectmain,injectconfig:AnsiString;
  once,skip,ininjectmain,ininjectpostmain,usedmaininject,usedconfiginject,inconfiginject,skipfunction,validatedscopeinit:boolean;
  hash:TStringHash;
  scopehash:TStringHash;
@@ -1467,12 +1467,12 @@ var
 
  noreplacetokens,tolibrary,toglobals,add,post,inmain,privateused,onscope,ispublic{, commusedwas //! used?}:boolean;
 
- scopeinitializer:string;
+ scopeinitializer:AnsiString;
 
 
  stack:TScopeStack;
 
- ExternalBlockStdin, ExternalBlockName, ExternalBlockArgs, ExternalBlockExtension:string;
+ ExternalBlockStdin, ExternalBlockName, ExternalBlockArgs, ExternalBlockExtension:AnsiString;
  ExternalBlockLn: integer;
 
 
@@ -1517,7 +1517,7 @@ var
          end;
      end;
 
-     procedure addScopeInit( const s: string);
+     procedure addScopeInit( const s: AnsiString);
      begin
          if (length(ScopeInit)<=ScopeInitN) then begin
              SetLength(ScopeInit,1+ScopeInitN+2*(ScopeInitN div 5));
@@ -1528,7 +1528,7 @@ var
 
      procedure addpublicforparents;
      var h:integer;
-     var xword:string;
+     var xword:AnsiString;
      begin
           xword:=word;
           h:=scopelevelid-2;
@@ -2204,7 +2204,7 @@ try
     end;
     if (postmainarea='') then  begin
         if (inmain) then raise JASSerLineException(1,'Could not find call to InitBlizzard in main function!')
-        else raise JASSerLineException(1,'Could not find correct main function in file. / unclosed string');
+        else raise JASSerLineException(1,'Could not find correct main function in file. / unclosed AnsiString');
     end;
 
     for i := 0 to libraryn - 1 do begin
@@ -2270,10 +2270,10 @@ var
    i:integer;
    processed,parent: array of integer;
 
-     function buildCycle(x:integer; par:integer):string;
+     function buildCycle(x:integer; par:integer):AnsiString;
      var
         i,c,y:integer;
-        arr: array of string;
+        arr: array of AnsiString;
      begin
          c:=2;
          y:=par;
@@ -2335,12 +2335,12 @@ end;
 
 
 var removedLibrariesN:integer;
-var removedLibraries: array of string;
+var removedLibraries: array of AnsiString;
 
 
 procedure removeLibrary(i:integer);
 var
-   name:string;
+   name:AnsiString;
    lib:TLibrary;
 begin
    lib:=Libraries[i];
@@ -2384,7 +2384,7 @@ begin
    removedLibrariesN:=0;
 end;
 
-function getInvolvedLibraries:string;
+function getInvolvedLibraries:AnsiString;
 var
  i,j:integer;
 begin
@@ -2402,11 +2402,11 @@ end;
 
 
 
-procedure writeOutput(var Result:string);Overload;
+procedure writeOutput(var Result:AnsiString);Overload;
 var
    i:integer;
-   initializers:string;
-   librarycode:string;
+   initializers:AnsiString;
+   librarycode:AnsiString;
 
 begin
     Result:='';
@@ -2492,17 +2492,17 @@ begin
 end;
 
 procedure writeOutput(var ff2:textfile); overload;
-var x:string;
+var x:AnsiString;
 begin
     writeOutput(x);
     WriteLn(ff2,x);
 end;
 
-procedure DoJASSerMagic(f1:string; f2:string; debug:boolean);Overload;
+procedure DoJASSerMagic(f1:AnsiString; f2:AnsiString; debug:boolean);Overload;
 var
 
 ff2:textfile;
-inp:string;
+inp:AnsiString;
 {i:integer;}
 open2:boolean;
 
@@ -2559,8 +2559,8 @@ end;
 
 end;
 
-    function fetchPath(var path:string; const current:string=''):boolean;
-     var s:string;
+    function fetchPath(var path:AnsiString; const current:AnsiString=''):boolean;
+     var s:AnsiString;
      var x:integer;
     begin
          //import path
@@ -2585,7 +2585,7 @@ end;
          end;
     end;
 
-    function CrossExtractFolder(const filepath:string): string;
+    function CrossExtractFolder(const filepath:AnsiString): AnsiString;
      var i,L:integer;
     begin
         L:=Length(filepath);
@@ -2603,7 +2603,7 @@ end;
         result:=Copy(filepath,1,i);
 
     end;
-    function CrossExtractFilename(const filepath:string): string;
+    function CrossExtractFilename(const filepath:AnsiString): AnsiString;
      var i,L:integer;
     begin
         L:=Length(filepath);
@@ -2622,12 +2622,12 @@ end;
 
     end;
 
-    function CrossNormalizeFilename(const filepath:string): string;
+    function CrossNormalizeFilename(const filepath:AnsiString): AnsiString;
     begin
         result:= StringReplace(StringReplace(filepath,'\\','\',[rfREPLACEALL]), '\','/', [rfREPLACEALL]);
     end;
 
-function DoJASSerMagic(sinput:string; debug:boolean):string;overload;
+function DoJASSerMagic(sinput:AnsiString; debug:boolean):AnsiString;overload;
 var
 i,L,eln:integer;
 hash:TStringHash;
@@ -2636,13 +2636,13 @@ pendingline, zinc:boolean;
 localzinc:integer;
 
     // some signatures:
-    procedure addFileLine( const line:string; ignorecom:boolean=false); forward;
-    procedure importPhase(const sinput: string ); forward;
+    procedure addFileLine( const line:AnsiString; ignorecom:boolean=false); forward;
+    procedure importPhase(const sinput: AnsiString ); forward;
 
-    procedure doImport( const line: string; start:integer);
+    procedure doImport( const line: AnsiString; start:integer);
      var i, a,b, L:integer;
-         filename, shortfilename : string;
-         giantString: string;
+         filename, shortfilename : AnsiString;
+         giantString: AnsiString;
 
          usedMode:integer;
          renableZinc:integer;
@@ -2733,7 +2733,7 @@ localzinc:integer;
         localzinc:=llocalzinc;
     end;
 
-    procedure dealWithComments(line:string; var output:string);
+    procedure dealWithComments(line:AnsiString; var output:AnsiString);
      var
         i,k,L:integer;
         modify: boolean;
@@ -2795,10 +2795,10 @@ localzinc:integer;
     end;
 
 
-    procedure parseFileLine(const cline: string);
+    procedure parseFileLine(const cline: AnsiString);
      var
        i : integer;
-       word, line:string;
+       word, line:AnsiString;
        addline: boolean;
     begin
           dealWithComments(cline, line);
@@ -2845,7 +2845,7 @@ localzinc:integer;
 
     end;
 
-    procedure addFileLine ( const line:string; ignorecom:boolean = false); begin
+    procedure addFileLine ( const line:AnsiString; ignorecom:boolean = false); begin
         if(pendingline) then begin
             input[ln - 1] := input[ln-1] + line;
         end else begin
@@ -2863,10 +2863,10 @@ localzinc:integer;
 
     end;
 
-  procedure importPhase(const sinput: string);
+  procedure importPhase(const sinput: AnsiString);
      var
       k,i, L:integer;
-      line:string;
+      line:AnsiString;
 
     begin
         L:=Length(sinput);
@@ -2920,7 +2920,7 @@ begin
 
     hash.Destroy;
 
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
 
     if (Interf<>nil) then begin
         writefactor:=ln div 5+1;
@@ -2966,16 +2966,16 @@ end;
 {
    Ttextmacro = class(TObject)
    private
-       contents:array of string;
+       contents:array of AnsiString;
        contentssize:integer;
-       args:array of string;
+       args:array of AnsiString;
        argsn:integer;
    public
        decl:integer;
        constructor create;
-       procedure run(var replaceto:array of string; var copyto:array of string;var copyton:integer);
-       procedure addArgument(const s:string);
-       procedure add(const s:string);
+       procedure run(var replaceto:array of AnsiString; var copyto:array of AnsiString;var copyton:integer);
+       procedure addArgument(const s:AnsiString);
+       procedure add(const s:AnsiString);
 
    end;
 }
@@ -2991,7 +2991,7 @@ begin
     SetLength(args,1);
 end;
 
-procedure Ttextmacro.addArgument(const s:string);
+procedure Ttextmacro.addArgument(const s:AnsiString);
 var
    i:integer;
 begin
@@ -3006,14 +3006,14 @@ begin
     if(Length(contents)<s) then SetLength(contents,s);
 end;
 
-procedure Ttextmacro.add(const s:string);
+procedure Ttextmacro.add(const s:AnsiString);
 begin
     contentssize:=contentssize+1;
     if(Length(contents)<contentssize) then SetLength(contents,contentssize);
     contents[contentssize-1]:=s;
 end;
 
-   procedure findchar(const s:string; var pos:integer; const start:integer; const c:char);
+   procedure findchar(const s:AnsiString; var pos:integer; const start:integer; const c:AnsiChar);
    var
       L:integer;
    begin
@@ -3026,7 +3026,7 @@ end;
    end;
 
 
-   procedure TextMacro_addline(const s:string);
+   procedure TextMacro_addline(const s:AnsiString);
    begin
        if(  Length(input)<=ln) then begin
             SetLength(input,ln*2+1);
@@ -3043,7 +3043,7 @@ end;
 procedure Ttextmacro.run(var replaceto:TDynamicStringArray);
 var
  i,k,L,t,j:integer;
- word:string;
+ word:AnsiString;
 
 
 
@@ -3110,22 +3110,22 @@ end;
 
 procedure processTextMacros;
 var
-   incopy : array of string;
-   word,tempish:string;
+   incopy : array of AnsiString;
+   word,tempish:AnsiString;
    i,k,h,c,wordend:integer;
    tmp,tmp2:integer;
    hash: TStringHash;
    macro:Ttextmacro;
    macros: array of TTextMacro;
    macron: integer;
-   parsedarg:array of string;
+   parsedarg:array of AnsiString;
    parsedargsn:integer;
    period,nextperiod:integer;
    once,skip,optional:boolean;
    label kkk;
 
 
-   procedure ParseCrazyCall(st:integer;const s:string);
+   procedure ParseCrazyCall(st:integer;const s:AnsiString);
    var
       L:integer;
       x:integer;
@@ -3236,7 +3236,7 @@ try
 
     //parse all of the TextMacros
     i:=0;
-    //Why care about strings? the only danger would be an string that has line breaks and in one of its lines
+    //Why care about strings? the only danger would be an AnsiString that has line breaks and in one of its lines
     //begins with //! textmacro or //! endtextmacro, you got to accept that's pretty unlikelly to happen.
 
     //First step involves fetching the textmacros. We need to do it in 2 steps to avoid issues
@@ -3437,14 +3437,14 @@ end;
 {   Tstruct = class(TObject)
    public
        decl:integer;
-       name:string;
+       name:AnsiString;
        members:TStringHash; //1:attribute, 2:private attribute, 3:method, 4:private method, 5:constructor, 6:private constructor, 7:destructor, 8:private destructor.
        constructor create;
        destructor destroy;
    end;
 }
 
-constructor Tmember.create(d:integer;const s:string;accs:integer; sta:boolean; method:boolean);
+constructor Tmember.create(d:integer;const s:AnsiString;accs:integer; sta:boolean; method:boolean);
 begin
     oninit_value:='';
     oninit_struct:='';
@@ -3468,7 +3468,7 @@ begin
     interdefault:='';
 end;
 
-procedure Tmember.addarg(const t:string; const n:string);
+procedure Tmember.addarg(const t:AnsiString; const n:AnsiString);
 begin
     if(Length(argtypes)<=argnumber) then begin
          SetLength(argtypes,argnumber+5);
@@ -3485,7 +3485,7 @@ begin
      abuseexecv:=b;
 end;
 
-function Tstruct.GetOnInit:string;
+function Tstruct.GetOnInit:AnsiString;
 var
  i,n:integer;
 
@@ -3493,7 +3493,7 @@ var
 
 
 
-    procedure add(const np:string; const ns:string; const cp:string; const cs:string);
+    procedure add(const np:AnsiString; const ns:AnsiString; const cp:AnsiString; const cs:AnsiString);
     begin
         if(Length(anamesuf)<=n) then begin
             SetLength(anamesuf,n*2+2);
@@ -3537,14 +3537,14 @@ begin
 
 end;
 
-procedure Tstruct.addModuleOnInit(const s:string);
+procedure Tstruct.addModuleOnInit(const s:AnsiString);
 begin
     SWriteLn(self.modulesOnInit,'call ExecuteFunc("s__'+Self.name+'_'+s+'")' );
 end;
 
 
 
-procedure Tstruct.dropmember(const s:string);
+procedure Tstruct.dropmember(const s:AnsiString);
 var
    h:integer;
 begin
@@ -3565,7 +3565,7 @@ begin
     dropmember('deallocate');
 end;
 
-function Tstruct.addmember(d:integer; const s:string;accs:integer; sta:boolean; method:boolean):tmember;
+function Tstruct.addmember(d:integer; const s:AnsiString;accs:integer; sta:boolean; method:boolean):tmember;
 begin
     if(membern=Length(members)) then begin
          SetLength(members,membern+5);
@@ -3585,7 +3585,7 @@ begin
     delegates[delegateN-1]:=memb;
 end;
 
-function Tstruct.getmember(const s:string; var res:Tmember):boolean;
+function Tstruct.getmember(const s:AnsiString; var res:Tmember):boolean;
 var
    h:integer;
 begin
@@ -3657,7 +3657,7 @@ begin
     maximum:=JASS_ARRAY_SIZE-1;
 end;
 
-function Tstruct.GetSuperParentName:string;
+function Tstruct.GetSuperParentName:AnsiString;
 begin
     if(parent<>-1) then result:=StructList[parent].superparentname
     else if(parentstruct<>-1) then result:=StructList[parentstruct].superparentname
@@ -3665,7 +3665,7 @@ begin
 
 end;
 
-function Tstruct.GetSuperParentNameForMethod(const methodname:string):string;
+function Tstruct.GetSuperParentNameForMethod(const methodname:AnsiString):AnsiString;
 var memb:tmember;
 begin
     self.getmember(methodname, memb);
@@ -3689,7 +3689,7 @@ end;
 //}}}}}}}}}}
 
 //assigns to r an assignment if it can be found from i.
-function GetAssigment( const s:string; var r:string; fromi:integer):boolean;
+function GetAssigment( const s:AnsiString; var r:AnsiString; fromi:integer):boolean;
 var
    i,L,j:integer;
 begin
@@ -3717,10 +3717,10 @@ begin
 end;
 
 
-procedure ConcatenateManySep(var res:string; var s:Tdynamicstringarray; const total:integer; const sep:char);
+procedure ConcatenateManySep(var res:AnsiString; var s:Tdynamicstringarray; const total:integer; const sep:AnsiChar);
 var
   n,i,j:integer;
-//  debugstr:string;
+//  debugstr:AnsiString;
 
 begin
 
@@ -3760,11 +3760,11 @@ begin
 end;
 
 
-procedure Concatenate3(var res:string; const s1,s2,s3:string);
+procedure Concatenate3(var res:AnsiString; const s1,s2,s3:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3780,16 +3780,16 @@ begin
   add(s1);add(s2);add(s3);
 
 end;
-function RConcatenate3(const s1,s2,s3:string):string;
+function RConcatenate3(const s1,s2,s3:AnsiString):AnsiString;
 begin
     Concatenate3(result,s1,s2,s3);
 end;
 
-procedure Concatenate4(var res:string; const s1,s2,s3,s4:string);
+procedure Concatenate4(var res:AnsiString; const s1,s2,s3,s4:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3805,11 +3805,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);
 
 end;
-procedure Concatenate5(var res:string; const s1,s2,s3,s4,s5:string);
+procedure Concatenate5(var res:AnsiString; const s1,s2,s3,s4,s5:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3825,11 +3825,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);
 
 end;
-procedure Concatenate6(var res:string; const s1,s2,s3,s4,s5,s6:string);
+procedure Concatenate6(var res:AnsiString; const s1,s2,s3,s4,s5,s6:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3845,16 +3845,16 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);
 
 end;
-function RConcatenate6(const s1,s2,s3,s4,s5,s6:string):string;
+function RConcatenate6(const s1,s2,s3,s4,s5,s6:AnsiString):AnsiString;
 begin
     Concatenate6(Result,s1,s2,s3,s4,s5,s6);
 end;
 
-procedure Concatenate7(var res:string; const s1,s2,s3,s4,s5,s6,s7:string);
+procedure Concatenate7(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3870,11 +3870,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);add(s7);
 
 end;
-procedure Concatenate8(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8:string);
+procedure Concatenate8(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3891,11 +3891,11 @@ begin
 
 end;
 
-procedure Concatenate9(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9:string);
+procedure Concatenate9(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3911,11 +3911,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);add(s7);add(s8);add(s9);
 
 end;
-procedure Concatenate10(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:string);
+procedure Concatenate10(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3931,11 +3931,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);add(s7);add(s8);add(s9);add(s10);
 
 end;
-procedure Concatenate11(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11:string);
+procedure Concatenate11(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3952,11 +3952,11 @@ begin
 
 end;
 
-procedure Concatenate12(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12:string);
+procedure Concatenate12(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3973,11 +3973,11 @@ begin
 
 end;
 
-procedure Concatenate13(var res:string; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:string);
+procedure Concatenate13(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:AnsiString);
 var
   n:integer;
 
-   procedure add(const s:string);
+   procedure add(const s:AnsiString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3996,7 +3996,7 @@ end;
 
 
 //---
-function VerifyRedeclaration(const s:string; const ignoreglobals:boolean=false):Integer;
+function VerifyRedeclaration(const s:AnsiString; const ignoreglobals:boolean=false):Integer;
 begin
     Result:=0;
     if(LocalIdentifierTypes.ValueOf(s)<>-1) then Result:=-1
@@ -4009,7 +4009,7 @@ begin
 end;
 
 //--
-function GetHashtableKey:string;
+function GetHashtableKey:AnsiString;
 begin
     HashtableKeys := HashtableKeys + 1 +integer(GetTickCount mod 2);
     result := IntToStr(HashtableKeys);
@@ -4017,7 +4017,7 @@ end;
 
 //--
 
-procedure VerifyRedeclarationRaise(const ln: integer;const s:string; const ignoreglobals:boolean=false);
+procedure VerifyRedeclarationRaise(const ln: integer;const s:AnsiString; const ignoreglobals:boolean=false);
 var i:integer;
 begin
     i:=VerifyRedeclaration(s,ignoreglobals);
@@ -4029,13 +4029,13 @@ const ARRAYEDTYPE=1000000;
 const METHODTYPE = -5;
 const FUNCTION_NAME_TYPE = -6;
 
-function structs_evaluatecode({const} s:string; var res:string;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean; forward;
+function structs_evaluatecode({const} s:AnsiString; var res:AnsiString;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean; forward;
 //if it is a correct global declaration, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluateglobal(const s:string; var res:string; const fromstruct:integer=-1):boolean;
+function structs_evaluateglobal(const s:AnsiString; var res:AnsiString; const fromstruct:integer=-1):boolean;
 var
    constant,isarray:boolean;
-   word,name,assign, typename:string;
+   word,name,assign, typename:AnsiString;
    x,h:integer;
 begin
     // [constant] <type (possibly struct type)> [array] name [= assign]
@@ -4123,10 +4123,10 @@ end;
 
 //if it is a correct function declaration, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluatefunction(const s:string; var res:string):boolean;
+function structs_evaluatefunction(const s:AnsiString; var res:AnsiString):boolean;
 var
     x,L,k,h,indent:integer;
-    word,name,argname,argtype:string;
+    word,name,argname,argtype:AnsiString;
 begin
 
 
@@ -4229,7 +4229,7 @@ begin
 
 end;
 
-function EscapedBackSlash( const str:string; const L:integer; i:integer):boolean;
+function EscapedBackSlash( const str:AnsiString; const L:integer; i:integer):boolean;
 var
    c:integer;
 begin
@@ -4244,7 +4244,7 @@ begin
 end;
 
 
-procedure parsemethod(const s:string; var obj:string; var sid:integer; var memb:string);
+procedure parsemethod(const s:AnsiString; var obj:AnsiString; var sid:integer; var memb:AnsiString);
 var
    i,k,L:integer;
 begin
@@ -4270,8 +4270,8 @@ end;
 
 
 
-function translateDotFunctionName(const s:string; var res:string; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
-var obj,memb:string;
+function translateDotFunctionName(const s:AnsiString; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
+var obj,memb:AnsiString;
     sid:integer;
 begin
     parseMethod(s,obj,sid,memb);
@@ -4281,9 +4281,9 @@ begin
     result:=true;
 end;
 
-function TranslateFunctionName(const f:string; var res:string; var typ:Tvtype):boolean;forward;
-function translateDotMethodPointer(const s:string; var res:string; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
-var obj,memb:string;
+function TranslateFunctionName(const f:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;forward;
+function translateDotMethodPointer(const s:AnsiString; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
+var obj,memb:AnsiString;
     k:integer;
     smemb:Tmember;
     sid:integer;
@@ -4319,8 +4319,8 @@ begin
 end;
 
 
-function translateDotMethodExists(const s:string; var res:string; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
-var obj,memb:string;
+function translateDotMethodExists(const s:AnsiString; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
+var obj,memb:AnsiString;
     sid:integer;
     k,r:integer;
     smemb:Tmember;
@@ -4365,16 +4365,16 @@ end;
 
 
 
-function translateDotVar(const obj:string; const memb:string; sid:integer; styp: Tvtype; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:string; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;forward;
+function translateDotVar(const obj:AnsiString; const memb:AnsiString; sid:integer; styp: Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:AnsiString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;forward;
 
-function translateDotVar(const obj:string; const memb:string; sid:integer; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:string; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
+function translateDotVar(const obj:AnsiString; const memb:AnsiString; sid:integer; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:AnsiString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
 begin
     resulT:=translateDotVar(obj,memb,sid,MakeType(sid),res,typ,fromstruct,pos,insetstatement,assign,assigntyp,converttocall);
 end;
 
-function translateDotVar(const obj:string; const memb:string; sid:integer; styp: Tvtype; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:string; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
+function translateDotVar(const obj:AnsiString; const memb:AnsiString; sid:integer; styp: Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:AnsiString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
 var
-   tem:string;
+   tem:AnsiString;
    allowinstance:boolean;
    membd:Tmember;
    h:integer;
@@ -4382,7 +4382,7 @@ var
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:string;
+     var res2,res3:AnsiString;
      var converttocall3:boolean;
     begin
         if not translateDotVar(obj,dmemb.name,sid,styp,res2,typ2,{fromstruct}sid,pos,false,'',MakeType(0),converttocall) then begin
@@ -4643,16 +4643,16 @@ begin
     Result:=true;
 end;
 
-function translateDotExecuteMethod(const s:string; const args:string; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
-var obj,memb:string;
+function translateDotExecuteMethod(const s:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
+var obj,memb:AnsiString;
     sid:integer;
 begin
     parseMethod(s,obj,sid,memb);
     result:= translateDotMethod(obj,memb,args,MakeType(sid),res,typ,fromstruct,pos,true);
 end;
 
-function translateDotEvaluateMethod(const s:string; const args:string; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
-var obj,memb:string;
+function translateDotEvaluateMethod(const s:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
+var obj,memb:AnsiString;
     sid:integer;
 begin
     parseMethod(s,obj,sid,memb);
@@ -4660,16 +4660,16 @@ begin
 end;
 
 
-function translateDotMethod(const obj:string; const memb:string; const args:string; styp:Tvtype; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromSuper:boolean=false; const evaluate:boolean=false):boolean;
+function translateDotMethod(const obj:AnsiString; const memb:AnsiString; const args:AnsiString; styp:Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromSuper:boolean=false; const evaluate:boolean=false):boolean;
 var
    allowinstance,usedestroy:boolean;
    membd, membd2:Tmember;
    h:integer;
-   prefix:string;
+   prefix:AnsiString;
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:string;
+     var res2,res3:AnsiString;
      var dummyvar:boolean;
     begin
         if not translateDotVar(obj,dmemb.name,styp.id, styp,res2,typ2,{fromstruct}styp.id,pos,false,'',MakeType(0),dummyvar) then begin
@@ -4991,7 +4991,7 @@ begin
 end;
 
 
-function TryStrToIntX(const s:string;var x:integer):boolean;
+function TryStrToIntX(const s:AnsiString;var x:integer):boolean;
 var
    min,num,oct:boolean;
 
@@ -5036,14 +5036,14 @@ begin
 end;
 
 
-function translateIndexSet( const obj:string; const sid:integer; const ind:string; const val:string;
-          var res:string; var typ:Tvtype;  fromstruct:integer; const pos:integer):boolean;
+function translateIndexSet( const obj:AnsiString; const sid:integer; const ind:AnsiString; const val:AnsiString;
+          var res:AnsiString; var typ:Tvtype;  fromstruct:integer; const pos:integer):boolean;
 
 var esp,h:integer;
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:string;
+     var res2,res3:AnsiString;
      var dummyvar:boolean;
     begin
         if not translateDotVar(obj,dmemb.name,sid,res2,typ2,{fromstruct}sid,pos,false,'',MakeType(0),dummyvar) then begin
@@ -5158,14 +5158,14 @@ begin
 
 end;
 
-function translateArray(const arr:string; const ind:string; sid:integer; var res:string; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const allowgetstructindex:boolean=false):boolean;
+function translateArray(const arr:AnsiString; const ind:AnsiString; sid:integer; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const allowgetstructindex:boolean=false):boolean;
 var
    h:integer;
 
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:string;
+     var res2,res3:AnsiString;
      var dummyvar:boolean;
     begin
         if not translateDotVar(arr,dmemb.name,sid,res2,typ2,{fromstruct}sid,pos,false,'',MakeType(0),dummyvar) then begin
@@ -5319,11 +5319,11 @@ begin
     Result:=true;
 end;
 
-function translateMethodCode( const clas:string; const meth:string; var res:string; fromstruct:integer; const pos:integer):boolean;
+function translateMethodCode( const clas:AnsiString; const meth:AnsiString; var res:AnsiString; fromstruct:integer; const pos:integer):boolean;
 var
   h,k:integer;
   memb:Tmember;
-  prefix:string;
+  prefix:AnsiString;
 begin
     h:=Structhash.ValueOf(clas);
     if(h=-1) then begin res:=clas+' is not an struct name'; result:=false; exit; end;
@@ -5352,7 +5352,7 @@ begin
 end;
 
 
-function translateLessThan( const m1:string; i1:integer; const m2:string; i2:integer; var res:string; fromstruct:integer; const pos:integer):boolean;
+function translateLessThan( const m1:AnsiString; i1:integer; const m2:AnsiString; i2:integer; var res:AnsiString; fromstruct:integer; const pos:integer):boolean;
 var
   h:Tvtype;
 
@@ -5374,7 +5374,7 @@ begin
 
 end;
 
-function translateEqualTo( const m1:string; i1:integer; const m2:string; i2:integer; var res:string; fromstruct:integer; const pos:integer; const negate:boolean):boolean;
+function translateEqualTo( const m1:AnsiString; i1:integer; const m2:AnsiString; i2:integer; var res:AnsiString; fromstruct:integer; const pos:integer; const negate:boolean):boolean;
 var
   h:Tvtype;
   memb:Tmember;
@@ -5420,7 +5420,7 @@ begin
 end;
 
 
-function TranslateFunctionName(const f:string; var res:string; var typ:Tvtype):boolean;
+function TranslateFunctionName(const f:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
 var
    h:integer;
 begin
@@ -5434,7 +5434,7 @@ begin
     end;
 end;
 
-function TryGetTypeOf(const s:string):Tvtype;
+function TryGetTypeOf(const s:AnsiString):Tvtype;
 begin
     Result:=MakeType(LocalIdentifierTypes.ValueOf(s) );
     if(Result.id=-1) then Result:=MakeType(IdentifierTypes.ValueOf(s) );
@@ -5444,11 +5444,11 @@ end;
 const
     STRUCT_STRING_LIMIT: integer = 62;
 var
- StructStrings: array of string;
+ StructStrings: array of AnsiString;
  StructStringN:integer;
 
 
-procedure addStructString(const  s:string);
+procedure addStructString(const  s:AnsiString);
 begin
    if(Length(StructStrings)<=StructStringN) then begin
        SetLength(StructStrings,StructStringN+3+(StructStringN div 3) );
@@ -5458,7 +5458,7 @@ begin
 end;
 
 
-function preprocessStructStrings(var s:string):boolean;
+function preprocessStructStrings(var s:AnsiString):boolean;
 var i,k,L:integer;
 
 begin
@@ -5484,10 +5484,10 @@ begin
             end;
             if((k+1)<>i) then begin
                 addStructString(Copy(s,k,i-k+1));
-                //prevent having one of these with the escape char...
-                if Char(Byte('A')+StructStringN-1) = '\' then
+                //prevent having one of these with the escape AnsiChar...
+                if AnsiChar(Byte('A')+StructStringN-1) = '\' then
                     addStructString(Copy(s,k,i-k+1));
-                s[k+1]:=Char(Byte('A')+StructStringN-1);
+                s[k+1]:=AnsiChar(Byte('A')+StructStringN-1);
                 k:=k+2;
                 while(k<i) do begin
                     s[k]:=' ';
@@ -5504,14 +5504,14 @@ begin
 end;
 
 
-function structStringGet(const  s:string):string;
+function structStringGet(const  s:AnsiString):AnsiString;
 begin
   if(s='""') then result:=s
   else result:=StructStrings[byte(s[2])-byte('A')];
 
 end;
 
-function structs_evaluate_terminal(tok:TToken):string;
+function structs_evaluate_terminal(tok:TToken):AnsiString;
 begin
     if(tok.Kind<>SymbolTypeNonterminal) then begin
         result:=tok.DataVar;
@@ -5530,13 +5530,13 @@ begin
    Result.id := id;
    Result.name:='_unknown';
 end;
-function MakeType(const id:integer; const name:string):Tvtype; overload;
+function MakeType(const id:integer; const name:AnsiString):Tvtype; overload;
 begin
    Result:=Tvtype.Create;
    Result.id := id;
    Result.name:=name;
 end;
-function MakeType(const id:integer; const name:string; const tag:string):Tvtype; overload;
+function MakeType(const id:integer; const name:AnsiString; const tag:AnsiString):Tvtype; overload;
 begin
    Result:=Tvtype.Create;
    Result.id := id;
@@ -5544,7 +5544,7 @@ begin
    Result.tag := tag;
 end;
 
-function evaluate_value_type( const wanted:Tvtype;  var s:string; var typ:Tvtype):boolean;
+function evaluate_value_type( const wanted:Tvtype;  var s:AnsiString; var typ:Tvtype):boolean;
 begin
     if (wanted.name ='_unknown') or (typ.name='_unknown') then begin
         result:=true;
@@ -5560,15 +5560,15 @@ begin
 end;
 
 
-function structs_evaluate_rec(tok: TToken; var res:string; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload; forward;
-function structs_evaluate_JassLibArguments( const funname: string; tok:TToken; var res:string; var typ:Tvtype; fromstruct:integer; pos:integer):boolean;
+function structs_evaluate_rec(tok: TToken; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload; forward;
+function structs_evaluate_JassLibArguments( const funname: AnsiString; tok:TToken; var res:AnsiString; var typ:Tvtype; fromstruct:integer; pos:integer):boolean;
  var
     ctok:TToken;
     red:Treduction;
     func:TJassFunc;
     i:integer;
     typ1: Tvtype;
-    res1: string;
+    res1: AnsiString;
     argtok: Array of TToken;
     an : integer;
 begin
@@ -5635,9 +5635,9 @@ begin
 end;
 
 
-function structs_evaluate_rec(tok: TToken; var res:string; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload;
+function structs_evaluate_rec(tok: TToken; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload;
 var red:Treduction;
-var s1,s2,s3,s4:string;
+var s1,s2,s3,s4:AnsiString;
     i1,i2,i3,i4:Tvtype;
     i:integer;
     tmfunc:TJassFunc;
@@ -6196,10 +6196,10 @@ end;
 
 //if it is a correct code chunk, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluatecode({const} s:string; var res:string;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean;
+function structs_evaluatecode({const} s:AnsiString; var res:AnsiString;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean;
  var done:boolean;
      Response:Integer;
-     whitespace,tmres:string;
+     whitespace,tmres:AnsiString;
      tm,i,L:integer;
      tmt:Tvtype;
 begin
@@ -6219,7 +6219,7 @@ begin
     whitespace:=Copy(s,1,i-1);
 
     if not preprocessStructStrings(s) then begin
-       raise  JasserLineException(pos,'[Internal error] please have less than '+IntToStR(STRUCT_STRING_LIMIT+1)+' string literals in a line.');
+       raise  JasserLineException(pos,'[Internal error] please have less than '+IntToStR(STRUCT_STRING_LIMIT+1)+' AnsiString literals in a line.');
     end;
 
     if (not Parser.OpenTextString(s)) then raise JasserLineException(pos,'Unknown internal error 1');
@@ -6270,10 +6270,10 @@ end;
 
 //if it is a correct local declaration, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluatelocal(const s:string; var res:string;  fromstruct:integer; const pos:integer):boolean;
+function structs_evaluatelocal(const s:AnsiString; var res:AnsiString;  fromstruct:integer; const pos:integer):boolean;
 var
    x,h,i:integer;
-   typen,name,assign,tem,indent:string;
+   typen,name,assign,tem,indent:AnsiString;
    arr:boolean;
 begin
 
@@ -6376,15 +6376,15 @@ begin
 end;
 
 //Actually method globals
-procedure generateFuncPassGlobals( var outp:string);
+procedure generateFuncPassGlobals( var outp:AnsiString);
 var
    i,j,k,m,c:integer;
    hash:Tstringhash;
-   types: array of string;
+   types: array of AnsiString;
    dothis:boolean;
    counts: array of integer;
 
-   typ:string;
+   typ:AnsiString;
 
    memb:Tmember;
    prot:Tfunctionprototype;
@@ -6401,7 +6401,7 @@ var
 
    end;
 
-   procedure addType(const s:string; const sc:integer);
+   procedure addType(const s:AnsiString; const sc:integer);
    var
       x:integer;
    begin
@@ -6564,9 +6564,9 @@ end;
 
 
 
-procedure writechilddefaultinit(var st:tstruct; var parentstruct:tstruct;  var os:string; const debug:boolean; const dodestroy:boolean=false );
+procedure writechilddefaultinit(var st:tstruct; var parentstruct:tstruct;  var os:AnsiString; const debug:boolean; const dodestroy:boolean=false );
 var
-    s,tem:string;
+    s,tem:AnsiString;
 
 begin
 
@@ -6633,10 +6633,10 @@ end;
 
 
 
-function GetLineIndexInt(const s:string;  var ends:integer; sti:integer ):integer;
+function GetLineIndexInt(const s:AnsiString;  var ends:integer; sti:integer ):integer;
 var
    i,L,o:integer;
-   ts:string;
+   ts:AnsiString;
 begin
     L:=Length(s);
     i:=sti;
@@ -6672,10 +6672,10 @@ begin
 
 end;
 
-procedure GetLineIndexIntCommaInt(const s:string;  sti:integer; var endofindex:integer; var result:integer; var sresult:integer);
+procedure GetLineIndexIntCommaInt(const s:AnsiString;  sti:integer; var endofindex:integer; var result:integer; var sresult:integer);
 var
    i,L,o,j,t, comma:integer;
-   ts:string;
+   ts:AnsiString;
 begin
     endofindex:=0;
     L:=Length(s);
@@ -6778,25 +6778,25 @@ function DataFunctions_New: boolean; begin
 
 end;
 
-procedure DataFunctions_Insert(const s:string); begin
+procedure DataFunctions_Insert(const s:AnsiString); begin
    Swrite(Datafunctions[datafunctions_N-1],s);
 end;
 
 //==============================================================================
 // The structs loader from slk!
 //
-procedure loadStructs(const s:string;sti:integer; linen:integer);
+procedure loadStructs(const s:AnsiString;sti:integer; linen:integer);
 
 
 var a,b,Len,h,k:integer;
 var quot,res:boolean;
-var path,conc,val:string;
+var path,conc,val:AnsiString;
 var slk:Tslk;
 
-var structtype:string;
+var structtype:AnsiString;
 var memb:Tmember;
 var struc:Tstruct;
-var membtype:array of string;
+var membtype:array of AnsiString;
 
     procedure readpath;
     begin
@@ -6821,7 +6821,7 @@ var membtype:array of string;
             end;
     end;
 
-    procedure fixInteger(var value:string);
+    procedure fixInteger(var value:AnsiString);
       var isinteger:boolean;
       var i:integer;
     begin
@@ -6833,7 +6833,7 @@ var membtype:array of string;
         if((length(value)=4) or (length(value)=1)) then value:=''''+value+'''';
 
     end;
-    procedure fixBoolean(var value:string);
+    procedure fixBoolean(var value:AnsiString);
     begin
         if(value='0') then value:='false'
         else if(value='1') then value:='true';
@@ -6841,7 +6841,7 @@ var membtype:array of string;
 
     end;
 
-    procedure fixString(var value:string);
+    procedure fixString(var value:AnsiString);
     begin
         if(Length(value)=0) then value:='""';
         if(value[Length(value)]<>'"') then value:=value+'"';
@@ -6849,7 +6849,7 @@ var membtype:array of string;
 
     end;
 
-    function isDash(const value:string):boolean;
+    function isDash(const value:AnsiString):boolean;
       var i,L:integer;
     begin
         L:=Length(value);
@@ -6951,7 +6951,7 @@ begin
            val:=slk.contents[0][a];
            if(membtype[0]='integer') then fixInteger(val)
            else if(membtype[0]='boolean') then fixBoolean(val)
-           else if(membtype[0]='string') then fixString(val);
+           else if(membtype[0]='AnsiString') then fixString(val);
            Concatenate5(conc,'    set s=s__',structtype,'_getFromKey(',val,')'#13#10);
            datafunctions_Insert(conc);
            for b := 1 to slk.LengthX - 1 do begin
@@ -6961,7 +6961,7 @@ begin
                     val:=slk.contents[b][a];
                     if(membtype[b]='integer') then fixInteger(val)
                     else if(membtype[b]='boolean') then fixBoolean(val)
-                    else if(membtype[b]='string') then fixString(val);
+                    else if(membtype[b]='AnsiString') then fixString(val);
                     Concatenate7(conc,'    set s__',structtype,'_',slk.contents[b][0],'[s]=',val,#13#10);
                     datafunctions_Insert(conc);
                end;
@@ -7032,7 +7032,7 @@ var q:array of integer;
 var p:array of integer;
 var added:array of boolean;
 var reduced:boolean;
-var info:string;
+var info:AnsiString;
 begin
     n:=StructN;
     if(n=0) then exit;
@@ -7122,7 +7122,7 @@ end;
 
 //===========================================================================================================================
 procedure CompareStructInterfaceMembers(var st:Tstruct; var stmemb:Tmember; var inter:Tstruct; var itmemb:Tmember);
-var tem:string;
+var tem:AnsiString;
 begin
     if(stmemb.destruct) or (itmemb.destruct) or (stmemb.construct) or (itmemb.construct)  then exit;
 
@@ -7226,12 +7226,12 @@ end;
 
 
 //===========================================================================
-procedure DoCrazyRecursiveTriggerAssign( var iter:Tstruct; var curr: Tstruct; var memb:Tmember; var outs:string);
+procedure DoCrazyRecursiveTriggerAssign( var iter:Tstruct; var curr: Tstruct; var memb:Tmember; var outs:AnsiString);
 var
    i,n,k:integer;
-   mname:string;
-   tem:string;
-   tem2:string;
+   mname:AnsiString;
+   tem:AnsiString;
+   tem2:AnsiString;
    tememb:Tmember;
 begin
     if(not curr.gotstructchildren) and (not curr.isinterface) then Exit;
@@ -7252,10 +7252,10 @@ begin
 end;
 
 //===========================================================================
-procedure DoCrazyRecursiveNullTriggerAssign( var iter:Tstruct; var curr: Tstruct; const membname:string; var outs:string);
+procedure DoCrazyRecursiveNullTriggerAssign( var iter:Tstruct; var curr: Tstruct; const membname:AnsiString; var outs:AnsiString);
 var
    i,n,k:integer;
-   tem:string;
+   tem:AnsiString;
    tememb:Tmember;
 begin
 
@@ -7278,9 +7278,9 @@ end;
 
 
 //=========================================================================
-procedure WriteFactoryFunction(var st:Tstruct; var outs:string; debug:boolean);
+procedure WriteFactoryFunction(var st:Tstruct; var outs:AnsiString; debug:boolean);
 var
- tem:string;
+ tem:AnsiString;
  tmstruct2:Tstruct;
  childs:Array of integer;
  cn,i,c,x,b : integer;
@@ -7436,9 +7436,9 @@ end;
 
 //=========================================================================
 //TODO: make this ignore blizzard.j / common.j function calls.
-function DoesLineContainFunctionCalls(const s:string; linenumber:integer):boolean;
+function DoesLineContainFunctionCalls(const s:AnsiString; linenumber:integer):boolean;
 var k,L:integer;
-tok:string;
+tok:AnsiString;
 func:TJassFunc;
 begin
     result:=false;
@@ -7482,9 +7482,9 @@ end;
 
 procedure generateRequiredSizeHash;
 var i,h,period,nextperiod,wordend,k,p:integer;
-var word,tem:string;
+var word,tem:AnsiString;
 
-var parents,names:array of string;
+var parents,names:array of AnsiString;
 var tried: array of boolean;
 var sizes: array of integer;
 
@@ -7492,7 +7492,7 @@ var n:integer;
 var hash:TStringHash;
 
     function dfs(j:integer):integer;
-        var par:string;
+        var par:AnsiString;
     begin
 
         if((sizes[j]=-1) and not tried[j]) then begin
@@ -7606,8 +7606,8 @@ begin
 end;
 
 //=========================================================================
-    procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:string; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:string; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
-     var indentstr,tmp,tsuf, tsub:string;
+    procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:AnsiString; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:AnsiString; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
+     var indentstr,tmp,tsuf, tsub:AnsiString;
          i,re,k,u:integer;
          newini, newlim:integer;
     begin
@@ -7680,7 +7680,7 @@ end;
        array_namepref,array_namesuf,array_commandprefix, array_commandsufix: TDynamicStringArray;
        generateMultiArrayPicker_doinit : boolean = true;
 
-    procedure generateMultiArrayPicker(const namepref:string; const namesuf:string; const indexspace:integer; const index:string; const indent:integer; const commandprefix:string; const commandsufix:string; var outs:string);
+    procedure generateMultiArrayPicker(const namepref:AnsiString; const namesuf:AnsiString; const indexspace:integer; const index:AnsiString; const indent:integer; const commandprefix:AnsiString; const commandsufix:AnsiString; var outs:AnsiString);
     begin
 
         if(generateMultiArrayPicker_doinit) then begin
@@ -7725,7 +7725,7 @@ end;
 
 
 //=========================================================================
-procedure addBigArray(const name:string; const typename:string; const size:integer; const line:integer; const width:integer = -1);
+procedure addBigArray(const name:AnsiString; const typename:AnsiString; const size:integer; const line:integer; const width:integer = -1);
 var t:integer;
 begin
     if(BigArrayHash.ValueOf(name)<>-1) then begin
@@ -7760,9 +7760,9 @@ begin
     BigArrayN:=BigArrayN+1;
 end;
 
-procedure parseBigArray(var line:string; const p:integer);
+procedure parseBigArray(var line:AnsiString; const p:integer);
 var i,x,y,j:integer;
-    typename,name:string;
+    typename,name:AnsiString;
 begin
     GetLineWord(line,typename,i);
     if ((typename<>'') and CompareLineWord('array',line,i,i) ) then begin
@@ -7800,7 +7800,7 @@ begin
     end;
 end;
 
-procedure GetStaticMethod(const structname:string; const methodname:string; const decl:integer; out struct:Tstruct; out memb:Tmember);
+procedure GetStaticMethod(const structname:AnsiString; const methodname:AnsiString; const decl:integer; out struct:Tstruct; out memb:Tmember);
 var
    x:integer;
 begin
@@ -7816,16 +7816,16 @@ begin
 end;
 
 //////
-procedure EvaluateHook(const s:string; const decl:integer);
+procedure EvaluateHook(const s:AnsiString; const decl:integer);
 var
- nativename, structname, funcname:string;
+ nativename, structname, funcname:AnsiString;
  func:TJassFunc;
  x:integer;
  memb:Tmember;
  struct:Tstruct;
  hook:Thook;
 
-    function dotcheck(const name:string; var first:string; var second:string):boolean;
+    function dotcheck(const name:AnsiString; var first:AnsiString; var second:AnsiString):boolean;
      var
         i:integer;
     begin
@@ -7896,14 +7896,14 @@ begin
 end;
 
 //===============
-procedure WriteHooks(var output:string);
+procedure WriteHooks(var output:AnsiString);
 var
    i,j,x:integer;
    victim: THookedNative;
    hook:Thook;
    native: TJassFunc;
-   tem:string;
-   argumentspart : string;
+   tem:AnsiString;
+   argumentspart : AnsiString;
 begin
    for i := 0 to HookedNatives.Count - 1 do begin
        victim:=HookedNatives[i];
@@ -7960,7 +7960,7 @@ begin
 end;
 
 //=========================
-function FindOddCharacters(const s:string; const abound:integer=-1):boolean;
+function FindOddCharacters(const s:AnsiString; const abound:integer=-1):boolean;
 var
     bound:integer;
 begin
@@ -7978,26 +7978,26 @@ end;
 
 //=========================================================================
 var
-   structmagic_time:string;
+   structmagic_time:AnsiString;
 
 
 
 
 // Expects a file that has been already processed by JASSHelper
-procedure DoJASSerStructMagic(sinput:string;const debug:boolean; var Result:string);overload;
+procedure DoJASSerStructMagic(sinput:AnsiString;const debug:boolean; var Result:AnsiString);overload;
 var
 i,k,L,eln,siz,wordend,membbigarr,membbigarr2:integer;
 
 h,indent,argnum,priv,currentstruct,reqsize:integer;
 
-word,typen,idn,init,tem,tem2,ind,callstuff,inilines:string;
+word,typen,idn,init,tem,tem2,ind,callstuff,inilines:AnsiString;
 glob,fun,loc,stat,stub,deleg,arr,consta,ret,useallocforname,propertyoperator:boolean;
 
-newglobals: Array of string;
-nativesblock: string;
+newglobals: Array of AnsiString;
+nativesblock: AnsiString;
 interfa:boolean;
-globalsblock,typ:string;
-funcall:string;
+globalsblock,typ:AnsiString;
+funcall:AnsiString;
 
 newglobalsgl,newglobalsfs: Array of integer;
 newglobalsn,j:integer;
@@ -8011,18 +8011,18 @@ functionLines: Tlist;
 nativeLines:Tlist;
 hookLines:Tlist;
 
-firstblock:string;
-secondblock:string;
-execblock:string;
+firstblock:AnsiString;
+secondblock:AnsiString;
+execblock:AnsiString;
 doExec:boolean;
 
 badHandlesUsed, makeMethodCopy:boolean;
 
 //DEBUGFILE:textfile;
-{DEBUGSTR:string;
+{DEBUGSTR:AnsiString;
 const DEBUGID=2614;}
 
-    procedure addglobal(const s:string;const genline:integer; const fromstruct:integer=-1);
+    procedure addglobal(const s:AnsiString;const genline:integer; const fromstruct:integer=-1);
     begin
         if( Length(newglobals)<=newglobalsn) then begin
             SetLength(newglobals,newglobalsn+20);
@@ -8036,9 +8036,9 @@ const DEBUGID=2614;}
         newglobalsn:=newglobalsn+1;
     end;
 
-    procedure generateExtraArrays(const typename:string; const pref:string; const suf:string; const indexSpace:integer; const genline:integer);
+    procedure generateExtraArrays(const typename:AnsiString; const pref:AnsiString; const suf:AnsiString; const indexSpace:integer; const genline:integer);
     var i,re:integer;
-        tmp:string;
+        tmp:AnsiString;
     begin
         if (JASS_ARRAY_SIZE>indexSpace) then Exit;
         i:=2;
@@ -8056,10 +8056,10 @@ const DEBUGID=2614;}
 
     //A good model of correct coding would be making parsetype; call this function.
     //But as you may see later, this whole structs function is totally non-correct coding...
-    procedure addArrayType(const name:string; const typ:string; const arsize:integer; const arlimit:integer);
+    procedure addArrayType(const name:AnsiString; const typ:AnsiString; const arsize:integer; const arlimit:integer);
      var
         arstruct:Tstruct;
-        artem:string;
+        artem:AnsiString;
 
     begin
         SetLength(StructList,StructN+2);
@@ -8098,8 +8098,8 @@ const DEBUGID=2614;}
     end;
 
     procedure parsetype;
-     var typename:string;
-     var arraytype:string;
+     var typename:AnsiString;
+     var arraytype:AnsiString;
      var arsize,arlimit:integer;
 
 
@@ -8233,7 +8233,7 @@ begin
 
     end;
 
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -10251,14 +10251,14 @@ end;
 // struct features
 // input: input array,
 // output : processed input array.
-var modoutput: array of String;
+var modoutput: array of AnsiString;
 var modline: array of Integer;
 var modtrace: array of Integer;
 type TModule = class
-    name:string;
+    name:AnsiString;
     decl, declend:integer;
     ImplementedStructId: integer;
-    onInit:string;
+    onInit:AnsiString;
     privateMembers:Tstringhash;
 end;
 
@@ -10269,12 +10269,12 @@ var
    ModuleN:integer;
    Modules: array of TModule;
    cmodule: TModule;
-   modname, privateprefix:string;
+   modname, privateprefix:AnsiString;
    structopen,addit,optional:boolean;
-   structname:string;
+   structname:AnsiString;
    structid:integer;
 
-      function replaceThisType(const s:string):string;
+      function replaceThisType(const s:AnsiString):AnsiString;
       begin
           if(not structopen) then
              Result:=s
@@ -10282,7 +10282,7 @@ var
               Result:=ReplaceIdentifier(s,'thistype',structname);
       end;
 
-      procedure writeOutputLine( const s:string; fromline:integer; trace:integer);
+      procedure writeOutputLine( const s:AnsiString; fromline:integer; trace:integer);
       begin
           if Length(modoutput) <= oln then begin
               SetLength(modoutput, oln+20 + (oln div 5) );
@@ -10299,7 +10299,7 @@ var
       procedure implementModule( const cmod: TModule; fromline:integer);
       var i,j,x:integer;
           optional:boolean;
-          modname: String;
+          modname: AnsiString;
       begin
           if(cmod.implementedStructId = structid) then exit;
           cmod.implementedStructId := structid;
@@ -10324,9 +10324,9 @@ var
           if(cmod.onInit<>'') then WriteOutputLine('//! ModuleOnInit '+cmod.onInit,cmod.decl, fromline);
       end;
 
-      procedure parsePrivate( const line:string; x:integer; var cmodule:Tmodule);
+      procedure parsePrivate( const line:AnsiString; x:integer; var cmodule:Tmodule);
        var
-           word:string;
+           word:AnsiString;
       begin
           GetLineWord(line,word,x,x);
           if(word='static') then begin
@@ -10360,7 +10360,7 @@ var
           end;
 
       end;
-      procedure processPrivate( var line:string; var cmodule:Tmodule);
+      procedure processPrivate( var line:AnsiString; var cmodule:Tmodule);
       begin
            line:=ReplaceIdentifiersByHash(line, cmodule.privateMembers, privateprefix);
 
@@ -10511,7 +10511,7 @@ end;
 
 //<modulemagic>
 
-procedure LoadFile(const FileName: TFileName; var result:string);
+procedure LoadFile(const FileName: TFileName; var result:AnsiString);
 begin
   with TFileStream.Create(FileName,
       fmOpenRead or fmShareDenyWrite) do begin
@@ -10527,7 +10527,7 @@ begin
   end;
 end;
 
-procedure SaveFile(const FileName: TFileName; const result:string);
+procedure SaveFile(const FileName: TFileName; const result:AnsiString);
 var F:textfile;
     open:boolean;
 begin
@@ -10549,11 +10549,11 @@ begin
  end;
 end;
 
-procedure DoJASSerStructMagic(f1:string;f2:string;const debug:boolean);overload;
+procedure DoJASSerStructMagic(f1:AnsiString;f2:AnsiString;const debug:boolean);overload;
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:string;
+   i,o:AnsiString;
 begin
 
     bff2:=false;
@@ -10572,7 +10572,7 @@ begin
     end;
 end;
 
-procedure doJassHelperExternals(const maplocation:string);
+procedure doJassHelperExternals(const maplocation:AnsiString);
 begin
 
 end;
@@ -10582,7 +10582,7 @@ procedure importPathsClear;
 begin
     importpathn:=0;
 end;
-procedure addImportPath(const s:string);
+procedure addImportPath(const s:AnsiString);
 begin
     if(s='') then Exit;
     if (Length(importpaths)<=importpathn) then begin
@@ -10597,7 +10597,7 @@ begin
 end;
 
 {var
-   importpaths:array of string;
+   importpaths:array of AnsiString;
    importpathn:integer=0;}
 
 
@@ -10616,7 +10616,7 @@ end;
 //===================================================
 // Functions and prototypes
 
-constructor Tfunctionprototype.Create( iargs:TDynamicStringArray; iargsn:integer; ires:string);
+constructor Tfunctionprototype.Create( iargs:TDynamicStringArray; iargsn:integer; ires:AnsiString);
 var i:integer;
 begin
     SetLength(args,iargsn);
@@ -10632,7 +10632,7 @@ begin
     childfunctions.Free;
 end;
 
-function Tfunctionprototype.GetId(const s:string):integer;
+function Tfunctionprototype.GetId(const s:AnsiString):integer;
 begin
     result:=childfunctions.ValueOf(s);
     if(result=-1) then begin
@@ -10664,8 +10664,8 @@ begin
 
 
 end;
-function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:string):integer;
-var protk:string;
+function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:AnsiString):integer;
+var protk:AnsiString;
     k,i:integer;
     nargs: TDynamicStringArray;
 begin
@@ -10698,7 +10698,7 @@ begin
     Result:=k;
 end;
 
-function AddFunctionData(const name:string; const protid:integer; const decl:integer):Tfunction;
+function AddFunctionData(const name:AnsiString; const protid:integer; const decl:integer):Tfunction;
 begin
     FunctionDataN:=FunctionDataN+1;
     if (Length(FunctionData)<=FunctionDataN) then SetLength(FunctionData,FunctionDataN+1+FunctionDataN div 5);
@@ -10714,18 +10714,18 @@ begin
 end;
 //========================
 
-var argsbuff:array of string;
-procedure parseFunction(const s:string; decl:integer);
-var word:string;
-    name:string;
-    ret:string;
+var argsbuff:array of AnsiString;
+procedure parseFunction(const s:AnsiString; decl:integer);
+var word:AnsiString;
+    name:AnsiString;
+    ret:AnsiString;
     k:integer;
     a:integer;
     fun:Tfunction;
     consta:boolean;
     interf:boolean;
 
-    procedure addtype(const ss:string);
+    procedure addtype(const ss:AnsiString);
     begin
         if (Length(argsbuff)<=a) then SetLength(argsbuff,2*a+1);
         argsbuff[a]:=ss;
@@ -10804,7 +10804,7 @@ begin
     end;
 end;
 
-function translateMethodOfFunction(const f:string; const fid:integer; const memb:string; const args:string; var res:string; var typ:Tvtype):boolean;
+function translateMethodOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
 var
    fun:Tfunction;
    h,k:integer;
@@ -10837,7 +10837,7 @@ begin
     prototype[k].abuse:=true;
     result:=true;    FunctionDataUsed:=true;
 end;
-function translateMemberOfFunction(const f:string; const fid:integer; const memb:string; var res:string; var typ:Tvtype):boolean;
+function translateMemberOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
 var
    fun:Tfunction;
    k,h:integer;
@@ -10865,7 +10865,7 @@ begin
     FunctionDataUsed:=true;
 end;
 
-function translateMethodOfFunctionPointer(const f:string; const st:Tstruct; const memb:string; const args:string; var res:string; var typ:Tvtype):boolean;
+function translateMethodOfFunctionPointer(const f:AnsiString; const st:Tstruct; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
 var
    k:integer;
 begin
@@ -10894,7 +10894,7 @@ begin
     result:=true;    FunctionDataUsed:=true;
 end;
 
-function translateMemberOfFunctionInterface(const f:string; const st:tstruct; const memb:string; var res:string; var typ:Tvtype):boolean;
+function translateMemberOfFunctionInterface(const f:AnsiString; const st:tstruct; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
 var
    k,h:integer;
 begin
@@ -10945,12 +10945,12 @@ begin
     end;
 end;
 
-procedure MakeFunctionCallers(var output:string);
+procedure MakeFunctionCallers(var output:AnsiString);
 var i,j,k,c:integer;
     prot:Tfunctionprototype;
-    tem,tem2,tem3:string;
-    assigns:string;
-    return:string;
+    tem,tem2,tem3:AnsiString;
+    assigns:AnsiString;
+    return:AnsiString;
 begin
 
 
@@ -11025,13 +11025,13 @@ begin
 end;
 
 
-procedure generateFakeFunctionLocals(const fun:Tfunction; var output:string; var funcall:string; var usecall:boolean);
-var word:string;
-    name,typ,tem:string;
+procedure generateFakeFunctionLocals(const fun:Tfunction; var output:AnsiString; var funcall:AnsiString; var usecall:boolean);
+var word:AnsiString;
+    name,typ,tem:AnsiString;
 
     k,c,i:integer;
     a:integer;
-    s:string;
+    s:AnsiString;
 
     prot:Tfunctionprototype;
 
@@ -11097,9 +11097,9 @@ end;
 
 
 
-procedure buildFunctionActions(var output:string);
+procedure buildFunctionActions(var output:AnsiString);
 var i,j,e:integer;
-    tem,t2,locals,funcall:string;
+    tem,t2,locals,funcall:AnsiString;
     doret,docall:boolean;
 
     fun:Tfunction;
@@ -11159,9 +11159,9 @@ begin
     end;
 end;
 
-procedure buildIniFunctionActions(var output:string);
+procedure buildIniFunctionActions(var output:AnsiString);
 var i:integer;
-    tem,ids,xids,trig:string;
+    tem,ids,xids,trig:AnsiString;
 
     fun:Tfunction;
 begin
@@ -11217,7 +11217,7 @@ end;
 // processes a function that might be a return bug exploiter
 function inline_process_returnbugcandidate(const p:integer; const c:integer):boolean;
 var j,k:integer;
- argname,funcname, functype,argtype:string;
+ argname,funcname, functype,argtype:AnsiString;
 begin
     Result:=false;
     j:=1;
@@ -11250,7 +11250,7 @@ end;
 // replace data. p:function declaration line. c: function content line.
 procedure inline_process_inleanable(const p:integer; const c:integer);
 var start,j,k,r:integer;
-    funcname,aname,atype,tok,nonarg:string;
+    funcname,aname,atype,tok,nonarg:AnsiString;
     ArgumentHash:TStringHash;
     F,T,x,L,an:integer;
     ctr:boolean;
@@ -11369,13 +11369,13 @@ end;
 
 
 //====================================================================================================
-//memo-ized bracket-string handling:
+//memo-ized bracket-AnsiString handling:
 //
 var
    InlineBracketEnds: array of integer;
    TEMPDEBUG2:boolean=false;
 
-function inline_dobracket(const s:string;const p:integer; i:integer; L:integer; bend:char):integer;
+function inline_dobracket(const s:AnsiString;const p:integer; i:integer; L:integer; bend:AnsiChar):integer;
 var j:integer;
 ctr:boolean;
 begin
@@ -11415,7 +11415,7 @@ begin
 end;
 
 // This calls and prepares the ground for the above function.
-procedure inline_dobracketStuff(const s:string;const p:integer; ini:integer; L:integer);
+procedure inline_dobracketStuff(const s:AnsiString;const p:integer; ini:integer; L:integer);
 var i:integer;
 begin
 
@@ -11440,14 +11440,14 @@ end;
 function Inline_IsInlineableFunc(const p:integer; const c:integer):boolean;
 var start,j,k:integer;
 
-    funcname,aname,atype,tok:string;
+    funcname,aname,atype,tok:AnsiString;
     ArgumentHash:TStringHash;
     L,an:integer;
     usedarguments:integer;
 
         function rec(a:integer; b:integer):boolean;
         var ri,rj,rk,rx:integer;
-            rtok:string;
+            rtok:AnsiString;
         begin
             result:=false;
             ri:=a;
@@ -11570,7 +11570,7 @@ end;
 //
 function canInlineInstance(const F:integer; argcontents:TDynamicStringArray; incall:boolean):boolean;
 var k,i,L,par:integer;
-s:string;
+s:AnsiString;
 begin
     result:=false;
     if(incall) then begin //is it good for a call?
@@ -11609,10 +11609,10 @@ end;
 
 var TEMP_DEBUG_INLINE:boolean;
 
-function inlineMaximus(const s:string; const p:integer; const funcname:string; const a:integer; const b:integer):string;
+function inlineMaximus(const s:AnsiString; const p:integer; const funcname:AnsiString; const a:integer; const b:integer):AnsiString;
 var i,j,k,r,t,F,last,cN:integer;
 argcontents:TDynamicStringArray;
-tem,TEMFNAME:string;
+tem,TEMFNAME:AnsiString;
 incall:boolean;
 whitespc:boolean;
 begin
@@ -11721,7 +11721,7 @@ begin
 end;
 
 
-procedure inline_handle_line(var s:string; const p:integer; const funcname:string);
+procedure inline_handle_line(var s:AnsiString; const p:integer; const funcname:AnsiString);
 var L:integer;
 begin
     L:=GetEndOfUsefulLine(s)-1;
@@ -11737,11 +11737,11 @@ end;
 //===========================================================================
 // Process a function (line #p), does inline, and verifies if the function
 // Can be inlined later.
-procedure inline_handle_function( var p:integer; var output:string);
+procedure inline_handle_function( var p:integer; var output:AnsiString);
 var
    fend,i,j,k,goodlines,content:integer;
    caninline:boolean;
-   funcname:string;
+   funcname:AnsiString;
 
 
 begin
@@ -11890,10 +11890,10 @@ NoStateFunctionsHash.Add('HaveSavedHandle', 1);
 end;
 
 // More inliner stuff:
-procedure InlineDo( var Result:string);
+procedure InlineDo( var Result:AnsiString);
 // var inlinefunc
  var i,j,period,nextperiod:integer;
-     word:string;
+     word:AnsiString;
      printit:boolean;
      globals:boolean;
 
@@ -11957,7 +11957,7 @@ period:=0;
 
 end;
 
-procedure DoJASSerInlineMagicS(sinput:string; var Result:string);
+procedure DoJASSerInlineMagicS(sinput:AnsiString; var Result:AnsiString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -12008,7 +12008,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -12023,11 +12023,11 @@ begin
 
 end;
 
-procedure DoJASSerInlineMagicF(const f1:string;const f2:string);
+procedure DoJASSerInlineMagicF(const f1:AnsiString;const f2:AnsiString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:string;
+   i,o:AnsiString;
 begin
 
     bff2:=false;
@@ -12046,7 +12046,7 @@ begin
     end;
 end;
 
-function ArrayStringContains(const arr: array of string; const value: string): Boolean;
+function ArrayStringContains(const arr: array of AnsiString; const value: AnsiString): Boolean;
 var
     i: integer;
 begin
@@ -12074,29 +12074,29 @@ end;
 
 type TLocalArrayVariable = class
 public
-    name: string;
+    name: AnsiString;
     usedIndex: array of integer;
-    constructor Create(varName: string);
+    constructor Create(varName: AnsiString);
 end;
 type TLocalArrayVariableStorage = class
 public
     arr: array of TLocalArrayVariable;
-    function GenerateNull(): string;
-    function Exist(const varName: string): boolean;
-    procedure Add(const varName: string);
-    procedure AddIndex(const varName: string; index: integer);
+    function GenerateNull(): AnsiString;
+    function Exist(const varName: AnsiString): boolean;
+    procedure Add(const varName: AnsiString);
+    procedure AddIndex(const varName: AnsiString; index: integer);
     procedure Clear();
 end;
 
-constructor TLocalArrayVariable.Create(varName: string);
+constructor TLocalArrayVariable.Create(varName: AnsiString);
 begin
     inherited Create;
     name := varName;
 end;
-function TLocalArrayVariableStorage.GenerateNull(): string;
+function TLocalArrayVariableStorage.GenerateNull(): AnsiString;
 var
     i,j: integer;
-    ret: string;
+    ret: AnsiString;
 begin
     ret := '';
     for i := Low(arr) to High(arr) do begin
@@ -12106,7 +12106,7 @@ begin
     end;
     Result := ret;
 end;
-function TLocalArrayVariableStorage.Exist(const varName: string): boolean;
+function TLocalArrayVariableStorage.Exist(const varName: AnsiString): boolean;
 var
     i: integer;
 begin
@@ -12119,12 +12119,12 @@ begin
     Result := false;
     exit;
 end;
-procedure TLocalArrayVariableStorage.add(const varName: string);
+procedure TLocalArrayVariableStorage.add(const varName: AnsiString);
 begin
     SetLength(arr, Length(arr) + 1);
     arr[High(arr)] := TLocalArrayVariable.Create(varName);
 end;
-procedure TLocalArrayVariableStorage.AddIndex(const varName: string; index: integer);
+procedure TLocalArrayVariableStorage.AddIndex(const varName: AnsiString; index: integer);
 var
     i: integer;
 begin
@@ -12145,7 +12145,7 @@ end;
 
 // snip prefix whitespace, suffix whitespace and comment
 { need fix
-function SnipUselessWhitespace(s: string): string;
+function SnipUselessWhitespace(s: AnsiString): AnsiString;
 var
     i, subStringStart, subStringEnd: integer;
 begin
@@ -12175,13 +12175,13 @@ begin
 end;
 }
 
-procedure NullLocalDo( var Result:string);
+procedure NullLocalDo( var Result:AnsiString);
 var
     i, j, k, period, nextperiod, endglobals, lastValidLine, arrayIndex: integer;
-    word, origLine, arrayIndexStr, functionCall: string;
+    word, origLine, arrayIndexStr, functionCall: AnsiString;
     globals, inFunction, cannotResolveArrayIndex: boolean;
-    returnHandleType, localVariable, globalVariable: array of string;
-    generatedNull, currentFuncReturnType: string;
+    returnHandleType, localVariable, globalVariable: array of AnsiString;
+    generatedNull, currentFuncReturnType: AnsiString;
     localArrayVariable: TLocalArrayVariableStorage;
     savedReturnLoc: array of integer;
 begin
@@ -12408,7 +12408,7 @@ period:=0;
 
 end;
 
-procedure DoJASSerNullLocalMagicS(sinput:string; var Result:string);
+procedure DoJASSerNullLocalMagicS(sinput:AnsiString; var Result:AnsiString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -12459,7 +12459,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -12474,11 +12474,11 @@ begin
 
 end;
 
-procedure DoJASSerNullLocalMagicF(const f1:string;const f2:string);
+procedure DoJASSerNullLocalMagicF(const f1:AnsiString;const f2:AnsiString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:string;
+   i,o:AnsiString;
 begin
 
     bff2:=false;
@@ -12507,10 +12507,10 @@ var
     ParseFunctionSignature_ArgNamesBuf:TDynamicStringArray;
     ParseFunctionSignature_ArgTypesBuf:TDynamicStringArray;
 
-procedure ParseFunctionSignature( const s:string; out constant: boolean; out name:string; out argn:integer; out returntype:string);
+procedure ParseFunctionSignature( const s:AnsiString; out constant: boolean; out name:AnsiString; out argn:integer; out returntype:AnsiString);
 var
     x,y:integer;
-    word:string;
+    word:AnsiString;
 begin
     GetLineWord(s, word, x);
     constant:=(word = 'constant');
@@ -12553,10 +12553,10 @@ end;
 var
     ShadowHelper_GlobalsHash: TStringHash;
 
-procedure ShadowHelper_ReadGlobal(const s:string);
+procedure ShadowHelper_ReadGlobal(const s:AnsiString);
 var
    x:integer;
-   word:string;
+   word:AnsiString;
 
 begin
     //[constant] <type> [array] <name> [=value]
@@ -12570,10 +12570,10 @@ begin
 
 end;
 
-function ShadowHelper_HelpIt(const ModHash:TstringHash; const s:string):String;
+function ShadowHelper_HelpIt(const ModHash:TstringHash; const s:AnsiString):AnsiString;
 var
-   tem:string;
-   tok:string;
+   tem:AnsiString;
+   tok:AnsiString;
    i,j,k,L:integer;
 begin
     if( (ModHash=nil) or IsWhiteSpace(s) )  then begin
@@ -12628,14 +12628,14 @@ begin
 end;
 
 
-procedure ShadowHelper_HandleFunction( const fstart:integer; var Result:string);
+procedure ShadowHelper_HandleFunction( const fstart:integer; var Result:AnsiString);
 var
-    tem, lname, ltype, name,returntype: string;
+    tem, lname, ltype, name,returntype: AnsiString;
     constant:boolean;
     i,argn,x:integer;
     ModHash: TStringHash;
 
-       procedure addLocal(const s:string);
+       procedure addLocal(const s:AnsiString);
        begin
            if(ModHash = nil) then begin
                ModHash := TStringHash.create;
@@ -12703,10 +12703,10 @@ begin
 end;
 
 
-procedure ShadowHelperDo( var Result:string);
+procedure ShadowHelperDo( var Result:AnsiString);
 // var inlinefunc
  var i,j,period,nextperiod:integer;
-     word:string;
+     word:AnsiString;
      printit:boolean;
      globals:boolean;
 
@@ -12776,7 +12776,7 @@ end;
 
 
 
-procedure DoJASSerShadowHelperMagicS(sinput:string; var Result:string);
+procedure DoJASSerShadowHelperMagicS(sinput:AnsiString; var Result:AnsiString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -12827,7 +12827,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -12842,11 +12842,11 @@ begin
 
 end;
 
-procedure DoJASSerShadowHelperMagicF(const f1:string;const f2:string);
+procedure DoJASSerShadowHelperMagicF(const f1:AnsiString;const f2:AnsiString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:string;
+   i,o:AnsiString;
 begin
 
     bff2:=false;
@@ -12868,13 +12868,13 @@ end;
 ////////////////////////////////////////////////
 // Return fixer begins here
 var
-    ReturnFixer_Globals: string;
+    ReturnFixer_Globals: AnsiString;
     ReturnFixer_GlobalsHash: TStringHash;
 
 //
-procedure ReturnFixer_AddGlobal(const typename:string);
+procedure ReturnFixer_AddGlobal(const typename:AnsiString);
 var
-   tem:string;
+   tem:AnsiString;
 begin
     if(ReturnFixer_GlobalsHash.ValueOf(typename) = -1) then begin
         ReturnFixer_GlobalsHash.Add(typename,1);
@@ -12887,8 +12887,8 @@ function ReturnFixer_ParseFunction( const fstart:integer; out fend:integer): boo
 var
    constant:boolean;
    rec:boolean;
-   typename:string;
-   funcname,tok,tem:string;
+   typename:AnsiString;
+   funcname,tok,tem:AnsiString;
    i,x, returncount:integer;
 begin
     ParseFunctionSignature( input[fstart], constant, funcname, x, typename);
@@ -12932,18 +12932,18 @@ begin
 
 end;
 
-function FirstNoWhiteSpace( const s:string; const x:integer=1): integer;
+function FirstNoWhiteSpace( const s:AnsiString; const x:integer=1): integer;
 begin
     Result:=x;
     while ( (Result<=Length(s)) and (s[Result] in WHITESPACE_SEPARATORS ) ) do
         Result:=Result+1;
 end;
 
-procedure ReturnFixer_FixFunction( const fstart:integer; const fend:integer; var Result:string);
+procedure ReturnFixer_FixFunction( const fstart:integer; const fend:integer; var Result:AnsiString);
 var
     constant:boolean;
     argn, i, x,y,z: integer;
-    name, tem, returntype,takes,arguments, word: string;
+    name, tem, returntype,takes,arguments, word: AnsiString;
     recpattern:boolean;
 begin
     ParseFunctionSignature(input[fstart], constant, name, argn, returntype);
@@ -13033,7 +13033,7 @@ begin
 
 end;
 
-procedure ReturnFixer_HandleFunction( const fstart: integer; var Result:string);
+procedure ReturnFixer_HandleFunction( const fstart: integer; var Result:AnsiString);
  var
     fend:integer;
 
@@ -13046,10 +13046,10 @@ begin
 
 end;
 
-procedure ReturnFixDo( var Result:string);
+procedure ReturnFixDo( var Result:AnsiString);
 // var inlinefunc
  var i,j,period,nextperiod:integer;
-     tem,word, insideGlobals:string;
+     tem,word, insideGlobals:AnsiString;
      printit:boolean;
      globals:boolean;
 
@@ -13127,7 +13127,7 @@ end;
 
 
 
-procedure DoJASSerReturnFixMagicS(sinput:string; var Result:string);
+procedure DoJASSerReturnFixMagicS(sinput:AnsiString; var Result:AnsiString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -13178,7 +13178,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -13193,11 +13193,11 @@ begin
 
 end;
 
-procedure DoJASSerReturnFixMagicF(const f1:string;const f2:string);
+procedure DoJASSerReturnFixMagicF(const f1:AnsiString;const f2:AnsiString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:string;
+   i,o:AnsiString;
 begin
 
     bff2:=false;
@@ -13219,15 +13219,15 @@ end;
 //=============================================================================
 // Code blocks magic!!111
 const CONDBLOCKS_MAXDEPTH: integer = 50;
-var CondBlocks_CurrentStruct: string='';
+var CondBlocks_CurrentStruct: AnsiString='';
 var
     CondBlocks_ConstantsHash: TStringHash;
     CondBlocks_Stack: array[0 .. 50{CONDBLOCKS_MAXDEPTH}] of integer;
 
-procedure CondBlocks_ReadGlobal(const s:string; linenum:integer );
+procedure CondBlocks_ReadGlobal(const s:AnsiString; linenum:integer );
 var
    x:integer;
-   word, value:string;
+   word, value:AnsiString;
 
 begin
     //[constant] <type> [array] <name> [=value]
@@ -13249,9 +13249,9 @@ begin
     end;
 end;
 
-procedure CondBlocks_ReadMethodExistence( const s:string; const sname:string; linenum:integer; const nstart:integer; const priv:boolean);
+procedure CondBlocks_ReadMethodExistence( const s:AnsiString; const sname:AnsiString; linenum:integer; const nstart:integer; const priv:boolean);
 var
-    name:string;
+    name:AnsiString;
     i:integer;
 begin
     GetLineWord(s,name,i, nstart);
@@ -13261,10 +13261,10 @@ begin
 end;
 
 
-procedure CondBlocks_ReadStaticMember(const s:string; const sname: string; linenum:integer );
+procedure CondBlocks_ReadStaticMember(const s:AnsiString; const sname: AnsiString; linenum:integer );
 var
    x:integer;
-   word, value:string;
+   word, value:AnsiString;
    priv:boolean;
 
 begin
@@ -13303,11 +13303,11 @@ begin
 end;
 
 
-function CondBlocks_AcceptedBlock(const s:string; const linenum:integer; const start:integer):boolean;
+function CondBlocks_AcceptedBlock(const s:AnsiString; const linenum:integer; const start:integer):boolean;
 var
    x,y, len:integer;
    nt, reqvalue:boolean;
-   reqname,word, reqmember, reqmembermember:string;
+   reqname,word, reqmember, reqmembermember:AnsiString;
 begin
 
     //parse the requirement list :( this is hard :(
@@ -13388,14 +13388,14 @@ end;
 procedure DoJasserBlocksMagic;
 // var inlinefunc
  var i,j,k,x,siz,period,nextperiod:integer;
-     word,redo:string;
+     word,redo:AnsiString;
      printit, priv:boolean;
      globals:boolean;
-     structname:string;
+     structname:AnsiString;
      label MEH;
 
 
-     procedure verifySupported(const s:string; const lin:integer);
+     procedure verifySupported(const s:AnsiString; const lin:integer);
       var
          i:integer;
      begin
@@ -13602,12 +13602,12 @@ end;
 procedure ProcessZinc(const debug:boolean);
 var
     i,j,k,x:integer;
-    word:string;
-    output:Array of string;
+    word:AnsiString;
+    output:Array of AnsiString;
     source,trace: Array of integer;
     outn: integer;
 
-    procedure writeOutput(const s:string; const from:integer);
+    procedure writeOutput(const s:AnsiString; const from:integer);
     begin
         if( Length(output) <= outn ) then begin
             SetLength(output, outn+1+outn div 5);

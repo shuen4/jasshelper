@@ -48,8 +48,8 @@ procedure doDialog(var names:TStringList; var paths:TstringList);
 
 type
     Tstringhold = Class(TObject)
-        s:String;
-        constructor create(const ss:string);
+        s:AnsiString;
+        constructor create(const ss:AnsiString);
     end;
 implementation
 
@@ -172,7 +172,7 @@ begin
 end;
 
 
-constructor Tstringhold.create(const ss: string);
+constructor Tstringhold.create(const ss: AnsiString);
 begin
     s:=ss;
 end;

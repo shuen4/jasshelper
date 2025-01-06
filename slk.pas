@@ -6,21 +6,21 @@ uses
   Windows, Forms,Dialogs, Messages,StrUtils, SysUtils, Classes, Controls, StdCtrls,
   ComCtrls, IniFiles, ExtCtrls, Graphics, Math;
 
-type TDynamicStringArray = array of string;
-type TDynamicStringMat = array of array of string;
+type TDynamicStringArray = array of AnsiString;
+type TDynamicStringMat = array of array of AnsiString;
 
 type
   TSLK = class(TObject)
   private
       data:TDynamicStringMat;
-      id:string;
-      garbage:string;
+      id:AnsiString;
+      garbage:AnsiString;
       tx:integer;
       ty:integer;
       pro:Tprogressbar;
       usepro:boolean;
   public
-      function LoadFromFile(s:string):boolean;
+      function LoadFromFile(s:AnsiString):boolean;
       function LoadFromStream(var st:Tstream):boolean;
       property contents: TDynamicStringMat read data;
       property LengthX: integer read tx;
@@ -49,15 +49,15 @@ begin
 end;
 
 var
-   readlnbuff:array of char;
+   readlnbuff:array of AnsiChar;
 
-function StreamReadLn(var st:Tstream):string;
+function StreamReadLn(var st:Tstream):AnsiString;
 var
- ch:char;
+ ch:AnsiChar;
  lf,str:boolean;
  n:integer;
 
-    procedure add(const cc:char);
+    procedure add(const cc:AnsiChar);
     begin
         if(Length(readlnbuff)<=n) then begin
             SetLength(readlnbuff,n*2+1);
@@ -101,9 +101,9 @@ end;
 function TSLK.LoadFromStream(var st:Tstream):boolean;
 var
  i,L,x,y,anchor:integer;
- line,wor:string;
+ line,wor:AnsiString;
 
-  function Token:string;
+  function Token:AnsiString;
   var k:integer;
   begin
       Result:='';
@@ -117,7 +117,7 @@ var
 //      form1.DebugMemo.Lines.add(Result);
   end;
 
-  function QuickInt(const s:string; a:integer; b:integer):integer;
+  function QuickInt(const s:AnsiString; a:integer; b:integer):integer;
   var k:integer;
   begin
       result:=0;
@@ -151,9 +151,9 @@ var
       end;
   end;
 
-  function ParseK:String;
+  function ParseK:AnsiString;
   var j:integer;
-  var wor2:string;
+  var wor2:AnsiString;
   begin
 
       i:=0;
@@ -256,7 +256,7 @@ begin
 end;
 
 
-function TSLK.LoadFromFile(s:string):boolean;
+function TSLK.LoadFromFile(s:AnsiString):boolean;
 var st:Tfilestream;
 begin
     st:=TFileStream.Create(s,fmOpenRead);

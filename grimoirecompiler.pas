@@ -20,7 +20,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Memo1KeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Memo1KeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure Memo1KeyPress(Sender: TObject; var Key: Char);
+    procedure Memo1KeyPress(Sender: TObject; var Key: AnsiChar);
     procedure Memo1Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
@@ -42,11 +42,11 @@ var
   filevar: textfile;
   errorn:integer=0;
   IsANSI: boolean=true;
-  ANSI_text, UTF8_text: string;
+  ANSI_text, UTF8_text: AnsiString;
 
 
-procedure start(const f:string; const title:string);
-procedure add(const line:integer; const msg:string; error:boolean);
+procedure start(const f:AnsiString; const title:AnsiString);
+procedure add(const line:integer; const msg:AnsiString; error:boolean);
 procedure show;
 
 procedure load;
@@ -55,8 +55,8 @@ procedure clear;
 implementation
 
 uses jasshelper,ShellApi,about,progress;
-procedure start(const f:string; const title:string);
-//var x:string;
+procedure start(const f:AnsiString; const title:AnsiString);
+//var x:AnsiString;
 
 begin
 
@@ -75,7 +75,7 @@ begin
 
 end;
 
-procedure add(const line:integer; const msg:string; error:boolean);
+procedure add(const line:integer; const msg:AnsiString; error:boolean);
 begin
     WriteLn(filevar,'Line '+IntToStr(line)+': '+msg);
     if(error) then errorn:=errorn+1;
@@ -95,10 +95,10 @@ end;
 // Longer characters will be truncated to new lines
 // Leading to incorrect line calculations
 // This limitation may related to hardcoded values in Windows Multiline Edit Control
-function fix_long_line(input:string): string;
+function fix_long_line(input:AnsiString): AnsiString;
 var
     i,L,k,ln:integer;
-    lines: array of string;
+    lines: array of AnsiString;
 begin
 
     i:=1;
@@ -132,29 +132,29 @@ begin
 end;
 
 // UTF8 to ANSI
-// Utf8ToAnsi returns an empty string if one or more bytes are malformed
+// Utf8ToAnsi returns an empty AnsiString if one or more bytes are malformed
 // Windows MultiByteToWideChar + WideCharToMultiByte simply replace these with '?'
-function u2a(str:string): string;
+function u2a(str:AnsiString): AnsiString;
 var
     len:integer;
     wstr:widestring;
 begin
     result := '';
     // UTF8 to WideChar
-    len := MultiByteToWideChar(CP_UTF8, 0, pchar(str), Length(str), 0, 0);
+    len := MultiByteToWideChar(CP_UTF8, 0, PAnsiChar(str), Length(str), 0, 0);
     SetLength(wstr, len);
-    MultiByteToWideChar(CP_UTF8, 0, pchar(str), Length(str), pwchar(wstr), len);
+    MultiByteToWideChar(CP_UTF8, 0, PAnsiChar(str), Length(str), pwchar(wstr), len);
     
     // WideChar to ANSI
     len := WideCharToMultiByte(CP_ACP, 0, pwchar(wstr), Length(wstr), 0, 0, 0, 0);
     SetLength(result, len);
-    WideCharToMultiByte(CP_ACP, 0, pwchar(wstr), Length(wstr), pchar(result), Length(result), 0, 0);
+    WideCharToMultiByte(CP_ACP, 0, pwchar(wstr), Length(wstr), PAnsiChar(result), Length(result), 0, 0);
 end;
 
 procedure load;
 var
-   title:string;
-   f,x:string;
+   title:AnsiString;
+   f,x:AnsiString;
 begin
 
     if(not FileExists('logs\compileerrors.txt')) then begin
@@ -274,7 +274,7 @@ begin
 end;
 
 procedure TForm4.ListBox1Click(Sender: TObject);
-var s:string;
+var s:AnsiString;
     i:integer;
 
 begin
@@ -383,7 +383,7 @@ begin
     updateLineLabel;
 end;
 
-procedure TForm4.Memo1KeyPress(Sender: TObject; var Key: Char);
+procedure TForm4.Memo1KeyPress(Sender: TObject; var Key: AnsiChar);
 begin
     updateLineLabel;
 end;

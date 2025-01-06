@@ -10,13 +10,13 @@ function GetWindowsDir: TFileName;
 function GetTempDir: TFileName;
 function TempFile: TFileName;
 function GetAppDataDir: TFileName;
-function LoadFile(const FileName: TFileName): string;
-procedure SaveFile(const FileName: TFileName; const content: string);
+function LoadFile(const FileName: TFileName): AnsiString;
+procedure SaveFile(const FileName: TFileName; const content: AnsiString);
 
 
 implementation
 
-function LoadFile(const FileName: TFileName): string;
+function LoadFile(const FileName: TFileName): AnsiString;
 begin
   with TFileStream.Create(FileName,
       fmOpenRead or fmShareDenyWrite) do begin
@@ -31,7 +31,7 @@ begin
     Free;
   end;
 end;
-procedure SaveFile(const FileName: TFileName; const content: string);
+procedure SaveFile(const FileName: TFileName; const content: AnsiString);
 begin
   with TFileStream.Create(FileName, fmCreate) do
     try
@@ -64,14 +64,14 @@ end;
 
 function GetWindowsDir: TFileName;
 var
-  WinDir: array [0..MAX_PATH-1] of char;
+  WinDir: array [0..MAX_PATH-1] of WideChar;
 begin
   SetString(Result, WinDir, GetWindowsDirectory(WinDir, MAX_PATH));
   if Result = '' then
     raise Exception.Create(SysErrorMessage(GetLastError));
 end;
 
-function addbackslash(const s:string):string;
+function addbackslash(const s:AnsiString):AnsiString;
 var L:integer;
 begin
     L:=Length(s);
@@ -84,7 +84,7 @@ end;
 
 function GetTempDir: TFileName;
 var
-  TmpDir: array [0..MAX_PATH-1] of char;
+  TmpDir: array [0..MAX_PATH-1] of WideChar;
 begin
   try
     SetString(Result, TmpDir, GetTempPath(MAX_PATH, TmpDir));
@@ -113,7 +113,7 @@ end;
 function TempFile: TFileName;
 // Crea un directorio temporal y devuelve su nombre y camino
 var
-  NomArchTemp: array [0..MAX_PATH-1] of char;
+  NomArchTemp: array [0..MAX_PATH-1] of WideChar;
 begin
   if GetTempFileName(PChar(GetTempDir),'V', 0, NomArchTemp) = 0 then
     raise Exception.Create(SysErrorMessage(GetLastError));

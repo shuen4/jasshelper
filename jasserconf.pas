@@ -43,7 +43,7 @@ type
 
 
 var
-   ConfigFile:string;
+   ConfigFile:AnsiString;
 
    //PUPDATE:Tupdateconf;
 
@@ -121,7 +121,7 @@ end;
 procedure Load;
 var
    i,L,j:integer;
-   line,a,b:string;
+   line,a,b:AnsiString;
    f:textfile;
    s_path,s_ext,s_war:boolean;
 begin

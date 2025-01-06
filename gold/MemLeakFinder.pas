@@ -19,7 +19,7 @@ var
    FAStateCount: Integer = 0;
 
    procedure ShowResults;
-   procedure Log(s: string);
+   procedure Log(s: AnsiString);
 
 implementation
 
@@ -49,7 +49,7 @@ begin
 
 end;
 
-procedure Log(s: string);
+procedure Log(s: AnsiString);
 var
    LogFile: TStringList;
 begin

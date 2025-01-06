@@ -36,7 +36,7 @@ var
 TJHIProMax = procedure(max:integer); stdcall;
 TJHIGetProMax = function:integer ; stdcall;
 TJHIGetProPosition = function:integer ; stdcall;
-TJHIStatus = procedure(const msg:string); stdcall;}
+TJHIStatus = procedure(const msg:AnsiString); stdcall;}
 
 procedure show;
 procedure stop;
@@ -44,7 +44,7 @@ procedure SetPosition(p:integer); stdcall;
 function GetPosition:integer; stdcall;
 function GetMax:integer;stdcall;
 procedure SetMax(max:integer);stdcall;
-procedure StatusMsg(const msg:string);stdcall;
+procedure StatusMsg(const msg:AnsiString);stdcall;
 
 implementation
 
@@ -86,7 +86,7 @@ begin
     Form5.Update;
 end;
 
-procedure StatusMsg(const msg:string);stdcall;
+procedure StatusMsg(const msg:AnsiString);stdcall;
 begin
     Form5.Label1.Caption:=msg;
     Form5.Update;

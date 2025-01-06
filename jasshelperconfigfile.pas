@@ -2,30 +2,30 @@ unit JassHelperConfigFile;
 
 interface
 
-type TDynamicStringArray = array of string;
+type TDynamicStringArray = array of AnsiString;
 procedure readConfig(const possibleFilePaths: TDynamicStringArray);
 var
- CONFIG_PATH:string;
- EXTERNAL_PROGRAMS: array of string;
- EXTERNAL_NAMES: array of string;
+ CONFIG_PATH:AnsiString;
+ EXTERNAL_PROGRAMS: array of AnsiString;
+ EXTERNAL_NAMES: array of AnsiString;
  EXTERNAL_N : integer = 0;
- WORK_PATHS: string = '';
- WEWARLOCK_PATH: string = '';
- JASS_COMPILER: string = 'pjass.exe';
- JASS_COMPILER_LINE: string ='$COMMONJ $BLIZZARDJ $WAR3MAPJ';
+ WORK_PATHS: AnsiString = '';
+ WEWARLOCK_PATH: AnsiString = '';
+ JASS_COMPILER: AnsiString = 'pjass.exe';
+ JASS_COMPILER_LINE: AnsiString ='$COMMONJ $BLIZZARDJ $WAR3MAPJ';
 
  ENABLE_RETURN_FIXER :boolean = false;
  ENABLE_SHADOW_HELPER: boolean = true;
  AUTO_METHOD_EVALUATE: boolean = true;
  DISABLE_IMPLICIT_THIS: boolean = false;
-function ParserCommandLine(const commonj: string; const blizzardj:string; const war3mapj:string):string;
+function ParserCommandLine(const commonj: AnsiString; const blizzardj:AnsiString; const war3mapj:AnsiString):AnsiString;
 
 
 implementation
 uses windows,   SysUtils, jasshelper;
 
 
-function ParserCommandLine(const commonj: string; const blizzardj:string; const war3mapj:string):string;
+function ParserCommandLine(const commonj: AnsiString; const blizzardj:AnsiString; const war3mapj:AnsiString):AnsiString;
 begin
     Result:=JASS_COMPILER_LINE;
     Result:=StringReplace(Result, '$COMMONJ', commonj, [rfReplaceAll,rfIgnoreCase]);
@@ -39,7 +39,7 @@ end;
 procedure readConfig(const possibleFilePaths: TDynamicStringArray);
 var f:textfile;
    open:boolean;
-   line,a,b:string;
+   line,a,b:AnsiString;
    i,j,L:integer;
    s_path:boolean;
    s_war:boolean;

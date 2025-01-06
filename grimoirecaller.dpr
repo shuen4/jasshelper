@@ -10,11 +10,11 @@ uses
 {$R *.res}
 
 var
-   fold:string;
-   args:string;
+   fold:AnsiString;
+   args:AnsiString;
    i:integer;
 
-FUNCTION GetProcessID(ExeName:STRING):DWORD;
+FUNCTION GetProcessID(ExeName:AnsiString):DWORD;
  VAR pe: TProcessEntry32;
      h: THandle;
      test: boolean;

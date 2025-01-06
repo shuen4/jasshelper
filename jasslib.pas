@@ -8,44 +8,44 @@ interface
 
    JassLibException = class(Exception)
        public
-          msg : string;
+          msg : AnsiString;
           line: integer;
    end;
 
    TJassType = class(TObject)
    public
-       name   : string;
-       extends: string;
+       name   : AnsiString;
+       extends: AnsiString;
    end;
 
    TJassVar = class(TObject)
    public
-       name : string;
-       typename : string;
+       name : AnsiString;
+       typename : AnsiString;
        isconstant : boolean;
        isarray : boolean;
-       initialvalue : string;
+       initialvalue : AnsiString;
    end;
 
    TJassFunc = class(TObject)
    public
        isnative : boolean;
-       name : string;
-       arguments: Array of String;
+       name : AnsiString;
+       arguments: Array of AnsiString;
        argumentn : integer;
-       returntype : string;
+       returntype : AnsiString;
        isconstant : boolean;
    end;
 
 
 procedure Init;
-function VerifyJassFunc( const name:string; out tpoint:TJassFunc ): boolean;
-function VerifyJassVar( const name:string; out tpoint:TJassVar ): boolean;
-function VerifyJassType( const name:string; out tpoint:TJassType ): boolean;
+function VerifyJassFunc( const name:AnsiString; out tpoint:TJassFunc ): boolean;
+function VerifyJassVar( const name:AnsiString; out tpoint:TJassVar ): boolean;
+function VerifyJassType( const name:AnsiString; out tpoint:TJassType ): boolean;
 procedure parseFile( const filename: TFileName);
 
 // Adds a native line, returns false if the native was already known...
-function AddNativeLine( const s:string): boolean;
+function AddNativeLine( const s:AnsiString): boolean;
 
 implementation
 uses Jasshelper;
@@ -84,7 +84,7 @@ end;
 
 procedure LoadLines( const filename: TFileName);
  var
-    buf, line:string;
+    buf, line:AnsiString;
     i,k,L: integer;
 begin
     if(interf<>nil) then begin
@@ -128,10 +128,10 @@ begin
 
 end;
 
-procedure ParseVariableLine( const line:string);
+procedure ParseVariableLine( const line:AnsiString);
 var
     nextStartPos:integer;
-    typename, variablename, value:string;
+    typename, variablename, value:AnsiString;
 begin
     // try to find out JASS_MAX_ARRAY_SIZE (it should be safe if we only check the first occurrence since more than one is a syntax error)
     // although the script may have JASS_ARRAY_SIZE with value 0 but who cares
@@ -168,10 +168,10 @@ begin
         exit;
     JassHelper.JASS_ARRAY_SIZE := nextStartPos - 1;
 end;
-procedure ParseTypeLine( const line:string);
+procedure ParseTypeLine( const line:AnsiString);
 var
     nextStartPos:integer;
-    typename, parentname {used as a temporary variable until actual use}:string;
+    typename, parentname {used as a temporary variable until actual use}:AnsiString;
 begin
     nextStartPos:=1;
     GetLineToken(line,typename,nextStartPos,nextStartPos);
@@ -196,12 +196,12 @@ begin
 end;
 
 var
-argumentsbuf:array of string;
+argumentsbuf:array of AnsiString;
 
-function ParseFuncLine( const constant:boolean ; const native:boolean; const s:string; var x:integer):boolean;
+function ParseFuncLine( const constant:boolean ; const native:boolean; const s:AnsiString; var x:integer):boolean;
 var
     y:integer;
-    name, word:string;
+    name, word:AnsiString;
     func: TJassFunc;
 begin
 
@@ -249,9 +249,9 @@ begin
 end;
 
 
-function AddNativeLine( const s:string): boolean;
+function AddNativeLine( const s:AnsiString): boolean;
 var x:integer;
-    word:string;
+    word:AnsiString;
     constant:boolean;
 begin
     GetLineWord(s, word, x);
@@ -266,7 +266,7 @@ procedure parseStuff;
 var
  i,x:integer;
  glob, constant:boolean;
- word:string;
+ word:AnsiString;
 
 
 begin
@@ -316,13 +316,13 @@ begin
 end;
 
 
-function VerifyJassType( const name:string; out tpoint:TJassType ): boolean;
+function VerifyJassType( const name:AnsiString; out tpoint:TJassType ): boolean;
 begin
     Result := false;
 end;
 
 
-function VerifyJassFunc( const name:string; out tpoint:TJassFunc ): boolean;
+function VerifyJassFunc( const name:AnsiString; out tpoint:TJassFunc ): boolean;
 var k:integer;
 begin
     k:=FuncHash.ValueOf(name);
@@ -333,7 +333,7 @@ begin
 
 end;
 
-function VerifyJassVar( const name:string; out tpoint:TJassVar ): boolean;
+function VerifyJassVar( const name:AnsiString; out tpoint:TJassVar ): boolean;
 begin
     Result := false;
 end;

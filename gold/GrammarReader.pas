@@ -29,17 +29,17 @@ type
   TGrammarReader = class
   private
     FBufferPos: Integer;
-    FBuffer: string;
+    FBuffer: AnsiString;
     FCurrentRecord: Variant;
     FEntryPos: Integer;
     FEntryCount: Integer;
     FStartSymbol: Integer;
     FParser : TGoldParser;
-    function ReadUniString: string;
+    function ReadUniString: AnsiString;
     function ReadInt16: Integer;
-    function ReadByte: Char;
+    function ReadByte: AnsiChar;
     function ReadEntry: Variant;
-    function OpenFile(const FileName: string): boolean;
+    function OpenFile(const FileName: AnsiString): boolean;
     function OpenStream(const Stream : TStream) : boolean;
   protected
     function DoLoadTables : boolean;
@@ -48,9 +48,9 @@ type
     destructor Destroy; override;
     function GetNextRecord: Boolean;
     function RetrieveNext: Variant;
-    function LoadTables(const FileName : string): boolean; overload;
+    function LoadTables(const FileName : AnsiString): boolean; overload;
     function LoadTables(const Stream : TStream): boolean; overload;
-    property Buffer: string read FBuffer;
+    property Buffer: AnsiString read FBuffer;
     property StartSymbol: Integer read FStartSymbol write FStartSymbol;
     property Parser : TGOLDParser read FParser;
   end;
@@ -58,7 +58,7 @@ type
 implementation
 
 const
-   FHeader: string = 'GOLD Parser Tables/v1.0';
+   FHeader: AnsiString = 'GOLD Parser Tables/v1.0';
 
 constructor TGrammarReader.Create(aParser : TGoldParser);
 begin
@@ -71,7 +71,7 @@ begin
   inherited Destroy;
 end;
 
-function TGrammarReader.OpenFile(const FileName: string) : boolean;
+function TGrammarReader.OpenFile(const FileName: AnsiString) : boolean;
 var FS : TFileStream;
 begin
   try
@@ -91,7 +91,7 @@ begin
 end;
 
 function TGrammarReader.GetNextRecord: Boolean;
-var TypeOfRecord: char;
+var TypeOfRecord: AnsiChar;
     i, Entries : Integer;
 begin
   Result := False;
@@ -111,7 +111,7 @@ begin
   end;
 end;
 
-function TGrammarReader.ReadUniString: string;
+function TGrammarReader.ReadUniString: AnsiString;
 var uchr: integer;
 begin
   uchr := ReadInt16;
@@ -130,14 +130,14 @@ begin
   FBufferPos := FBufferPos + 2;
 end;
 
-function TGrammarReader.ReadByte: Char;
+function TGrammarReader.ReadByte: AnsiChar;
 begin
   Result := FBuffer[FBufferPos];
   Inc(FBufferPos);
 end;
 
 function TGrammarReader.ReadEntry: Variant;
-var EntryType: Char;
+var EntryType: AnsiChar;
 begin
   EntryType := ReadByte;
   case Ord(EntryType) of
@@ -161,9 +161,9 @@ begin
 end;
 
 function TGrammarReader.DoLoadTables: Boolean;
-var Id : String;
+var Id : AnsiString;
     iDummy1, iDummy2, iDummy3, i : integer;
-    strDummy : string;
+    strDummy : AnsiString;
     NewSymbol : TSymbol;
     NewRule : TRule;
     NewFAState : TFAState;
@@ -182,7 +182,7 @@ begin
   if FHeader = ReadUniString then begin
     while (FBufferPos < Length(FBuffer)) do begin
       Result := GetNextRecord;
-      Id := String(RetrieveNext);
+      Id := AnsiString(RetrieveNext);
       case Ord(Id[1]) of
         RecordIdParameters : begin
           Parser.VariableList.Value['Name'] := RetrieveNext;
@@ -268,7 +268,7 @@ begin
   Result := OpenStream(Stream) and DoLoadTables;
 end;
 
-function TGrammarReader.LoadTables(const FileName: string): boolean;
+function TGrammarReader.LoadTables(const FileName: AnsiString): boolean;
 begin
   Result := OpenFile(FileName) and DoLoadTables;
 end;

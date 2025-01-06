@@ -73,7 +73,7 @@ end;
 
 procedure TForm6.Button3Click(Sender: TObject);
 var
-   dir: String;
+   dir: AnsiString;
 begin
 dir:='.';
     if folderbrowse.GetFolderDialog(0,'Select a lookup folder.',dir) then begin

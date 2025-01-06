@@ -27,9 +27,9 @@ lib:PFunctionLibrary;
 propos:integer;
 promaximum:integer;
 
-PRENAME:string;
-PRELONGNAME:string;
-PATHS:string;
+PRENAME:AnsiString;
+PRELONGNAME:AnsiString;
+PATHS:AnsiString;
 
 
 procedure ProPosition(p:integer); stdcall;
@@ -50,13 +50,13 @@ function GetProPosition:integer ; stdcall;
 begin
     Result:=propos;
 end;
-procedure StatusMessage(const msg:string); stdcall;
+procedure StatusMessage(const msg:AnsiString); stdcall;
 begin
     lib.ProgressWndTitle(pchar('JASSHelper - '+msg));
 end;
 
 
-function GetSuffixedName(x,suf:string):string;
+function GetSuffixedName(x,suf:AnsiString):AnsiString;
 var
    i,L:integer;
 begin
@@ -77,9 +77,9 @@ begin
     MessageBox(0,'A WEHelper error is making it remove war3map.j','WEHelper error detected',MB_TOPMOST+MB_ICONERROR)
 end;
 
-procedure doTool(const map:string; const name:string; const prog:string; const args:string);
+procedure doTool(const map:AnsiString; const name:AnsiString; const prog:AnsiString; const args:AnsiString);
 var
-   s,f,f1,f2,f3:string;
+   s,f,f1,f2,f3:AnsiString;
    temi:integer;
 begin
     f1:=TempFile;
@@ -101,7 +101,7 @@ begin
 
 end;
 
-procedure doExternalThings(const map:string;exter:TExternalusage);
+procedure doExternalThings(const map:AnsiString;exter:TExternalusage);
 var
    i,j:integer;
 
@@ -144,9 +144,9 @@ end;
 procedure Process(Info: PPreprocessorProcessInfo); stdcall;
 var
   mpq:THandle;
-//  f1:string;
-//  f2,f3:string;
-  input,output,tm:string;
+//  f1:AnsiString;
+//  f2,f3:AnsiString;
+  input,output,tm:AnsiString;
   pinput:pchar;
   errordialogopened:boolean;
   i:integer;
@@ -173,7 +173,7 @@ begin
   pinput:=lib.MpqLockFile(mpq,'war3map.j');
 
 
-  input:=string(pinput);
+  input:=AnsiString(pinput);
 
 
   lib.MpqFreeFile(pinput);
@@ -372,7 +372,7 @@ begin
  if Info.Enabled then begin
      New(PreprocInfo);
      PRENAME:='JASSHELPER';
-     PRELONGNAME:='Jass Helper - Libraries, global merge, debug mode and string fix';
+     PRELONGNAME:='Jass Helper - Libraries, global merge, debug mode and AnsiString fix';
      PreprocInfo.Process:=Process;
      PreprocInfo.CodeName:=PCHAR(PRENAME);
      PreprocInfo.LongName:=PCHAR(PRELONGNAME);

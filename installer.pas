@@ -30,10 +30,10 @@ type
 
 var
   Form3: TForm3;
-  jasshelperdll: string;
-  jasshelpercgt: string;
-  jasshelpertargetdll:string;
-  jasshelpertargetcgt:string;
+  jasshelperdll: AnsiString;
+  jasshelpercgt: AnsiString;
+  jasshelpertargetdll:AnsiString;
+  jasshelpertargetcgt:AnsiString;
 
 implementation
 
@@ -42,7 +42,7 @@ uses about;
 {$R *.dfm}
 procedure TForm3.SetTarget;
 var
-   f:string;
+   f:AnsiString;
 begin
     if (Edit1.Text[Length(Edit1.Text)]='\') then begin
         f:=Edit1.Text+'plugins\';
@@ -117,7 +117,7 @@ end;
 
 procedure TForm3.Button2Click(Sender: TObject);
 var
-   s:string;
+   s:AnsiString;
 begin
    OpenDialog1.Filter:='WEHelper.exe|WEHelper.exe';
    if OpenDialog1.Execute then begin
