@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.7.5';
+const VERSION:String = '0.A.8.0';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -7996,7 +7996,7 @@ glob,fun,loc,stat,stub,deleg,arr,consta,ret,useallocforname,propertyoperator:boo
 newglobals: Array of string;
 nativesblock: string;
 interfa:boolean;
-globalsblock,typ:string;
+globalsblock,typ, typeDefBlock:string;
 funcall:string;
 
 newglobalsgl,newglobalsfs: Array of integer;
@@ -8169,12 +8169,16 @@ const DEBUGID=2614;}
 
             input[i]:='//processed :'+input[i];
 
+        end else begin
+            typeDefBlock := typeDefBlock + input[i] + #13#10;
+            input[i] := '// moved: ' + input[i];
         end;
 
     end;
 
 begin
 
+    typeDefBlock:='';
      initParser;
     structmagic_time:=IntToStr(GetTickCount); //This allows Jasshelper to run twice on a map even if both instances had structs
 
@@ -10211,6 +10215,7 @@ begin
 
 
 
+    SWriteLn(result,typeDefBlock);
     SWriteLn(result,globalsblock);
     SWriteLn(result,'endglobals');
     SWriteLn(result, nativesblock);
