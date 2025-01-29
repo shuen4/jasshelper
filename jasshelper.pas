@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.8.0';
+const VERSION:String = '0.A.8.1';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -10213,9 +10213,7 @@ begin
     //Write Hooks:
     WriteHooks(firstblock);
 
-
-
-    SWriteLn(result,typeDefBlock);
+    SWrite(result,typeDefBlock);
     SWriteLn(result,globalsblock);
     SWriteLn(result,'endglobals');
     SWriteLn(result, nativesblock);
