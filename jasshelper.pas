@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.8.1';
+const VERSION:String = '0.A.8.2';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -4386,7 +4386,7 @@ var
      var converttocall3:boolean;
     begin
         if not translateDotVar(obj,dmemb.name,sid,styp,res2,typ2,{fromstruct}sid,pos,false,'',MakeType(0),converttocall) then begin
-            raise Exception.Create('BAd internal error : '+res2);
+            raise Exception.Create('Bad internal error : '+res2);
         end;
         converttocall:=false;
         result:=false;

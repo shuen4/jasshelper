@@ -12,6 +12,7 @@ function TempFile: TFileName;
 function GetAppDataDir: TFileName;
 function LoadFile(const FileName: TFileName): string;
 procedure SaveFile(const FileName: TFileName; const content: string);
+function CleanTempFiles : integer;
 
 
 implementation
@@ -68,7 +69,7 @@ var
 begin
   SetString(Result, WinDir, GetWindowsDirectory(WinDir, MAX_PATH));
   if Result = '' then
-    raise Exception.Create(SysErrorMessage(GetLastError));
+    raise Exception.Create('Failed to get Windows folder' + SysErrorMessage(GetLastError));
 end;
 
 function addbackslash(const s:string):string;
@@ -90,34 +91,69 @@ begin
     SetString(Result, TmpDir, GetTempPath(MAX_PATH, TmpDir));
     if not DirectoryExists(Result) then
       if not CreateDirectory(PChar(Result), nil) then begin
+        // fall back to %WINDOWS%\TEMP
         Result := addbackslash(GetWindowsDir) + 'TEMP'; //Of course it is specific to a platform! It is supposed to!
         if not DirectoryExists(Result) then
-          if not CreateDirectory(Pointer(Result), nil) then begin
+          if not CreateDirectory(PChar(Result), nil) then begin
+            // fall back to %WINDOWS%'s drive\TEMP
             Result := ExtractFileDrive(Result) + '\TEMP';
             if not DirectoryExists(Result) then
-              if not CreateDirectory(Pointer(Result), nil) then begin
+              if not CreateDirectory(PChar(Result), nil) then begin
+                // fall back to %WINDOWS%'s drive\TMP
                 Result := ExtractFileDrive(Result) + '\TMP';
                 if not DirectoryExists(Result) then
-                  if not CreateDirectory(Pointer(Result), nil) then begin
-                    raise Exception.Create(SysErrorMessage(GetLastError));
+                  if not CreateDirectory(PChar(Result), nil) then begin
+                    // no more fall back
+                    raise Exception.Create('Failed to get Temp folder' + SysErrorMessage(GetLastError));
                   end;
               end;
           end;
       end;
+    // create "Jass Helper" directory in Temp folder
+    Result := addbackslash(Result) + 'Jass Helper';
+    if not DirectoryExists(Result) then begin
+        if not CreateDirectory(PChar(Result), nil) then begin
+            raise Exception.Create('Failed to create Jass Helper Temp folder' + SysErrorMessage(GetLastError));
+        end;
+    end;
   except
     Result := '';
     raise;
   end;
 end;
 
+var used_temp_files : array of string;
+
 function TempFile: TFileName;
 // Crea un directorio temporal y devuelve su nombre y camino
 var
-  NomArchTemp: array [0..MAX_PATH-1] of char;
+    NomArchTemp: array [0..MAX_PATH-1] of char;
+    TempDir : string;
+    ErrorCode : integer;
 begin
-  if GetTempFileName(PChar(GetTempDir),'V', 0, NomArchTemp) = 0 then
-    raise Exception.Create(SysErrorMessage(GetLastError));
-  Result := NomArchTemp;
+    TempDir := GetTempDir();
+    if GetTempFileName(PChar(TempDir),'V', 0, NomArchTemp) = 0 then
+    begin
+        ErrorCode := GetLastError();
+        if ErrorCode = ERROR_FILE_EXISTS then
+            raise Exception.Create(SysErrorMessage(GetLastError) + #13#10'Delete ' + TempDir + ' and try again')
+        else
+            raise Exception.Create(SysErrorMessage(GetLastError) + #13#10'Report this')
+    end;
+    Result := NomArchTemp;
+    SetLength(used_temp_files, Length(used_temp_files) + 1);
+    used_temp_files[High(used_temp_files)] := Result;
+end;
+
+function CleanTempFiles : integer;
+var
+    i : integer;
+begin
+    for i := Low(used_temp_files) to High(used_temp_files) do begin
+        DeleteFile(used_temp_files[i])
+    end;
+    SetLength(used_temp_files, 0);
+    Result := i;
 end;
 
 

@@ -679,6 +679,7 @@ try
 
 
      WriteLn('Success!');
+     CleanTempFiles();
 
 
 except
@@ -709,12 +710,14 @@ except
 
 
      clierrors.show;
+     CleanTempFiles();
      Halt(1);
  end;
 
  on e:Exception do begin
      Writeln('JassHelper Error');
      WriteLn(e.message);
+     CleanTempFiles();
      Halt(1);
 
  end;

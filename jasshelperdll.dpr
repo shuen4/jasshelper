@@ -99,6 +99,7 @@ begin
     end;
 
 
+    CleanTempFiles(); // i guess here are correct place to insert code that cleanup temp files
 end;
 
 procedure doExternalThings(const map:string;exter:TExternalusage);

@@ -739,6 +739,7 @@ try
      progress.StatusMsg('Success!');
      Sleep(250);
      progress.stop;
+     CleanTempFiles();
 
 
 except
@@ -769,11 +770,13 @@ except
 
 
      grimoirecompiler.show;
+     CleanTempFiles();
      Halt(1);
  end;
 
  on e:Exception do begin
      MessageBox(0,pchar(e.message),'JASSHelper Error',MB_TOPMOST+MB_ICONERROR);
+     CleanTempFiles();
      Halt(1);
 
  end;
