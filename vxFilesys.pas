@@ -136,9 +136,9 @@ begin
     begin
         ErrorCode := GetLastError();
         if ErrorCode = ERROR_FILE_EXISTS then
-            raise Exception.Create(SysErrorMessage(GetLastError) + #13#10'Delete ' + TempDir + ' and try again')
+            raise Exception.Create('Get temporary filename Failed, ' + SysErrorMessage(GetLastError()) + #13#10'Delete ' + TempDir + ' and try again')
         else
-            raise Exception.Create(SysErrorMessage(GetLastError) + #13#10'Report this')
+            raise Exception.Create('Get temporary filename Failed, ' + SysErrorMessage(GetLastError()))
     end;
     Result := NomArchTemp;
     SetLength(used_temp_files, Length(used_temp_files) + 1);
