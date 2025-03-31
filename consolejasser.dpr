@@ -6,6 +6,7 @@ program consolejasser;
 
 uses
   SysUtils,
+  vxFilesys in 'vxFilesys.pas',
   jasshelper in 'jasshelper.pas';
 
 var
@@ -33,6 +34,7 @@ begin
 
   if (ParamStr(temi)='') or (ParamStr(temi+1)='') then begin
       WriteLn('jasshelper.exe [--debug] [--structs] input_war3map.j output.j');
+      CleanTempFiles();
       Halt(2);
   end;
       f1:=ParamStr(temi);
@@ -53,10 +55,12 @@ except
          end;
          if(e.macro1>=0) then WriteLn('Line '+IntToStr(e.macro1+1)+': (From this macro instance)');
          if(e.macro2>=0) and(e.macro2<>e.macro1) then WriteLn('Line '+IntToStr(e.macro2+1)+': (From this macro instance)');
+     CleanTempFiles();
      Halt(1);
  end;
  on e:Exception do begin
      WriteLn('Error: '+e.Message);
+     CleanTempFiles();
      Halt(1);
 
  end;

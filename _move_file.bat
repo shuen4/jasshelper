@@ -7,7 +7,7 @@ move /y grimoire\grimoirecaller.exe output
 move /y wehelper\jasshelperdll.dll output\jasshelper.dll
 move /y wehelper\jasshelperdll.rsm output\jasshelper.rsm
 move /y wehelper\jasshelperinstaller.exe output
-move /y jasshelper.cgt output
+copy /y jasshelper.cgt output
 @REM sign
 where sign >nul 2>&1
 if %errorlevel%==0 (

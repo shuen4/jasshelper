@@ -422,12 +422,15 @@ begin
   while(true) do begin
       if(paramStr(temi)='--configure') then begin
           MessageBox(0,'To configure edit the file jasshelper.conf located at the same path as this executable or on the work folder (priority give to work folder)','JassHelper',MB_ICONINFORMATION);
+          CleanTempFiles();
           Halt;
       end else if(paramStr(temi)='--about') then begin
           DoAbout;
+          CleanTempFiles();
           Halt;
       end else if(paramStr(temi)='--showerrors') then begin
           grimoirecompiler.load;
+          CleanTempFiles();
           Halt;
       end else if(ParamStr(temi)='--debug') then begin
           debug:=true;
@@ -616,6 +619,7 @@ try
           dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
 
 //          dopjasserrors(f1,f1);
+          CleanTempFiles();
           halt(1);
       end;
         if (jasshelperconfigfile.ENABLE_RETURN_FIXER) then begin
@@ -633,6 +637,7 @@ try
             if(temi<>0) then begin
                progress.StatusMsg('Found errors, please wait...');
                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+               CleanTempFiles();
                halt(1);
             end;
 
@@ -653,6 +658,7 @@ try
             if(temi<>0) then begin
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                CleanTempFiles();
                 halt(1);
             end;
 
@@ -674,6 +680,7 @@ try
             if(temi<>0) then begin
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                CleanTempFiles();
                 halt(1);
             end;
              
@@ -692,6 +699,7 @@ try
             if(temi<>0) then begin
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                CleanTempFiles();
                 halt(1);
             end;
              

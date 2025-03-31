@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, {Messages, }SysUtils, {Variants, }Classes, Graphics, Controls, Forms,
-  Dialogs, Registry, StdCtrls;
+  Dialogs, Registry, StdCtrls, vxFilesys;
 
 type
   TForm3 = class(TForm)
@@ -55,6 +55,7 @@ begin
     end;
     if (not DirectoryExists(f)) and (not CreateDirectory(pchar(f),nil)) then begin
         Application.MessageBox('Unable to find/create plugins folder','Error',MB_ICONERROR);
+        CleanTempFiles();
         Halt;
     end;
 
@@ -103,6 +104,7 @@ begin
     except
        on e:Exception do begin
            Application.MessageBox(pchar(e.message),'Error',MB_ICONERROR);
+           CleanTempFiles();
            Halt;
        end;
 
@@ -155,10 +157,12 @@ begin
     JASSHELPERCGT:=ExtractFileDir(ParamStr(0))+'\jasshelper.cgt';
     if (not FileExists(JASSHELPERDLL)) then begin
         Application.MessageBox(pchar('Unable to find jasshelper.dll at: '+JASSHELPERDLL),'Error',MB_ICONSTOP);
+        CleanTempFiles();
         Halt;
     end;
     if (not FileExists(JASSHELPERCGT)) then begin
         Application.MessageBox(pchar('Unable to find jasshelper.cgt at: '+JASSHELPERCGT),'Error',MB_ICONSTOP);
+        CleanTempFiles();
         Halt;
     end;
 

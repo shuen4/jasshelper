@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls;
+  Dialogs, StdCtrls, vxFilesys;
 
 type
   TForm4 = class(TForm)
@@ -159,6 +159,7 @@ begin
 
     if(not FileExists('logs\compileerrors.txt')) then begin
         MessageBox(0,'Jasshelper did not find any syntax error last time it was called','Jasshelper',MB_ICONINFORMATION);
+        CleanTempFiles();
         halt;
     end;
 

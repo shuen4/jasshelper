@@ -150,7 +150,7 @@ var
     i : integer;
 begin
     for i := Low(used_temp_files) to High(used_temp_files) do begin
-        DeleteFile(used_temp_files[i])
+        DeleteFile(used_temp_files[i]);
     end;
     SetLength(used_temp_files, 0);
     Result := i;

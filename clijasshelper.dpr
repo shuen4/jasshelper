@@ -374,12 +374,15 @@ begin
   while(true) do begin
       if(paramStr(temi)='--configure') then begin
           WriteLn('To configure edit the file jasshelper.conf located at the same path as this executable or on the work folder (priority give to work folder)');
+          CleanTempFiles();
           Halt;
       end else if(paramStr(temi)='--about') then begin
           DoAbout;
+          CleanTempFiles();
           Halt;
       end else if(paramStr(temi)='--showerrors') then begin
           clierrors.load;
+          CleanTempFiles();
           Halt;
       end else if(ParamStr(temi)='--debug') then begin
           debug:=true;
@@ -561,6 +564,7 @@ try
           dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
 
 //          dopjasserrors(f1,f1);
+          CleanTempFiles();
           halt(1);
       end;
 
@@ -579,6 +583,7 @@ try
             if(temi<>0) then begin
                WriteLn('Found errors, please wait...');
                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+               CleanTempFiles();
                halt(1);
             end;
 
@@ -599,6 +604,7 @@ try
             if(temi<>0) then begin
                WriteLn('Found errors, please wait...');
                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+               CleanTempFiles();
                halt(1);
             end;
 
@@ -621,6 +627,7 @@ try
             if(temi<>0) then begin
                 WriteLn('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                CleanTempFiles();
                 halt(1);
             end;
 
@@ -639,6 +646,7 @@ try
             if(temi<>0) then begin
                 WriteLn('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                CleanTempFiles();
                 halt(1);
             end;
             
