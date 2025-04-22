@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.8.5';
+const VERSION:String = '0.A.8.6';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -12383,6 +12383,7 @@ period:=0;
                             end;
                             if (origLine[1] = ']') then begin
                                 localArrayVariable.AddIndex(word, arrayIndex);
+                                j := j + 1;
                                 origLine{tmp} := input[i][j];
                                 while (origLine[1] in WHITESPACE_SEPARATORS) do begin
                                     j := j + 1;
