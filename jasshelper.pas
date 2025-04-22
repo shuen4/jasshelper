@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.8.4';
+const VERSION:String = '0.A.8.5';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -2520,6 +2520,23 @@ begin
         if( jasshelper.BLIZZARDJ <> '') then begin
             JassLib.parseFile(jasshelper.BLIZZARDJ);
         end;
+        // these are agent but in common.j they wrongly defined as extend handle
+        {
+            type triggeraction              extends     handle
+            type unitpool                   extends     handle
+            type itempool                   extends     handle
+            type camerasetup                extends     handle
+            type framehandle                extends     handle
+            type commandbuttoneffect        extends     handle
+        }
+        SetLength(reference_counted_obj, Length(reference_counted_obj) + 6);
+        reference_counted_obj[High(reference_counted_obj) - 5] := 'triggeraction';
+        reference_counted_obj[High(reference_counted_obj) - 4] := 'unitpool';
+        reference_counted_obj[High(reference_counted_obj) - 3] := 'itempool';
+        reference_counted_obj[High(reference_counted_obj) - 2] := 'camerasetup';
+        reference_counted_obj[High(reference_counted_obj) - 1] := 'framehandle';
+        reference_counted_obj[High(reference_counted_obj)    ] := 'commandbuttoneffect';
+        
         // should we just only parse from common.j ?
         if (JASS_ARRAY_SIZE = 0) then
             // default to 8191
@@ -12085,6 +12102,7 @@ type TLocalArrayVariableStorage = class
 public
     arr: array of TLocalArrayVariable;
     function GenerateNull(): string;
+    function GenerateNullComment(): string;
     function Exist(const varName: string): boolean;
     procedure Add(const varName: string);
     procedure AddIndex(const varName: string; index: integer);
@@ -12105,6 +12123,19 @@ begin
     for i := Low(arr) to High(arr) do begin
         for j := Low(arr[i].usedIndex) to High(arr[i].usedIndex) do begin
             ret := 'set ' + arr[i].name + '[' + IntToStr(arr[i].usedIndex[j]) + '] = null'#13#10 + ret;
+        end;
+    end;
+    Result := ret;
+end;
+function TLocalArrayVariableStorage.GenerateNullComment(): string;
+var
+    i,j: integer;
+    ret: string;
+begin
+    ret := '';
+    for i := Low(arr) to High(arr) do begin
+        for j := Low(arr[i].usedIndex) to High(arr[i].usedIndex) do begin
+            ret := '//set ' + arr[i].name + '[' + IntToStr(arr[i].usedIndex[j]) + '] = null'#13#10 + ret;
         end;
     end;
     Result := ret;
@@ -12182,11 +12213,12 @@ procedure NullLocalDo( var Result:string);
 var
     i, j, k, period, nextperiod, endglobals, lastValidLine, arrayIndex: integer;
     word, origLine, arrayIndexStr, functionCall: string;
-    globals, inFunction, cannotResolveArrayIndex: boolean;
+    globals, inFunction, cannotResolveArrayIndex, lastLineIsNull: boolean;
     returnHandleType, localVariable, globalVariable: array of string;
-    generatedNull, currentFuncReturnType: string;
+    generatedNull, generatedNullComment, currentFuncReturnType: string;
     localArrayVariable: TLocalArrayVariableStorage;
     savedReturnLoc: array of integer;
+    savedReturnLocHaveNull: array of boolean;
 begin
 nextperiod:=0;
 period:=0;
@@ -12248,55 +12280,60 @@ period:=0;
                 globals:=true
             else if (word = 'endfunction') and (inFunction) then begin
                 generatedNull := localArrayVariable.GenerateNull() + generatedNull;
+                generatedNullComment := localArrayVariable.GenerateNullComment() + generatedNullComment;
                 if (generatedNull <> '') then begin
                     for k := Low(savedReturnLoc) to High(savedReturnLoc) do begin
-                        GetLineWord(input[savedReturnLoc[k]], word, j); // return
-                        functionCall := Copy(input[savedReturnLoc[k]], j, Length(input[savedReturnLoc[k]]) - j + 1);
-                        GetLineToken(input[savedReturnLoc[k]], word, j, j);
-                        origLine := input[savedReturnLoc[k]];
-                        input[savedReturnLoc[k]] := '//JASSHelper null local processed: ' + origLine;
-                        if (ArrayStringContains(localVariable, word)) then begin // return local variable
-                            if (ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then begin // return agent
+                        if (not savedReturnLocHaveNull[k]) then begin
+                            GetLineWord(input[savedReturnLoc[k]], word, j); // return
+                            functionCall := Copy(input[savedReturnLoc[k]], j, Length(input[savedReturnLoc[k]]) - j + 1);
+                            GetLineToken(input[savedReturnLoc[k]], word, j, j);
+                            origLine := input[savedReturnLoc[k]];
+                            input[savedReturnLoc[k]] := '//JASSHelper null local processed: ' + origLine;
+                            if (ArrayStringContains(localVariable, word)) then begin // return local variable
+                                if (ArrayStringContains(reference_counted_obj, currentFuncReturnType)) then begin // return agent
+                                    if (not ArrayStringContains(returnHandleType , currentFuncReturnType)) and ArrayStringContains(reference_counted_obj, currentFuncReturnType) then begin
+                                        SetLength(returnHandleType, Length(returnHandleType) + 1);
+                                        returnHandleType[High(returnHandleType)] := currentFuncReturnType;
+                                    end;
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word;
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
+                                end else begin // return non-agent
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + origLine;
+                                end;
+                            end else if (localArrayVariable.Exist(word)) then begin // return local array variable
                                 if (not ArrayStringContains(returnHandleType , currentFuncReturnType)) and ArrayStringContains(reference_counted_obj, currentFuncReturnType) then begin
                                     SetLength(returnHandleType, Length(returnHandleType) + 1);
                                     returnHandleType[High(returnHandleType)] := currentFuncReturnType;
                                 end;
-                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word;
+                                arrayIndexStr := Copy(origLine, j + 1, Length(origLine) - j - 1);
+                                if (not TryStrToIntX(arrayIndexStr, arrayIndex)) then begin
+                                    // cannot convert to int
+                                    // example: S2I("123") , varName, (123) <-- i have no idea how to get this value without messing up
+                                    cannotResolveArrayIndex := true;
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn___arrayIndex = ' + arrayIndexStr;
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word + '[sn___arrayIndex]';
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set ' + word + '[sn___arrayIndex] = null';
+                                end else begin
+                                    input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word + '[' + IntToStr(arrayIndex) + ']';
+                                end;
                                 input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
                                 input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
-                            end else begin // return non-agent
+                            end else if (ArrayStringContains(globalVariable, word)) or (ArrayStringContains(CJ_BJ_globals, word)) or (word='null') or (word='false') or (word='true') or (word='.') or (TryStrToIntX(Copy(word, 1, 1), arrayIndex{unused})) or (currentFuncReturnType='nothing') then begin // return global variable / return literals / return nothing
                                 input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
                                 input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + origLine;
+                            end else begin // return + function call / return non-agent
+                                if (not ArrayStringContains(returnHandleType , currentFuncReturnType)) then begin
+                                    SetLength(returnHandleType, Length(returnHandleType) + 1);
+                                    returnHandleType[High(returnHandleType)] := currentFuncReturnType;
+                                end;
+                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + functionCall;
+                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
+                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
                             end;
-                        end else if (localArrayVariable.Exist(word)) then begin // return local array variable
-                            if (not ArrayStringContains(returnHandleType , currentFuncReturnType)) and ArrayStringContains(reference_counted_obj, currentFuncReturnType) then begin
-                                SetLength(returnHandleType, Length(returnHandleType) + 1);
-                                returnHandleType[High(returnHandleType)] := currentFuncReturnType;
-                            end;
-                            arrayIndexStr := Copy(origLine, j + 1, Length(origLine) - j - 1);
-                            if (not TryStrToIntX(arrayIndexStr, arrayIndex)) then begin
-                                // cannot convert to int
-                                // example: S2I("123") , varName, (123) <-- i have no idea how to get this value without messing up
-                                cannotResolveArrayIndex := true;
-                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn___arrayIndex = ' + arrayIndexStr;
-                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word + '[sn___arrayIndex]';
-                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set ' + word + '[sn___arrayIndex] = null';
-                            end else begin
-                                input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + word + '[' + IntToStr(arrayIndex) + ']';
-                            end;
-                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
-                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
-                        end else if (ArrayStringContains(globalVariable, word)) or (ArrayStringContains(CJ_BJ_globals, word)) or (word='null') or (word='false') or (word='true') or (word='.') or (TryStrToIntX(Copy(word, 1, 1), arrayIndex{unused})) or (currentFuncReturnType='nothing') then begin // return global variable / return literals / return nothing
-                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
-                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + origLine;
-                        end else begin // return + function call / return non-agent
-                            if (not ArrayStringContains(returnHandleType , currentFuncReturnType)) then begin
-                                SetLength(returnHandleType, Length(returnHandleType) + 1);
-                                returnHandleType[High(returnHandleType)] := currentFuncReturnType;
-                            end;
-                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10'set sn__' + currentFuncReturnType + ' = ' + functionCall;
-                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + #13#10 + generatedNull;
-                            input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
+                        end else begin
+                            input[savedReturnLoc[k]] := '//JASSHelper null local ignored(last line contains set null)'#13#10 + generatedNullComment + input[savedReturnLoc[k]];
                         end;
                     end;
                     if ((Length(savedReturnLoc) = 0) or (savedReturnLoc[High(savedReturnLoc)] <> lastValidLine)) then
@@ -12306,12 +12343,15 @@ period:=0;
             end else if (word = 'return') and (inFunction) then begin
                 SetLength(savedReturnLoc, Length(savedReturnLoc) + 1);
                 savedReturnLoc[High(savedReturnLoc)] := i;
+                SetLength(savedReturnLocHaveNull, Length(savedReturnLocHaveNull) + 1);
+                savedReturnLocHaveNull[High(savedReturnLocHaveNull)] := lastLineIsNull;
             end else if (word = 'local') and (inFunction) then begin
                 GetLineWord(input[i], word, j, j);
                 if (ArrayStringContains(reference_counted_obj, word)) then begin
                     if (not compareLineWord('array',input[i],k,j)) then begin
                         GetLineToken(input[i], word, j, j);
                         generatedNull := 'set '+ word + ' = null'#13#10 + generatedNull;
+                        generatedNullComment := '//set '+ word + ' = null'#13#10 + generatedNullComment;
                         SetLength(localVariable, Length(localVariable) + 1);
                         localVariable[High(localVariable)] := word;
                     end else begin
@@ -12322,6 +12362,7 @@ period:=0;
                     end
                 end
             end else if (word = 'set') and (inFunction) then begin
+                lastLineIsNull := false;
                 GetLineToken(input[i], word, j, j);
                 if (localArrayVariable.Exist(word)) then begin
                     // probably array
@@ -12342,34 +12383,60 @@ period:=0;
                             end;
                             if (origLine[1] = ']') then begin
                                 localArrayVariable.AddIndex(word, arrayIndex);
+                                origLine{tmp} := input[i][j];
+                                while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                                    j := j + 1;
+                                    origLine := input[i][j];
+                                end;
+                                if (origLine[1] = '=') then begin
+                                    GetLineToken(input[i], arrayIndexStr {temp var}, j, j);
+                                    if (arrayIndexStr = 'null') then begin
+                                        lastLineIsNull := true
+                                    end;
+                                end;
                             end;
                         end;
                     end;
-                end;
-            end else begin
-                //[constant] function?
-                if((word='constant') and (compareLineWord('function',input[i],j,j))) or (word='function') then begin
-                    inFunction := true;
-                    generatedNull := '';
-                    localArrayVariable.Clear();
-                    SetLength(savedReturnLoc, 0);
-                    SetLength(localVariable, 0);
-                    GetLineWord(input[i], word, j, j);
-                    GetLineWord(input[i], word, j, j);
-                    if (word = 'takes') then begin
-                        GetLineWord(input[i], word, j, j);
-                        if (word = 'nothing') then begin
-                            GetLineWord(input[i], word, j, j);
-                        end else begin
-                            while (word <> 'returns') do begin
-                                GetLineToken(input[i], word, j, j);
-                                GetLineToken(input[i], word, j, j);
-                            end;
+                end else if (ArrayStringContains(localVariable, word)) then begin
+                    origLine{tmp} := input[i][j];
+                    while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                        j := j + 1;
+                        origLine := input[i][j];
+                    end;
+                    if (origLine[1] = '=') then begin
+                        GetLineToken(input[i], arrayIndexStr {temp var}, j, j);
+                        if (arrayIndexStr = 'null') then begin
+                            lastLineIsNull := true;
                         end;
-                        GetLineWord(input[i], word, j, j);
-                        currentFuncReturnType := word;
-                    end
+                    end;
                 end;
+            //[constant] function?
+            end else if((word='constant') and (compareLineWord('function',input[i],j,j))) or (word='function') then begin
+                lastLineIsNull := false;
+                inFunction := true;
+                generatedNull := '';
+                generatedNullComment := '';
+                localArrayVariable.Clear();
+                SetLength(savedReturnLoc, 0);
+                SetLength(savedReturnLocHaveNull, 0);
+                SetLength(localVariable, 0);
+                GetLineWord(input[i], word, j, j);
+                GetLineWord(input[i], word, j, j);
+                if (word = 'takes') then begin
+                    GetLineWord(input[i], word, j, j);
+                    if (word = 'nothing') then begin
+                        GetLineWord(input[i], word, j, j);
+                    end else begin
+                        while (word <> 'returns') do begin
+                            GetLineToken(input[i], word, j, j);
+                            GetLineToken(input[i], word, j, j);
+                        end;
+                    end;
+                    GetLineWord(input[i], word, j, j);
+                    currentFuncReturnType := word;
+                end
+            end else begin
+                lastLineIsNull := false;
             end;
             lastValidLine := i;
         end;
