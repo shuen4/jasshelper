@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.8.6';
+const VERSION:String = '0.A.8.8';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -12098,14 +12098,18 @@ public
     usedIndex: array of integer;
     constructor Create(varName: string);
 end;
+
+// https://forum.lazarus.freepascal.org/index.php?topic=40625.0
+type TStringArray = array of string;
+
 type TLocalArrayVariableStorage = class
 public
     arr: array of TLocalArrayVariable;
-    function GenerateNull(): string;
-    function GenerateNullComment(): string;
+    procedure GenerateNull(ret: TStringArray);
     function Exist(const varName: string): boolean;
     procedure Add(const varName: string);
     procedure AddIndex(const varName: string; index: integer);
+    procedure RemoveIndex(const varName: string; index: integer);
     procedure Clear();
 end;
 
@@ -12114,31 +12118,16 @@ begin
     inherited Create;
     name := varName;
 end;
-function TLocalArrayVariableStorage.GenerateNull(): string;
+procedure TLocalArrayVariableStorage.GenerateNull(ret: TStringArray);
 var
-    i,j: integer;
-    ret: string;
+    i, j: integer;
 begin
-    ret := '';
     for i := Low(arr) to High(arr) do begin
         for j := Low(arr[i].usedIndex) to High(arr[i].usedIndex) do begin
-            ret := 'set ' + arr[i].name + '[' + IntToStr(arr[i].usedIndex[j]) + '] = null'#13#10 + ret;
+            SetLength(ret, Length(ret) + 1);
+            ret[High(ret)] := 'set ' + arr[i].name + '[' + IntToStr(arr[i].usedIndex[j]) + '] = null';
         end;
     end;
-    Result := ret;
-end;
-function TLocalArrayVariableStorage.GenerateNullComment(): string;
-var
-    i,j: integer;
-    ret: string;
-begin
-    ret := '';
-    for i := Low(arr) to High(arr) do begin
-        for j := Low(arr[i].usedIndex) to High(arr[i].usedIndex) do begin
-            ret := '//set ' + arr[i].name + '[' + IntToStr(arr[i].usedIndex[j]) + '] = null'#13#10 + ret;
-        end;
-    end;
-    Result := ret;
 end;
 function TLocalArrayVariableStorage.Exist(const varName: string): boolean;
 var
@@ -12153,7 +12142,7 @@ begin
     Result := false;
     exit;
 end;
-procedure TLocalArrayVariableStorage.add(const varName: string);
+procedure TLocalArrayVariableStorage.Add(const varName: string);
 begin
     SetLength(arr, Length(arr) + 1);
     arr[High(arr)] := TLocalArrayVariable.Create(varName);
@@ -12168,6 +12157,31 @@ begin
             if (not ArrayIntegerContains(arr[i].usedIndex, index)) then begin
                 SetLength(arr[i].usedIndex, Length(arr[i].usedIndex) + 1);
                 arr[i].usedIndex[High(arr[i].usedIndex)] := index;
+            end;
+        end;
+    end;
+end;
+procedure TLocalArrayVariableStorage.RemoveIndex(const varName: string; index: integer);
+var
+    i, j, k: integer;
+begin
+    j := -1;
+    for i := Low(arr) to High(arr) do begin
+        if (arr[i].name = varName) then begin
+            // check exist
+            if (ArrayIntegerContains(arr[i].usedIndex, index)) then begin
+                if (j = -1) then begin
+                    for k := Low(arr[i].usedIndex) to High(arr[i].usedIndex) do begin
+                        if (arr[i].usedIndex[k] = index) then begin
+                            j := k;
+                        end;
+                    end;
+                end else begin
+                    for k := j + 1 to High(arr[i].usedIndex) do begin
+                        arr[i].usedIndex[k - 1] := arr[i].usedIndex[k]
+                    end;
+                end;
+                SetLength(arr[i].usedIndex, Length(arr[i].usedIndex) - 1);
             end;
         end;
     end;
@@ -12211,14 +12225,15 @@ end;
 
 procedure NullLocalDo( var Result:string);
 var
-    i, j, k, period, nextperiod, endglobals, lastValidLine, arrayIndex: integer;
+    i, j, k, l, period, nextperiod, endglobals, lastValidLine, arrayIndex, depth: integer;
     word, origLine, arrayIndexStr, functionCall: string;
-    globals, inFunction, cannotResolveArrayIndex, lastLineIsNull: boolean;
+    globals, inFunction, cannotResolveArrayIndex, lastLineIsNull, everSeenLoopOrIf: boolean;
     returnHandleType, localVariable, globalVariable: array of string;
+    localVariableClean: array of boolean;
     generatedNull, generatedNullComment, currentFuncReturnType: string;
     localArrayVariable: TLocalArrayVariableStorage;
     savedReturnLoc: array of integer;
-    savedReturnLocHaveNull: array of boolean;
+    savedReturnLocGeneratedNull: array of TStringArray;
 begin
 nextperiod:=0;
 period:=0;
@@ -12261,7 +12276,9 @@ period:=0;
 
         if(not IsWhitespace(input[i])) then begin
             GetLineWord(input[i],word,j);
-            if(globals) then begin
+            if(word='type') then
+                JassLib.ParseTypeLine(input[i])
+            else if(globals) then begin
                 if(word='endglobals') then begin
                     globals:=false;
                     endglobals:=i;
@@ -12279,11 +12296,13 @@ period:=0;
             end else if(word='globals') then
                 globals:=true
             else if (word = 'endfunction') and (inFunction) then begin
-                generatedNull := localArrayVariable.GenerateNull() + generatedNull;
-                generatedNullComment := localArrayVariable.GenerateNullComment() + generatedNullComment;
-                if (generatedNull <> '') then begin
-                    for k := Low(savedReturnLoc) to High(savedReturnLoc) do begin
-                        if (not savedReturnLocHaveNull[k]) then begin
+                for k := Low(savedReturnLoc) to High(savedReturnLoc) do begin
+                    if (not (Length(savedReturnLocGeneratedNull[k]) = 0)) then begin
+                        generatedNull := '';
+                        for l := Low(savedReturnLocGeneratedNull[k]) to High(savedReturnLocGeneratedNull[k]) do begin
+                            generatedNull := generatedNull + savedReturnLocGeneratedNull[k][l] + #13#10;
+                        end;
+                        if (not (savedReturnLocGeneratedNull[k][1][1] = '/')) then begin
                             GetLineWord(input[savedReturnLoc[k]], word, j); // return
                             functionCall := Copy(input[savedReturnLoc[k]], j, Length(input[savedReturnLoc[k]]) - j + 1);
                             GetLineToken(input[savedReturnLoc[k]], word, j, j);
@@ -12333,27 +12352,73 @@ period:=0;
                                 input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
                             end;
                         end else begin
-                            input[savedReturnLoc[k]] := '//JASSHelper null local ignored(last line contains set null)'#13#10 + generatedNullComment + input[savedReturnLoc[k]];
+                            input[savedReturnLoc[k]] := '//JASSHelper null local ignored(last line contains set null)'#13#10 + generatedNull + input[savedReturnLoc[k]];
+                        end;
+                    end else begin
+                        input[savedReturnLoc[k]] := '//JASSHelper null local ignored(nothing to null)'#13#10 + input[savedReturnLoc[k]];
+                    end;
+                end;
+                if ((Length(savedReturnLoc) = 0) or (savedReturnLoc[High(savedReturnLoc)] <> lastValidLine)) then begin
+                    SetLength(savedReturnLocGeneratedNull, Length(savedReturnLocGeneratedNull) + 1);
+                    for k := Low(localVariable) to High(localVariable) do begin
+                        if (not localVariableClean[k]) then begin
+                            SetLength(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)], Length(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]) + 1);
+                            savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)][High(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)])] := 'set '+ localVariable[k] + ' = null';
                         end;
                     end;
-                    if ((Length(savedReturnLoc) = 0) or (savedReturnLoc[High(savedReturnLoc)] <> lastValidLine)) then
-                        input[i] := '//JASSHelper null local processed: ' + input[i] + #13#10 + generatedNull + 'endfunction';
+                    localArrayVariable.GenerateNull(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]);
+                    if (not (Length(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]) = 0)) then begin
+                        generatedNull := '';
+                        for k := Low(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]) to High(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]) do begin
+                            generatedNull := generatedNull + savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)][k] + #13#10;
+                        end;
+                        input[i] := '//JASSHelper null local processed: endfunction'#13#10 + generatedNull + input[i];
+                    end else begin
+                        input[i] := '//JASSHelper null local ignored(nothing to null)'#13#10 + input[i];
+                    end;
                 end;
                 inFunction := false;
             end else if (word = 'return') and (inFunction) then begin
                 SetLength(savedReturnLoc, Length(savedReturnLoc) + 1);
                 savedReturnLoc[High(savedReturnLoc)] := i;
-                SetLength(savedReturnLocHaveNull, Length(savedReturnLocHaveNull) + 1);
-                savedReturnLocHaveNull[High(savedReturnLocHaveNull)] := lastLineIsNull;
+                SetLength(savedReturnLocGeneratedNull, Length(savedReturnLocGeneratedNull) + 1);
+                for k := Low(localVariable) to High(localVariable) do begin
+                    if (not localVariableClean[k]) then begin
+                        SetLength(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)], Length(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]) + 1);
+                        savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)][High(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)])] := 'set '+ localVariable[k] + ' = null';
+                    end;
+                end;
+                localArrayVariable.GenerateNull(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]);
+                if ((everSeenLoopOrIf) and (not (Length(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]) = 0))) then begin
+                    SetLength(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)], Length(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)]) + 1);
+                    savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)][High(savedReturnLocGeneratedNull[High(savedReturnLocGeneratedNull)])] := '// detected loop/if block, generated code are not guaranteed to be useful';
+                end;
             end else if (word = 'local') and (inFunction) then begin
                 GetLineWord(input[i], word, j, j);
                 if (ArrayStringContains(reference_counted_obj, word)) then begin
                     if (not compareLineWord('array',input[i],k,j)) then begin
                         GetLineToken(input[i], word, j, j);
-                        generatedNull := 'set '+ word + ' = null'#13#10 + generatedNull;
-                        generatedNullComment := '//set '+ word + ' = null'#13#10 + generatedNullComment;
                         SetLength(localVariable, Length(localVariable) + 1);
                         localVariable[High(localVariable)] := word;
+                        
+                        SetLength(localVariableClean, Length(localVariableClean) + 1);
+                        localVariableClean[High(localVariableClean)] := true; // default clean
+                        
+                        origLine{tmp} := input[i][j];
+                        while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                            j := j + 1;
+                            if (j >= Length(input[i])) then begin
+                                origLine := '-'; // anything except '='
+                            end else begin
+                                origLine := input[i][j];
+                            end;
+                        end;
+                        if (origLine[1] = '=') then begin
+                            GetLineToken(input[i], arrayIndexStr {temp var}, j, j);
+                            if (not (arrayIndexStr = 'null')) then begin
+                                localVariableClean[High(localVariableClean)] := false;
+                            end;
+                        end;
                     end else begin
                         // handle explicit used array index only
                         GetLineToken(input[i], word, j, j); // array
@@ -12362,7 +12427,6 @@ period:=0;
                     end
                 end
             end else if (word = 'set') and (inFunction) then begin
-                lastLineIsNull := false;
                 GetLineToken(input[i], word, j, j);
                 if (localArrayVariable.Exist(word)) then begin
                     // probably array
@@ -12382,7 +12446,6 @@ period:=0;
                                 origLine := input[i][j];
                             end;
                             if (origLine[1] = ']') then begin
-                                localArrayVariable.AddIndex(word, arrayIndex);
                                 j := j + 1;
                                 origLine{tmp} := input[i][j];
                                 while (origLine[1] in WHITESPACE_SEPARATORS) do begin
@@ -12392,7 +12455,11 @@ period:=0;
                                 if (origLine[1] = '=') then begin
                                     GetLineToken(input[i], arrayIndexStr {temp var}, j, j);
                                     if (arrayIndexStr = 'null') then begin
-                                        lastLineIsNull := true
+                                        if (depth = 0) then begin // never mark variable in if/loop as clean
+                                            localArrayVariable.RemoveIndex(word, arrayIndex);
+                                        end;
+                                    end else begin
+                                        localArrayVariable.AddIndex(word, arrayIndex);
                                     end;
                                 end;
                             end;
@@ -12405,22 +12472,30 @@ period:=0;
                         origLine := input[i][j];
                     end;
                     if (origLine[1] = '=') then begin
-                        GetLineToken(input[i], arrayIndexStr {temp var}, j, j);
-                        if (arrayIndexStr = 'null') then begin
-                            lastLineIsNull := true;
+                        for k := Low(localVariable) to High(localVariable) do begin
+                            if (localVariable[k] = word) then begin
+                                GetLineToken(input[i], arrayIndexStr {temp var}, j, j);
+                                if (arrayIndexStr = 'null') then begin
+                                    if (depth = 0) then begin // never mark variable in if/loop as clean
+                                        localVariableClean[k] := true;
+                                    end;
+                                end else begin
+                                    localVariableClean[k] := false;
+                                end;
+                            end;
                         end;
                     end;
                 end;
             //[constant] function?
             end else if((word='constant') and (compareLineWord('function',input[i],j,j))) or (word='function') then begin
-                lastLineIsNull := false;
                 inFunction := true;
-                generatedNull := '';
-                generatedNullComment := '';
+                depth := 0;
+                everSeenLoopOrIf := false;
                 localArrayVariable.Clear();
                 SetLength(savedReturnLoc, 0);
-                SetLength(savedReturnLocHaveNull, 0);
+                SetLength(savedReturnLocGeneratedNull, 0);
                 SetLength(localVariable, 0);
+                SetLength(localVariableClean, 0);
                 GetLineWord(input[i], word, j, j);
                 GetLineWord(input[i], word, j, j);
                 if (word = 'takes') then begin
@@ -12436,8 +12511,11 @@ period:=0;
                     GetLineWord(input[i], word, j, j);
                     currentFuncReturnType := word;
                 end
-            end else begin
-                lastLineIsNull := false;
+            end else if ((word = 'loop') or (word = 'if')) then begin
+                everSeenLoopOrIf := true;
+                depth := depth + 1;
+            end else if ((word = 'endloop') or (word = 'endif')) then begin
+                depth := depth - 1;
             end;
             lastValidLine := i;
         end;

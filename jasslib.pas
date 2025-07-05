@@ -43,6 +43,7 @@ function VerifyJassFunc( const name:string; out tpoint:TJassFunc ): boolean;
 function VerifyJassVar( const name:string; out tpoint:TJassVar ): boolean;
 function VerifyJassType( const name:string; out tpoint:TJassType ): boolean;
 procedure parseFile( const filename: TFileName);
+procedure ParseTypeLine( const line:string);
 
 // Adds a native line, returns false if the native was already known...
 function AddNativeLine( const s:string): boolean;
