@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.8.8';
+const VERSION:String = '0.A.8.9';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -12298,11 +12298,48 @@ period:=0;
             else if (word = 'endfunction') and (inFunction) then begin
                 for k := Low(savedReturnLoc) to High(savedReturnLoc) do begin
                     if (not (Length(savedReturnLocGeneratedNull[k]) = 0)) then begin
-                        generatedNull := '';
-                        for l := Low(savedReturnLocGeneratedNull[k]) to High(savedReturnLocGeneratedNull[k]) do begin
-                            generatedNull := generatedNull + savedReturnLocGeneratedNull[k][l] + #13#10;
+                        inFunction{tmp} := true;
+                        GetLineWord(input[savedReturnLoc[k] - 1], word, j);
+                        while (true) do begin
+                            if (not (word = 'set')) then
+                                break;
+                            GetLineToken(input[savedReturnLoc[k] - 1], word, j, j);
+                            origLine{tmp} := input[savedReturnLoc[k] - 1][j];
+                            while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                                j := j + 1;
+                                origLine := input[savedReturnLoc[k] - 1][j];
+                            end;
+                            if (localArrayVariable.Exist(word)) then begin
+                                if (not (origLine[1] = '[')) then
+                                    break;
+                                GetLineToken(input[savedReturnLoc[k] - 1], word, j, j);
+                                origLine := input[savedReturnLoc[k] - 1][j];
+                                while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                                    j := j + 1;
+                                    origLine := input[savedReturnLoc[k] - 1][j];
+                                end;
+                                if (not (origLine[1] = ']')) then
+                                    break;
+                            end else if (ArrayStringContains(localVariable, word)) then begin end
+                            else
+                                break;
+                            origLine := input[savedReturnLoc[k] - 1][j];
+                            while (origLine[1] in WHITESPACE_SEPARATORS) do begin
+                                j := j + 1;
+                                origLine := input[savedReturnLoc[k] - 1][j];
+                            end;
+                            if (not (origLine[1] = '=')) then
+                                break;
+                            GetLineToken(input[savedReturnLoc[k] - 1], word, j, j);
+                            if (word = 'null') then
+                                inFunction := false;
+                            break;
                         end;
-                        if (not (savedReturnLocGeneratedNull[k][1][1] = '/')) then begin
+                        if (inFunction) then begin
+                            generatedNull := '';
+                            for l := Low(savedReturnLocGeneratedNull[k]) to High(savedReturnLocGeneratedNull[k]) do begin
+                                generatedNull := generatedNull + savedReturnLocGeneratedNull[k][l] + #13#10;
+                            end;
                             GetLineWord(input[savedReturnLoc[k]], word, j); // return
                             functionCall := Copy(input[savedReturnLoc[k]], j, Length(input[savedReturnLoc[k]]) - j + 1);
                             GetLineToken(input[savedReturnLoc[k]], word, j, j);
@@ -12352,7 +12389,7 @@ period:=0;
                                 input[savedReturnLoc[k]] := input[savedReturnLoc[k]] + 'return sn__' + currentFuncReturnType
                             end;
                         end else begin
-                            input[savedReturnLoc[k]] := '//JASSHelper null local ignored(last line contains set null)'#13#10 + generatedNull + input[savedReturnLoc[k]];
+                            input[savedReturnLoc[k]] := '//JASSHelper null local ignored(last line contains set null)'#13#10 + input[savedReturnLoc[k]];
                         end;
                     end else begin
                         input[savedReturnLoc[k]] := '//JASSHelper null local ignored(nothing to null)'#13#10 + input[savedReturnLoc[k]];
