@@ -322,7 +322,7 @@ begin                                                                     //
     GetMem(p,dwbf);
 
     dwLen:= MPQGetFileSize(hMPQFile);
-    target:=TMemoryStream.Create;     //
+    //target:=TMemoryStream.Create;     //
     while dwLen > 0 do begin
 
         if dwLen >= dwbf then begin

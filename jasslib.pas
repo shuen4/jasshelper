@@ -39,6 +39,7 @@ interface
 
 
 procedure Init;
+procedure FreeMemory;
 function VerifyJassFunc( const name:string; out tpoint:TJassFunc ): boolean;
 function VerifyJassVar( const name:string; out tpoint:TJassVar ): boolean;
 function VerifyJassType( const name:string; out tpoint:TJassType ): boolean;
@@ -81,6 +82,29 @@ begin
     TypeCount :=0;
     FuncCount :=0;
     interf := Jasshelper.Interf;
+end;
+
+procedure FreeMemory;
+var
+  i: integer;
+begin
+    VarHash.Free;
+    TypeHash.Free;
+    FuncHash.Free;
+    
+    for i := Low(VarArray) to High(VarArray) do
+        VarArray[i].Free;
+    SetLength(VarArray, 0);
+    
+    for i := Low(FuncArray) to High(FuncArray) do
+        FuncArray[i].Free;
+    SetLength(FuncArray, 0);
+    
+    for i := Low(TypeArray) to High(TypeArray) do
+        TypeArray[i].Free;
+    SetLength(input, 0);
+    
+    interf := nil;
 end;
 
 procedure LoadLines( const filename: TFileName);

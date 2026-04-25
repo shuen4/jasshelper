@@ -7,7 +7,7 @@ uses
   GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
 
 //{$define ZINC_DEBUG}
-const VERSION:String = '0.A.8.9';
+const VERSION:String = '0.A.9.0';
 type TDynamicStringArray = array of string;
 type TDynamicIntegerArray = array of integer;
 
@@ -200,6 +200,7 @@ type TDynamicIntegerArray = array of integer;
        customcreate:boolean;
 
        constructor create(d:integer;int:boolean);
+       destructor destroy(); override;
        procedure addchild(i:integer);
        function addmember(d:integer; const s:string;accs:integer; sta:boolean; method:boolean):tmember;
        procedure addDelegate(memb:tmember);
@@ -209,7 +210,7 @@ type TDynamicIntegerArray = array of integer;
 
        procedure dropmember(const s:string);
        procedure addModuleOnInit(const s:string);
-       procedure BeforeDestruction; override;
+       //procedure BeforeDestruction; override;
 
        function GetSuperParentName:string;
        function GetSuperParentNameForMethod(const methodname:string):string;
@@ -3695,7 +3696,7 @@ begin
 
 end;
 
-procedure Tstruct.beforedestruction;
+destructor Tstruct.destroy;
 var
    i:integer;
 begin
@@ -5541,17 +5542,42 @@ begin
     end;
 end;
 
+type TObjectList_Tvtype = class(TList)
+public
+    procedure Clear; override;
+end;
+{
+destructor TObjectList_Tvtype.Destroy;
+begin
+  inherited Destroy;
+end;
+}
+procedure TObjectList_Tvtype.Clear;   
+var
+  i: integer;
+begin          
+  for i := 0 to Count - 1 do
+      (Tvtype(Self.Get(i))).Free;
+  inherited Clear;
+end;
+
+
+var
+  tvtypes : TObjectList_Tvtype = nil;
+
 function MakeType(const id:integer):Tvtype; overload;
 begin
    Result:=Tvtype.Create;
    Result.id := id;
    Result.name:='_unknown';
+   tvtypes.Add(Result);
 end;
 function MakeType(const id:integer; const name:string):Tvtype; overload;
 begin
    Result:=Tvtype.Create;
    Result.id := id;
    Result.name:=name;
+   tvtypes.Add(Result);
 end;
 function MakeType(const id:integer; const name:string; const tag:string):Tvtype; overload;
 begin
@@ -5559,6 +5585,7 @@ begin
    Result.id := id;
    Result.name:=name;
    Result.tag := tag;
+   tvtypes.Add(Result);
 end;
 
 function evaluate_value_type( const wanted:Tvtype;  var s:string; var typ:Tvtype):boolean;
@@ -6279,6 +6306,7 @@ begin
     end else begin
        res:=whitespace+tmres;
     end;
+    tvtypes.Clear();
 
 end;
 
@@ -7009,6 +7037,7 @@ var
 begin
    if (Parser=nil) then
    begin
+       tvtypes := TObjectList_Tvtype.Create;
 
          lHandle := FindResource(0, 'VJASSLINEGRAMMAR', RT_RCDATA);
          lResource := LockResource(LoadResource(0, lHandle));
@@ -10259,6 +10288,10 @@ begin
      IdentifierTypes.Free;
      LocalIdentifierTypes.Free;
      CleanFunctionPrototypes;
+     FreeAndNil(Parser);
+     FreeAndNil(tvtypes);
+        
+     jasslib.FreeMemory;
 
 
  end;
@@ -10522,6 +10555,7 @@ begin
          offset[i]:=modline[i]-i;
          textmacrotrace[i]:=modtrace[i]+1;
     end;
+    ModuleHash.Free;
 
 
 
@@ -10626,10 +10660,12 @@ function getExternalUsage(var r:Texternalusage):boolean;
 begin
     if(exter.n=0) then begin
         Result:=false;
+        FreeAndNil(exter);
         exit;
     end;
     Result:=true;
     r:=Exter;
+    FreeAndNil(exter); // r is never used after, who cares
 end;
 
 
@@ -12187,7 +12223,12 @@ begin
     end;
 end;
 procedure TLocalArrayVariableStorage.Clear();
+var
+    i: integer;
 begin
+    for i := Low(arr) to High(arr) do begin
+        arr[i].Free;
+    end;
     SetLength(arr, 0);
 end;
 
@@ -12587,6 +12628,7 @@ period:=0;
     end;
     
  finally
+     localArrayVariable.Free;
      InlineFuncHash.Destroy;
      NoStateFunctionsHash.Destroy;
  end;

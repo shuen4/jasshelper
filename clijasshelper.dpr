@@ -22,7 +22,7 @@ uses
 {$R *.res}
 
 var
-   debug:boolean=false;nopre:boolean=false;noopt:boolean=false;
+   debug:boolean=false;nopre:boolean=false;noopt:boolean=false;nulllocal:boolean=false;
    scriptmode:boolean=false;
    temi:integer=0;
    stage:integer=1;
@@ -408,6 +408,8 @@ begin
           jasshelper.MACROMODE:=true;
           scriptmode:=true;
           temi:=temi+1;
+      end else if(ParamStr(temi)='--nulllocal') then begin
+          nulllocal:=true;
       end else break;
 
   end;
@@ -564,6 +566,7 @@ try
           dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
 
 //          dopjasserrors(f1,f1);
+          FreeAndNil(JassHelper.Interf);
           CleanTempFiles();
           halt(1);
       end;
@@ -583,6 +586,7 @@ try
             if(temi<>0) then begin
                WriteLn('Found errors, please wait...');
                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+               FreeAndNil(JassHelper.Interf);
                CleanTempFiles();
                halt(1);
             end;
@@ -604,6 +608,7 @@ try
             if(temi<>0) then begin
                WriteLn('Found errors, please wait...');
                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+               FreeAndNil(JassHelper.Interf);
                CleanTempFiles();
                halt(1);
             end;
@@ -627,27 +632,30 @@ try
             if(temi<>0) then begin
                 WriteLn('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                FreeAndNil(JassHelper.Interf);
                 CleanTempFiles();
                 halt(1);
             end;
 
-            // should this use another command line flag ?
-            WriteLn('copying ...');
-            CopyFile(compiled,'logs\currentmapscript.j');
-            jasshelper.DoJasserNullLocalMagicF('logs\currentmapscript.j',compiled);
-            CopyFile(compiled,'logs\currentmapscript.j');
+            if (nulllocal) then begin
+                WriteLn('copying ...');
+                CopyFile(compiled,'logs\currentmapscript.j');
+                jasshelper.DoJasserNullLocalMagicF('logs\currentmapscript.j',compiled);
+                CopyFile(compiled,'logs\currentmapscript.j');
 
-            WriteLn('Calling Jass syntax checker again ...');
-            temi:= WinExec.StartApp(
-                JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
-                JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
-                GetCurrentDir,0,f3,'logs\pjass.txt',f2);
+                WriteLn('Calling Jass syntax checker again ...');
+                temi:= WinExec.StartApp(
+                    JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
+                    JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
+                    GetCurrentDir,0,f3,'logs\pjass.txt',f2);
 
-            if(temi<>0) then begin
-                WriteLn('Found errors, please wait...');
-                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
-                CleanTempFiles();
-                halt(1);
+                if(temi<>0) then begin
+                    WriteLn('Found errors, please wait...');
+                    dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                    FreeAndNil(JassHelper.Interf);
+                    CleanTempFiles();
+                    halt(1);
+                end;
             end;
             
         end;
@@ -719,6 +727,7 @@ except
 
      clierrors.show;
      CleanTempFiles();
+     FreeAndNil(JassHelper.Interf);
      Halt(1);
  end;
 
@@ -726,6 +735,7 @@ except
      Writeln('JassHelper Error');
      WriteLn(e.message);
      CleanTempFiles();
+     FreeAndNil(JassHelper.Interf);
      Halt(1);
 
  end;
@@ -735,6 +745,7 @@ end;
      if (mpq<>0) then begin
          MpqCloseUpdatedArchive(mpq,0);
      end;
+     FreeAndNil(JassHelper.Interf);
 
 
 

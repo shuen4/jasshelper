@@ -130,7 +130,7 @@
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
-			<Parameters Name="RunParams">common.j blizzard.j otherin.j otherin.w3x</Parameters>
+			<Parameters Name="RunParams">--scriptonly "D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\common.j" "D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\blizzard.j" "D:\QQ\2045028024\FileRecv\starwe\war3map.j" a.j</Parameters>
 			<Parameters Name="HostApplication"></Parameters>
 			<Parameters Name="Launcher"></Parameters>
 			<Parameters Name="UseLauncher">False</Parameters>
@@ -165,10 +165,11 @@
 			<VersionInfoKeys Name="ProductName"></VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="Comments"></VersionInfoKeys>
-		</VersionInfoKeys>  <Language>
-      <Language Name="ActiveLang"></Language>
-      <Language Name="ProjectLang">$00000000</Language>
-      <Language Name="RootDir"></Language>
-    </Language>
-  </Delphi.Personality>
+		</VersionInfoKeys>
+		<Language>
+			<Language Name="ActiveLang"></Language>
+			<Language Name="ProjectLang">$00000000</Language>
+			<Language Name="RootDir"></Language>
+		</Language>
+	</Delphi.Personality>
 </BorlandProject>

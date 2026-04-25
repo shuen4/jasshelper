@@ -23,7 +23,7 @@ uses
 {$R *.res}
 
 var
-   debug:boolean=false;nopre:boolean=false;noopt:boolean=false;
+   debug:boolean=false;nopre:boolean=false;noopt:boolean=false;nulllocal:boolean=false;
    scriptmode:boolean=false;
    temi:integer=0;
    stage:integer=1;
@@ -456,6 +456,8 @@ begin
           jasshelper.MACROMODE:=true;
           scriptmode:=true;
           temi:=temi+1;
+      end else if(ParamStr(temi)='--nulllocal') then begin
+          nulllocal:=true;
       end else break;
 
   end;
@@ -620,6 +622,7 @@ try
 
 //          dopjasserrors(f1,f1);
           CleanTempFiles();
+          FreeAndNil(JassHelper.Interf);
           halt(1);
       end;
         if (jasshelperconfigfile.ENABLE_RETURN_FIXER) then begin
@@ -638,6 +641,7 @@ try
                progress.StatusMsg('Found errors, please wait...');
                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
                CleanTempFiles();
+               FreeAndNil(JassHelper.Interf);
                halt(1);
             end;
 
@@ -659,6 +663,7 @@ try
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
                 CleanTempFiles();
+                FreeAndNil(JassHelper.Interf);
                 halt(1);
             end;
 
@@ -681,26 +686,29 @@ try
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
                 CleanTempFiles();
+                FreeAndNil(JassHelper.Interf);
                 halt(1);
             end;
              
-            // should this use another command line flag ?
-            progress.StatusMsg('copying ...');
-            CopyFile(compiled,'logs\currentmapscript.j');
-            jasshelper.DoJasserNullLocalMagicF('logs\currentmapscript.j',compiled);
-            CopyFile(compiled,'logs\currentmapscript.j');
+            if (nulllocal) then begin
+                progress.StatusMsg('copying ...');
+                CopyFile(compiled,'logs\currentmapscript.j');
+                jasshelper.DoJasserNullLocalMagicF('logs\currentmapscript.j',compiled);
+                CopyFile(compiled,'logs\currentmapscript.j');
 
-            progress.StatusMsg('calling Jass syntax checker again ...');
-            temi:= WinExec.StartApp(
-                JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
-                JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
-                GetCurrentDir,0,f3,'logs\pjass.txt',f2);
+                progress.StatusMsg('calling Jass syntax checker again ...');
+                temi:= WinExec.StartApp(
+                    JASSHELPER_PATH+JassHelperConfigFile.JASS_COMPILER,
+                    JassHelperConfigFile.ParserCommandLine('"'+commonj+'"', '"'+blizzardj+'"','logs\currentmapscript.j'),
+                    GetCurrentDir,0,f3,'logs\pjass.txt',f2);
 
-            if(temi<>0) then begin
-                progress.StatusMsg('Found errors, please wait...');
-                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
-                CleanTempFiles();
-                halt(1);
+                if(temi<>0) then begin
+                    progress.StatusMsg('Found errors, please wait...');
+                    dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                    CleanTempFiles();
+                    FreeAndNil(JassHelper.Interf);
+                    halt(1);
+                end;
             end;
              
         end;
@@ -779,12 +787,14 @@ except
 
      grimoirecompiler.show;
      CleanTempFiles();
+     FreeAndNil(JassHelper.Interf);
      Halt(1);
  end;
 
  on e:Exception do begin
      MessageBox(0,pchar(e.message),'JASSHelper Error',MB_TOPMOST+MB_ICONERROR);
      CleanTempFiles();
+     FreeAndNil(JassHelper.Interf);
      Halt(1);
 
  end;
@@ -794,6 +804,7 @@ end;
      if (mpq<>0) then begin
          MpqCloseUpdatedArchive(mpq,0);
      end;
+     FreeAndNil(JassHelper.Interf);
 
 
 

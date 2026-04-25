@@ -32,6 +32,27 @@ begin
     SecAtrrs.bInheritHandle := True;
   //WorkDir:=ExtractFileDir(AppName);
 
+  {
+    https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa
+  
+    The lpApplicationName parameter can be NULL.
+    In that case, the module name must be the first white space-delimited token in the lpCommandLine string.
+    If you are using a long file name that contains a space,
+      use quoted strings to indicate where the file name ends and the arguments begin;
+    otherwise,
+      the file name is ambiguous.
+    For example,
+      consider the string
+        "c:\program files\sub dir\program name".
+      This string can be interpreted in a number of ways.
+      The system tries to interpret the possibilities in the following order:
+        1. c:\program.exe
+        2. c:\program files\sub.exe
+        3. c:\program files\sub dir\program.exe
+        4. c:\program files\sub dir\program name.exe
+  }
+  AppName := '"' + AppName + '"';
+  
   if ArgStr <> '' then
      AppName := AppName + ' ' + ArgStr;
   StrPCopy(zAppName, AppName);
@@ -65,11 +86,11 @@ begin
     zAppName,                      { pointer to command line string }
     nil,                           { pointer to process security attributes }
     nil,                           { pointer to thread security attributes }
-    true,                         { handle inheritance flag }
+    true,                          { handle inheritance flag }
     CREATE_NEW_CONSOLE or          { creation flags }
     NORMAL_PRIORITY_CLASS,
     nil,                           { pointer to new environment block }
-    wd,                       { pointer to current directory name }
+    wd,                            { pointer to current directory name }
     StartupInfo,                   { pointer to STARTUPINFO }
     ProcessInfo) then Result := -1 { pointer to PROCESS_INF }
   else

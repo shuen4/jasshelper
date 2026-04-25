@@ -2063,7 +2063,7 @@ begin
     //Hehem parsed correctly!!! Now we *just* have to translate the reductions
     TranslateZinc(parser.CurrentReduction);
 
-
+    FreeAndNil(parser);
 end;
 
 var lastseen:integer;
