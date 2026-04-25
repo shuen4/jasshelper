@@ -63,17 +63,17 @@ type
   TToken = class
   private
     FState: Integer;
-    FDataVar: AnsiString;
+    FDataVar: RawByteString;
     FReduction: TReduction;
     FParentSymbol: TSymbol;
     FOwnerStack : TTokenStack;
     function GetKind: Integer;
-    function GetName: AnsiString;
+    function GetName: RawByteString;
     procedure SetParentSymbol(Value: TSymbol);
-    procedure SetdataVar(Value: AnsiString);
+    procedure SetdataVar(Value: RawByteString);
     procedure SetReduction(Value: TReduction);
     function GetTableIndex: Integer;
-    function GetText: AnsiString;
+    function GetText: RawByteString;
     procedure SetState(Value: Integer);
   public
     //<vexorian>add a tag integer member...
@@ -84,17 +84,17 @@ type
     destructor Destroy; override;
     property Kind : Integer read GetKind;
       // Returns an enumerated data type that denotes the symbol class of the token.
-    property Name : AnsiString read GetName;
+    property Name : RawByteString read GetName;
       // Returns the name of the token. This is equivalent to the parent symbol's name.
     property ParentSymbol : TSymbol read FParentSymbol write SetParentSymbol;
       // Returns a reference the token's parent symbol.
-    property DataVar : AnsiString read FDataVar write SetDataVar;
+    property DataVar : RawByteString read FDataVar write SetDataVar;
      // Returns/sets the information stored in the token.
      // This can be either an standard data type or an object reference.
     property Reduction : TReduction read FReduction write SetReduction;
     property TableIndex : Integer read GetTableIndex;
       // Returns the index of the token's parent symbol in the GOLDParser object's symbol table.
-    property Text : AnsiString read GetText;
+    property Text : RawByteString read GetText;
       // Returns the text representation of the token's parent symbol.
       // In the case of nonterminals, the name is delimited by angle brackets,
       // special terminals are delimited by parenthesis and terminals
@@ -143,7 +143,7 @@ begin
   Result := ParentSymbol.Kind;
 end;
 
-function TToken.GetName: AnsiString;
+function TToken.GetName: RawByteString;
 begin
   Result := ParentSymbol.Name;
 end;
@@ -153,7 +153,7 @@ begin
   FParentSymbol := Value;
 end;
 
-procedure TToken.SetdataVar(Value: AnsiString);
+procedure TToken.SetdataVar(Value: RawByteString);
 begin
   FDataVar := Value;
 end;
@@ -169,7 +169,7 @@ begin
    Result := ParentSymbol.TableIndex;
 end;
 
-function TToken.GetText: AnsiString;
+function TToken.GetText: RawByteString;
 begin
    Result := ParentSymbol.Text;
 end;

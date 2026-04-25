@@ -3,12 +3,12 @@
         <ProjectGuid>{0FDF7DC8-1433-490B-BF43-1BA1490F5509}</ProjectGuid>
         <MainSource>grimoirejasshelper.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <ProjectName Condition="'$(ProjectName)'==''">grimoirejasshelper</ProjectName>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
-        <ProjectVersion>20.2</ProjectVersion>
+        <ProjectVersion>20.4</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -90,6 +90,8 @@
         <Icon_MainIcon>grimoirejasshelper_Icon.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
+        <Debugger_RunParams> --scriptonly &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\common.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\blizzard.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\war3map.j&quot; F:\a.j</Debugger_RunParams>
+        <Debugger_CWD>D:\QQ\2045028024\FileRecv\starwe</Debugger_CWD>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
@@ -122,6 +124,8 @@
         <BT_BuildType>Debug</BT_BuildType>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <Debugger_RunParams> --scriptonly &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\common.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\blizzard.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\war3map.j&quot; a.j</Debugger_RunParams>
+        <Debugger_CWD>D:\QQ\2045028024\FileRecv\starwe</Debugger_CWD>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

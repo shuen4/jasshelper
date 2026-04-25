@@ -6,21 +6,21 @@ uses
   Windows, Forms,Dialogs, Messages,StrUtils, SysUtils, Classes, Controls, StdCtrls,
   ComCtrls, IniFiles, ExtCtrls, Graphics, Math;
 
-type TDynamicStringArray = array of AnsiString;
-type TDynamicStringMat = array of array of AnsiString;
+type TDynamicStringArray = array of RawByteString;
+type TDynamicStringMat = array of array of RawByteString;
 
 type
   TSLK = class(TObject)
   private
       data:TDynamicStringMat;
-      id:AnsiString;
-      garbage:AnsiString;
+      id:RawByteString;
+      garbage:RawByteString;
       tx:integer;
       ty:integer;
       pro:Tprogressbar;
       usepro:boolean;
   public
-      function LoadFromFile(s:AnsiString):boolean;
+      function LoadFromFile(s:RawByteString):boolean;
       function LoadFromStream(var st:Tstream):boolean;
       property contents: TDynamicStringMat read data;
       property LengthX: integer read tx;
@@ -51,7 +51,7 @@ end;
 var
    readlnbuff:array of AnsiChar;
 
-function StreamReadLn(var st:Tstream):AnsiString;
+function StreamReadLn(var st:Tstream):RawByteString;
 var
  ch:AnsiChar;
  lf,str:boolean;
@@ -101,9 +101,9 @@ end;
 function TSLK.LoadFromStream(var st:Tstream):boolean;
 var
  i,L,x,y,anchor:integer;
- line,wor:AnsiString;
+ line,wor:RawByteString;
 
-  function Token:AnsiString;
+  function Token:RawByteString;
   var k:integer;
   begin
       Result:='';
@@ -117,7 +117,7 @@ var
 //      form1.DebugMemo.Lines.add(Result);
   end;
 
-  function QuickInt(const s:AnsiString; a:integer; b:integer):integer;
+  function QuickInt(const s:RawByteString; a:integer; b:integer):integer;
   var k:integer;
   begin
       result:=0;
@@ -151,9 +151,9 @@ var
       end;
   end;
 
-  function ParseK:AnsiString;
+  function ParseK:RawByteString;
   var j:integer;
-  var wor2:AnsiString;
+  var wor2:RawByteString;
   begin
 
       i:=0;
@@ -256,7 +256,7 @@ begin
 end;
 
 
-function TSLK.LoadFromFile(s:AnsiString):boolean;
+function TSLK.LoadFromFile(s:RawByteString):boolean;
 var st:Tfilestream;
 begin
     st:=TFileStream.Create(s,fmOpenRead);

@@ -10,13 +10,13 @@ function GetWindowsDir: TFileName;
 function GetTempDir: TFileName;
 function TempFile: TFileName;
 function GetAppDataDir: TFileName;
-function LoadFile(const FileName: TFileName): AnsiString;
-procedure SaveFile(const FileName: TFileName; const content: AnsiString);
+function LoadFile(const FileName: TFileName): RawByteString;
+procedure SaveFile(const FileName: TFileName; const content: RawByteString);
 
 
 implementation
 
-function LoadFile(const FileName: TFileName): AnsiString;
+function LoadFile(const FileName: TFileName): RawByteString;
 begin
   with TFileStream.Create(FileName,
       fmOpenRead or fmShareDenyWrite) do begin
@@ -31,7 +31,7 @@ begin
     Free;
   end;
 end;
-procedure SaveFile(const FileName: TFileName; const content: AnsiString);
+procedure SaveFile(const FileName: TFileName; const content: RawByteString);
 begin
   with TFileStream.Create(FileName, fmCreate) do
     try
@@ -71,7 +71,7 @@ begin
     raise Exception.Create(SysErrorMessage(GetLastError));
 end;
 
-function addbackslash(const s:AnsiString):AnsiString;
+function addbackslash(const s:RawByteString):RawByteString;
 var L:integer;
 begin
     L:=Length(s);

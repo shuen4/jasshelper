@@ -27,17 +27,17 @@ var
    scriptmode:boolean=false;
    temi:integer=0;
    stage:integer=1;
-   war3mapj,f1,f2,f3,map,{output,}compiled,folder,blizzardj,commonj:AnsiString;
+   war3mapj,f1,f2,f3,map,{output,}compiled,folder,blizzardj,commonj:RawByteString;
    mpq:THandle;
 
    Exter:Texternalusage;
-   CONFIG_PATH:AnsiString='';
-   JASSHELPER_PATH:AnsiString='';
+   CONFIG_PATH:RawByteString='';
+   JASSHELPER_PATH:RawByteString='';
 
 
 
 
-function GetSuffixedName(x,suf:AnsiString):AnsiString;
+function GetSuffixedName(x,suf:RawByteString):RawByteString;
 var
    i,L:integer;
 begin
@@ -54,7 +54,7 @@ begin
 end;
 
 
-FUNCTION GetProcessID(ExeName:AnsiString):DWORD;
+FUNCTION GetProcessID(ExeName:RawByteString):DWORD;
  VAR pe: TProcessEntry32;
      h: THandle;
      test: boolean;
@@ -77,7 +77,7 @@ FUNCTION GetProcessID(ExeName:AnsiString):DWORD;
    END;
  END;
 
-function Terminate(const e:AnsiString):boolean  ;
+function Terminate(const e:RawByteString):boolean  ;
 var
 c: THandle;
 dw:DWORD;
@@ -95,19 +95,19 @@ begin
 
 end;
 
-procedure CopyFile(const i:AnsiString;const o:AnsiString);
+procedure CopyFile(const i:RawByteString;const o:RawByteString);
 begin
     windows.CopyFile(pchar(widestring(i)),pchar(widestring(o)),false);
 end;
 
-procedure takeBackup(const m:AnsiString);
-var dat:AnsiString;
+procedure takeBackup(const m:RawByteString);
+var dat:RawByteString;
     procedure save(const i:AnsiChar);
     var
-       s:AnsiString;
+       s:RawByteString;
     begin
         s:='backups\'+i+'.w3x';
-        if (FileExists(s)) then DeleteFile(pchar(s));
+        if (FileExists(s)) then DeleteFileA(PAnsiChar(s));
         Copyfile(m,s);
 
     end;
@@ -132,7 +132,7 @@ begin
 
 end;
 
-function FixScriptFileName(const f:AnsiString):AnsiString;
+function FixScriptFileName(const f:RawByteString):RawByteString;
 var
     i,L,st:integer;
 begin
@@ -150,10 +150,10 @@ begin
 end;
 
 
-procedure dopjasserrors(const war3mapj:AnsiString; const errors:AnsiString; const tries:integer=0);
+procedure dopjasserrors(const war3mapj:RawByteString; const errors:RawByteString; const tries:integer=0);
 var
    f:textfile;
-   line,sect:AnsiString;
+   line,sect:RawByteString;
    blizz,comm,maa:boolean;
    L,i,k,n,counter:integer;
 
@@ -228,9 +228,9 @@ begin
    grimoirecompiler.show;
 end;
 
-procedure doTool(const name:AnsiString; const prog:AnsiString;  args:AnsiString; const ext:AnsiString; const stdin:AnsiString);
+procedure doTool(const name:RawByteString; const prog:RawByteString;  args:RawByteString; const ext:RawByteString; const stdin:RawByteString);
 var
-   s,f,tem, tem2,tem3,tem4,nargs:AnsiString;
+   s,f,tem, tem2,tem3,tem4,nargs:RawByteString;
    ftem:Textfile;
 begin
 
@@ -323,11 +323,11 @@ end;
 //=======
 
 // do warlock
-function doWEWarlock(const m:AnsiString):boolean;
+function doWEWarlock(const m:RawByteString):boolean;
 var
 
-  f1:AnsiString;
-  f2,f3,compiled,backup,dir:AnsiString;
+  f1:RawByteString;
+  f2,f3,compiled,backup,dir:RawByteString;
   i:integer;
 
 begin
@@ -353,7 +353,7 @@ begin
       f1:=TempFile;
       f2:=TempFile;
       f3:=TempFile;
-      DeleteFile(pchar(GetSuffixedName(m,'_compiled')));
+      DeleteFileA(PAnsiChar(GetSuffixedName(m,'_compiled')));
       dir:=ExtractFileDir(WEWARLOCK_PATH);
       i:= WinExec.StartApp(
       WEWARLOCK_PATH,
@@ -375,7 +375,7 @@ begin
 
 
       end else begin
-          DeleteFile(pchar(backup ));
+          DeleteFileA(PAnsiChar(backup ));
           MoveFile(pchar(m),pchar(backup ));
           MoveFile(pchar(compiled),pchar(m));
       end;
@@ -561,8 +561,8 @@ try
          war3mapj:='logs\inputwar3map.j';
          progress.StatusMsg('Extracting war3map.j ...');
          if(not MPQFileExists(mpq,'war3map.j')) then raise Exception.Create('Map does not contain war3map.j');
-         DeleteFile(pchar(war3mapj));
-         storm.MPQExtractFileTo(mpq,'war3map.j',pchar(war3mapj));
+         DeleteFileA(PAnsiChar(war3mapj));
+         storm.MPQExtractFileTo(mpq,'war3map.j',war3mapj);
          if(not FileExists(war3mapj)) then raise Exception.Create('war3map.j extract error');
      end;
 
@@ -587,7 +587,7 @@ try
                      raise Exception.Create('There were errors while running wewarlock');
                  end;
                  mpq:=MpqOpenArchiveForUpdate(PAnsiChar(map),MOAU_OPEN_EXISTING + MOAU_MAINTAIN_LISTFILE,0);
-                 storm.MPQExtractFileTo(mpq,'war3map.j',pchar('logs\currentmapscript.j'));
+                 storm.MPQExtractFileTo(mpq,'war3map.j','logs\currentmapscript.j');
              end else begin
                  progress.StatusMsg('copying ...');
                  CopyFile(compiled,'logs\currentmapscript.j');
@@ -616,6 +616,7 @@ try
           dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
 
 //          dopjasserrors(f1,f1);
+          FreeAndNil(JassHelper.Interf);
           halt(1);
       end;
         if (jasshelperconfigfile.ENABLE_RETURN_FIXER) then begin
@@ -633,6 +634,7 @@ try
             if(temi<>0) then begin
                progress.StatusMsg('Found errors, please wait...');
                dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+               FreeAndNil(JassHelper.Interf);
                halt(1);
             end;
 
@@ -653,6 +655,7 @@ try
             if(temi<>0) then begin
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                FreeAndNil(JassHelper.Interf);
                 halt(1);
             end;
 
@@ -674,6 +677,7 @@ try
             if(temi<>0) then begin
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                FreeAndNil(JassHelper.Interf);
                 halt(1);
             end;
              
@@ -692,6 +696,7 @@ try
             if(temi<>0) then begin
                 progress.StatusMsg('Found errors, please wait...');
                 dopjasserrors('logs\currentmapscript.j','logs\pjass.txt');
+                FreeAndNil(JassHelper.Interf);
                 halt(1);
             end;
              
@@ -769,11 +774,13 @@ except
 
 
      grimoirecompiler.show;
+     FreeAndNil(JassHelper.Interf);
      Halt(1);
  end;
 
  on e:Exception do begin
      MessageBox(0,pchar(e.message),'JASSHelper Error',MB_TOPMOST+MB_ICONERROR);
+     FreeAndNil(JassHelper.Interf);
      Halt(1);
 
  end;
@@ -783,6 +790,7 @@ end;
      if (mpq<>0) then begin
          MpqCloseUpdatedArchive(mpq,0);
      end;
+     FreeAndNil(JassHelper.Interf);
 
 
 

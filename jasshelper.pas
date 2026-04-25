@@ -4,11 +4,11 @@ interface
 
 uses
   Windows, SysUtils, Classes, StringHash, slk,
-  GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib;
+  GrammarReader, GOLDParser, Symbol, Token, jasshelpersymbols, jasslib, System.Generics.Collections;
 
 //{$define ZINC_DEBUG}
-const VERSION:AnsiString = '0.A.7.5';
-type TDynamicStringArray = array of AnsiString;
+const VERSION:RawByteString = '0.A.7.5 rev4 x64';
+type TDynamicStringArray = array of RawByteString;
 type TDynamicIntegerArray = array of integer;
 
 
@@ -17,10 +17,10 @@ type TDynamicIntegerArray = array of integer;
 
    public
       linen:integer;
-      msg:AnsiString;
+      msg:RawByteString;
       two:boolean;
       linen2:integer;
-      msg2:AnsiString;
+      msg2:RawByteString;
       macro1:integer;
       macro2:integer;
    end;
@@ -29,39 +29,39 @@ type TDynamicIntegerArray = array of integer;
    //options than push and pop.
    Tscopestack = class(TObject)
    private
-      ascope: array of AnsiString;
+      ascope: array of RawByteString;
       adecl: array of integer;
-      aprivpref:array of AnsiString;
-      apblicpref:array of AnsiString;
-      adescope: array of AnsiString;
+      aprivpref:array of RawByteString;
+      apblicpref:array of RawByteString;
+      adescope: array of RawByteString;
       n:integer;
    public
        constructor create;
-       procedure push(const scope:AnsiString; const descope:AnsiString; const decl:integer; const privpref:AnsiString; const pblicpref:AnsiString);
-       procedure top(var scope:AnsiString; var descope:AnsiString; var decl:integer; var privpref:AnsiString; var pblicpref:AnsiString);
+       procedure push(const scope:RawByteString; const descope:RawByteString; const decl:integer; const privpref:RawByteString; const pblicpref:RawByteString);
+       procedure top(var scope:RawByteString; var descope:RawByteString; var decl:integer; var privpref:RawByteString; var pblicpref:RawByteString);
        procedure pop;
        function empty:boolean;
-       procedure makeprivate(d:integer;var s:AnsiString; id:integer);
-       procedure makepublic(d:integer;var s:AnsiString; id:integer);
+       procedure makeprivate(d:integer;var s:RawByteString; id:integer);
+       procedure makepublic(d:integer;var s:RawByteString; id:integer);
        function bottomline:integer;
-       function GetScopeDecl(d:integer): AnsiString;
-       function list(ignoretop:boolean=false ) :AnsiString;
+       function GetScopeDecl(d:integer): RawByteString;
+       function list(ignoretop:boolean=false ) :RawByteString;
        function GetScopeId(d:integer): integer;
-       function MakePrefix(pri:boolean):AnsiString;
+       function MakePrefix(pri:boolean):RawByteString;
    end;
 
    Ttextmacro = class(TObject)
    private
-       contents:array of AnsiString;
+       contents:array of RawByteString;
        contentssize:integer;
-       args:array of AnsiString;
+       args:array of RawByteString;
        argsn:integer;
    public
        decl:integer;
        constructor create;
        procedure run(var replaceto:TDynamicStringArray);
-       procedure addArgument(const s:AnsiString);
-       procedure add(const s:AnsiString);
+       procedure addArgument(const s:RawByteString);
+       procedure add(const s:RawByteString);
        procedure reserveSpace(s:integer);
 
    end;
@@ -91,22 +91,22 @@ type TDynamicIntegerArray = array of integer;
        fromparent:boolean;
        stub:boolean;
 
-       oninit_value:AnsiString;
-       oninit_struct:AnsiString;
-       name:AnsiString;
-       returntype:AnsiString;
+       oninit_value:RawByteString;
+       oninit_struct:RawByteString;
+       name:RawByteString;
+       returntype:RawByteString;
        argnumber:integer;
-       argtypes:array of AnsiString;
-       argnames:array of AnsiString;
+       argtypes:array of RawByteString;
+       argnames:array of RawByteString;
 
        arraydummy:integer;
-       interdefault: AnsiString;
+       interdefault: RawByteString;
 
        //1:attribute, 2:private attribute, 3:method, 4:private method, 5:constructor, 6:private constructor, 7:destructor, 8:private destructor.
        //11: static attribute
        //12: static private attribute-
-       constructor create(d:integer; const s:AnsiString; accs:integer; sta:boolean; method:boolean);
-       procedure addarg(const t:AnsiString; const n:AnsiString);
+       constructor create(d:integer; const s:RawByteString; accs:integer; sta:boolean; method:boolean);
+       procedure addarg(const t:RawByteString; const n:RawByteString);
        procedure abuseexecset(const b:boolean);
 
        property abuseexec:boolean read abuseexecv write abuseexecset;
@@ -117,7 +117,7 @@ type TDynamicIntegerArray = array of integer;
        PrototypeId: integer;
        decl:integer;
        abuse:boolean;
-       name:AnsiString;
+       name:RawByteString;
 
 
    end;
@@ -126,8 +126,8 @@ type TDynamicIntegerArray = array of integer;
    public
 
 
-       args:Array of AnsiString;
-       res: AnsiString;
+       args:Array of RawByteString;
+       res: RawByteString;
        argn:Integer;
 
        addedtoscript : boolean;
@@ -137,24 +137,24 @@ type TDynamicIntegerArray = array of integer;
        funccount:integer;
        abuse:boolean;
 
-       function GetId(const s:AnsiString):integer;
-       constructor Create( iargs:TDynamicStringArray; iargsn:integer; ires:AnsiString);
+       function GetId(const s:RawByteString):integer;
+       constructor Create( iargs:TDynamicStringArray; iargsn:integer; ires:RawByteString);
        destructor Destroy; override;
    end;
 
    Tstruct = class(TObject)
    private
-       oninitv:AnsiString;
-       function getOnInit:AnsiString;
+       oninitv:RawByteString;
+       function getOnInit:RawByteString;
    public
 
 
        decl:integer;
        endline:integer;
        typeid:integer;
-       name:AnsiString;
+       name:RawByteString;
 
-       modulesOnInit:AnsiString;
+       modulesOnInit:RawByteString;
 
 
        membershash:TStringHash;
@@ -170,7 +170,7 @@ type TDynamicIntegerArray = array of integer;
        zincstruct:boolean;
        parent:integer;
        parentstruct : integer;
-       parentname:AnsiString;
+       parentname:RawByteString;
        isarraystruct:boolean;
        isinterface:boolean;
        gotstructchildren:boolean;
@@ -179,13 +179,13 @@ type TDynamicIntegerArray = array of integer;
        nchildren:integer;
 
        customarray:integer;
-       customarraytype:AnsiString;
+       customarraytype:RawByteString;
 
        requiredspace: integer;
 
        maximum:integer;
 
-       lessthan: AnsiString;
+       lessthan: RawByteString;
 
        forInternalUse:boolean;
 
@@ -200,40 +200,41 @@ type TDynamicIntegerArray = array of integer;
        customcreate:boolean;
 
        constructor create(d:integer;int:boolean);
+       destructor destroy(); override;
        procedure addchild(i:integer);
-       function addmember(d:integer; const s:AnsiString;accs:integer; sta:boolean; method:boolean):tmember;
+       function addmember(d:integer; const s:RawByteString;accs:integer; sta:boolean; method:boolean):tmember;
        procedure addDelegate(memb:tmember);
-       function getmember(const s:AnsiString; var res:Tmember):boolean;
+       function getmember(const s:RawByteString; var res:Tmember):boolean;
 
        procedure makeArrayStruct();
 
-       procedure dropmember(const s:AnsiString);
-       procedure addModuleOnInit(const s:AnsiString);
-       procedure BeforeDestruction; override;
+       procedure dropmember(const s:RawByteString);
+       procedure addModuleOnInit(const s:RawByteString);
+       //procedure BeforeDestruction; override;
 
-       function GetSuperParentName:AnsiString;
-       function GetSuperParentNameForMethod(const methodname:AnsiString):AnsiString;
-       property oninit:AnsiString read GetOnInit write oninitv;
-       property superparentname:  AnsiString read GetSuperParentName;
+       function GetSuperParentName:RawByteString;
+       function GetSuperParentNameForMethod(const methodname:RawByteString):RawByteString;
+       property oninit:RawByteString read GetOnInit write oninitv;
+       property superparentname:  RawByteString read GetSuperParentName;
    end;
 
    Tarray = class(Tobject)
    public
        decl:integer;
-       name:AnsiString;
-       oftype:AnsiString;
+       name:RawByteString;
+       oftype:RawByteString;
    end;
 
    TexternalUsage=class(TObject)
    public
         n:integer;
-        name:array of AnsiString;
-        args:array of AnsiString;
-        stdin:array of AnsiString;
-        ext:array of AnsiString;
+        name:array of RawByteString;
+        args:array of RawByteString;
+        stdin:array of RawByteString;
+        ext:array of RawByteString;
         pos:array of integer;
         constructor create;
-        procedure add(const na:AnsiString; const a:AnsiString; const i:integer; const ex:AnsiString = ''; const si:AnsiString = '' );
+        procedure add(const na:RawByteString; const a:RawByteString; const i:integer; const ex:RawByteString = ''; const si:RawByteString = '' );
         procedure reset;
    end;
 
@@ -243,19 +244,19 @@ type TDynamicIntegerArray = array of integer;
    private
        c:array of AnsiChar;
        n:integer;
-       function strread:AnsiString;
+       function strread:RawByteString;
    public
        constructor Create(inisz:integer);
        procedure add(c:AnsiChar);overload;
-       procedure add(s:AnsiString);overload;
-       property str:AnsiString read strread;
+       procedure add(s:RawByteString);overload;
+       property str:RawByteString read strread;
    end;}
 
 TJHIProPosition = procedure(p:integer); stdcall;
 TJHIProMax = procedure(max:integer); stdcall;
 TJHIGetProMax = function:integer ; stdcall;
 TJHIGetProPosition = function:integer ; stdcall;
-TJHIStatus = procedure(const msg:AnsiString); stdcall;
+TJHIStatus = procedure(const msg:RawByteString); stdcall;
 
 type
   TJASSHelperInterface = class(TObject)
@@ -272,8 +273,8 @@ var
   REQUIREFOUND:integer=0;
   FORGETIMPORT:boolean=false;
   AUTOMETHODEVALUATE:boolean = false;
-  AFTERIMPORT:AnsiString;
-  GRAMMARPATH:AnsiString='jasshelper.cgt';
+  AFTERIMPORT:RawByteString;
+  GRAMMARPATH:RawByteString='jasshelper.cgt';
 
   IMPORTUSED:boolean;
   Parser:TGoldParser=nil;
@@ -286,7 +287,7 @@ var
   DEBUG_MODE:boolean=false;
   JASS_ARRAY_SIZE:integer=0;
   VJASS_MAX_ARRAY_INDEXES:integer=0;
-  all_handle, reference_counted_obj, CJ_BJ_globals:array of AnsiString;
+  all_handle, reference_counted_obj, CJ_BJ_globals:array of RawByteString;
 
 const UPDATEVALUE=100;
 
@@ -294,19 +295,19 @@ type
     Tvtype = class(Tobject)
     public
         id:integer;
-        name:AnsiString;
-        tag:AnsiString;
+        name:RawByteString;
+        tag:RawByteString;
     end;
 
 function MakeType(const id:integer):Tvtype; overload; forward;
-function MakeType(const id:integer; const name:AnsiString):Tvtype; overload; forward;
-function MakeType(const id:integer; const name:AnsiString; const tag:AnsiString):Tvtype; overload; forward;
+function MakeType(const id:integer; const name:RawByteString):Tvtype; overload; forward;
+function MakeType(const id:integer; const name:RawByteString; const tag:RawByteString):Tvtype; overload; forward;
 
 
-procedure DoJASSerMagic(f1:AnsiString; f2:AnsiString; debug:boolean);overload;
+procedure DoJASSerMagic(f1:RawByteString; f2:RawByteString; debug:boolean);overload;
 
 
-function DoJASSerMagic(sinput:AnsiString; debug:boolean):AnsiString; overload;
+function DoJASSerMagic(sinput:RawByteString; debug:boolean):RawByteString; overload;
 procedure DoJasserBlocksMagic;
 
 procedure DoStructModuleMagic();
@@ -316,72 +317,72 @@ function getExternalUsage(var r:Texternalusage):boolean;
 
 procedure processTextMacros;
 procedure ProcessZinc(const debug:boolean);
-function CompareSubString(const s:AnsiString; st:integer; en:integer; const val:AnsiString):boolean;
+function CompareSubString(const s:RawByteString; st:integer; en:integer; const val:RawByteString):boolean;
 
-procedure DoJASSerStructMagic(sinput:AnsiString;const debug:boolean; var Result:AnsiString);overload;
-procedure DoJASSerStructMagic(f1:AnsiString;f2:AnsiString;const debug:boolean);overload;
+procedure DoJASSerStructMagic(sinput:RawByteString;const debug:boolean; var Result:RawByteString);overload;
+procedure DoJASSerStructMagic(f1:RawByteString;f2:RawByteString;const debug:boolean);overload;
 
-procedure DoJASSerInlineMagicS(sinput:AnsiString; var Result:AnsiString);
-procedure DoJASSerInlineMagicF(const f1:AnsiString; const f2:AnsiString);
+procedure DoJASSerInlineMagicS(sinput:RawByteString; var Result:RawByteString);
+procedure DoJASSerInlineMagicF(const f1:RawByteString; const f2:RawByteString);
 
-procedure DoJASSerReturnFixMagicS(sinput:AnsiString; var Result:AnsiString);
-procedure DoJASSerReturnFixMagicF(const f1:AnsiString; const f2:AnsiString);
+procedure DoJASSerReturnFixMagicS(sinput:RawByteString; var Result:RawByteString);
+procedure DoJASSerReturnFixMagicF(const f1:RawByteString; const f2:RawByteString);
 
-procedure DoJASSerShadowHelperMagicS(sinput:AnsiString; var Result:AnsiString);
-procedure DoJASSerShadowHelperMagicF(const f1:AnsiString; const f2:AnsiString);
+procedure DoJASSerShadowHelperMagicS(sinput:RawByteString; var Result:RawByteString);
+procedure DoJASSerShadowHelperMagicF(const f1:RawByteString; const f2:RawByteString);
 
-function ArrayStringContains(const arr: array of AnsiString; const value: AnsiString): Boolean;
-procedure DoJASSerNullLocalMagicS(sinput:AnsiString; var Result:AnsiString);
-procedure DoJASSerNullLocalMagicF(const f1:AnsiString; const f2:AnsiString);
+function ArrayStringContains(const arr: array of RawByteString; const value: RawByteString): Boolean;
+procedure DoJASSerNullLocalMagicS(sinput:RawByteString; var Result:RawByteString);
+procedure DoJASSerNullLocalMagicF(const f1:RawByteString; const f2:RawByteString);
 
 
-procedure LoadFile(const FileName: TFileName; var result:AnsiString);
-procedure SaveFile(const FileName: TFileName; const result:AnsiString);
-procedure doJassHelperExternals(const maplocation:AnsiString);
+procedure LoadFile(const FileName: TFileName; var result:RawByteString);
+procedure SaveFile(const FileName: TFileName; const result:RawByteString);
+procedure doJassHelperExternals(const maplocation:RawByteString);
 
 procedure importPathsClear;
-procedure addImportPath(const s:AnsiString);
+procedure addImportPath(const s:RawByteString);
 
-function fetchPath(var path:AnsiString; const current:AnsiString=''):boolean;
+function fetchPath(var path:RawByteString; const current:RawByteString=''):boolean;
 
 procedure InitFunctionPrototypes;
 procedure CleanFunctionPrototypes;
-function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:AnsiString):integer;
-procedure parseFunction(const s:AnsiString; decl:integer);
-function translateMethodOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
-function translateMemberOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
-function translateMethodOfFunctionPointer(const f:AnsiString; const st:tstruct; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
-function translateMemberOfFunctionInterface(const f:AnsiString; const st:tstruct; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:RawByteString):integer;
+procedure parseFunction(const s:RawByteString; decl:integer);
+function translateMethodOfFunction(const f:RawByteString; const fid:integer; const memb:RawByteString; const args:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
+function translateMemberOfFunction(const f:RawByteString; const fid:integer; const memb:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
+function translateMethodOfFunctionPointer(const f:RawByteString; const st:tstruct; const memb:RawByteString; const args:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
+function translateMemberOfFunctionInterface(const f:RawByteString; const st:tstruct; const memb:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
 
-procedure MakeFunctionCallers(var output:AnsiString);
+procedure MakeFunctionCallers(var output:RawByteString);
 procedure NormalizeFunctionArguments;
-procedure buildFunctionActions(var output:AnsiString);
-procedure buildIniFunctionActions(var output:AnsiString);
+procedure buildFunctionActions(var output:RawByteString);
+procedure buildIniFunctionActions(var output:RawByteString);
 
 
-function translateDotMethod(const obj:AnsiString; const memb:AnsiString; const args:AnsiString; styp:Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromsuper:boolean=false; const evaluate:boolean=false ):boolean;
-function TryStrToIntX(const s:AnsiString;var x:integer):boolean;
-procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:AnsiString; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:AnsiString; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
-    procedure generateMultiArrayPicker(const namepref:AnsiString; const namesuf:AnsiString; const indexspace:integer; const index:AnsiString; const indent:integer; const commandprefix:AnsiString; const commandsufix:AnsiString; var outs:AnsiString);
+function translateDotMethod(const obj:RawByteString; const memb:RawByteString; const args:RawByteString; styp:Tvtype; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromsuper:boolean=false; const evaluate:boolean=false ):boolean;
+function TryStrToIntX(const s:RawByteString;var x:integer):boolean;
+procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:RawByteString; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:RawByteString; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
+    procedure generateMultiArrayPicker(const namepref:RawByteString; const namesuf:RawByteString; const indexspace:integer; const index:RawByteString; const indent:integer; const commandprefix:RawByteString; const commandsufix:RawByteString; var outs:RawByteString);
 
 
-procedure Concatenate3(var res:AnsiString; const s1,s2,s3:AnsiString);
-procedure Concatenate4(var res:AnsiString; const s1,s2,s3,s4:AnsiString);
-procedure Concatenate5(var res:AnsiString; const s1,s2,s3,s4,s5:AnsiString);
-procedure Concatenate6(var res:AnsiString; const s1,s2,s3,s4,s5,s6:AnsiString);
-procedure Concatenate7(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7:AnsiString);
-procedure Concatenate8(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8:AnsiString);
-procedure Concatenate9(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9:AnsiString);
-procedure Concatenate10(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:AnsiString);
-procedure Concatenate13(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:AnsiString);
-function RConcatenate3(const s1,s2,s3:AnsiString):AnsiString;
-function RConcatenate6(const s1,s2,s3,s4,s5,s6:AnsiString):AnsiString;
+procedure Concatenate3(var res:RawByteString; const s1,s2,s3:RawByteString);
+procedure Concatenate4(var res:RawByteString; const s1,s2,s3,s4:RawByteString);
+procedure Concatenate5(var res:RawByteString; const s1,s2,s3,s4,s5:RawByteString);
+procedure Concatenate6(var res:RawByteString; const s1,s2,s3,s4,s5,s6:RawByteString);
+procedure Concatenate7(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7:RawByteString);
+procedure Concatenate8(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8:RawByteString);
+procedure Concatenate9(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9:RawByteString);
+procedure Concatenate10(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:RawByteString);
+procedure Concatenate13(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:RawByteString);
+function RConcatenate3(const s1,s2,s3:RawByteString):RawByteString;
+function RConcatenate6(const s1,s2,s3,s4,s5,s6:RawByteString):RawByteString;
 
-procedure GetLineWord(const  line:AnsiString; var st:AnsiString ; var sti:integer; ival:integer=1);
-function CompareLineWord(const match:AnsiString; const  line:AnsiString; var sti:integer; ival:integer=1):boolean;
-procedure GetLineToken(const line: AnsiString; var st:AnsiString ; out sti:integer; ival:integer=1);
+procedure GetLineWord(const  line:RawByteString; var st:RawByteString ; var sti:integer; ival:integer=1);
+function CompareLineWord(const match:RawByteString; const  line:RawByteString; var sti:integer; ival:integer=1):boolean;
+procedure GetLineToken(const line: RawByteString; var st:RawByteString ; out sti:integer; ival:integer=1);
 
-procedure SWriteLn(var s:AnsiString; const l:AnsiString);
+procedure SWriteLn(var s:RawByteString; const l:RawByteString);
 
 const   SEPARATORS: set of AnsiChar=[ '.', '(',' ',#9,')' , ',', '+', '-', '*', '/' ,'"', '''', '=','!', '<', '>','[',']',':' ];
 
@@ -399,7 +400,7 @@ type
        struct:Tstruct;
    end;
    THookedNative = class(Tobject)
-       nativename:AnsiString;
+       nativename:RawByteString;
        hooks: Tlist;
    end;
 var
@@ -410,36 +411,36 @@ var
 type
    TLibrary = class(TObject)
    public
-       name: AnsiString;
-       req: array of AnsiString;
+       name: RawByteString;
+       req: array of RawByteString;
        req_opt: array of boolean;
        reqn: integer;
-       contents: AnsiString;
-       globals: AnsiString;
+       contents: RawByteString;
+       globals: RawByteString;
        validatedinit:boolean;
        declaration: integer;
-       Init: AnsiString;
+       Init: RawByteString;
 
    end;
 var
-   importpaths:array of AnsiString;
+   importpaths:array of RawByteString;
    importpathn:integer=0;
 
-   input: array of AnsiString;
+   input: array of RawByteString;
    offset:array of integer;
    textmacrotrace:array of integer;
    globaltextmacrotrace:integer;
    globaloffset:integer;
 
-   globals: AnsiString='';
+   globals: RawByteString='';
 
-   premainarea: AnsiString;
-   postmainarea: AnsiString;
+   premainarea: RawByteString;
+   postmainarea: RawByteString;
    libraries: array of TLibrary;
    library_usedinit:boolean=false;
    libraryn:integer;
 
-   ScopeInit:array of AnsiString;
+   ScopeInit:array of RawByteString;
    ScopeInitN:integer;
 
 
@@ -454,7 +455,7 @@ var
 
    Exter: Texternalusage=nil;
 
-   datafunctions: array of AnsiString;
+   datafunctions: array of RawByteString;
    datafunctions_N:integer;
    datafunctions_Current:integer;
 
@@ -474,8 +475,8 @@ var
    //globals for global big arrays:
    BigArrayN:integer;
    BigArrayHash:Tstringhash;
-   BigArrayTypes: array of AnsiString;
-   BigArrayNames: array of AnsiString;
+   BigArrayTypes: array of RawByteString;
+   BigArrayNames: array of RawByteString;
    BigArraySizes: array of integer;
    BigArrayWidths: array of integer;
    BigArrayStructs: array of integer;
@@ -508,7 +509,7 @@ procedure Texternalusage.reset;
 begin
     N:=0;
 end;
-procedure Texternalusage.add(const na:AnsiString; const a:AnsiString; const i:integer; const ex:AnsiString; const si:AnsiString);
+procedure Texternalusage.add(const na:RawByteString; const a:RawByteString; const i:integer; const ex:RawByteString; const si:RawByteString);
 begin
     if(Length(name)<=N) then begin
         SetLength(name,N+1);
@@ -541,7 +542,7 @@ constructor TScopeStack.Create;
 begin
     n:=0;
 end;
-procedure TScopeStack.push (const scope:AnsiString; const descope:AnsiString; const decl:integer; const privpref:AnsiString; const pblicpref:AnsiString);
+procedure TScopeStack.push (const scope:RawByteString; const descope:RawByteString; const decl:integer; const privpref:RawByteString; const pblicpref:RawByteString);
 begin
     n:=n+1;
     SetLength(ascope,n);
@@ -555,7 +556,7 @@ begin
     aprivpref[n-1]:=privpref;
     apblicpref[n-1]:=pblicpref;
 end;
-procedure TScopeStack.top(var scope:AnsiString;var descope:AnsiString; var decl:integer; var privpref:AnsiString; var pblicpref:AnsiString);
+procedure TScopeStack.top(var scope:RawByteString;var descope:RawByteString; var decl:integer; var privpref:RawByteString; var pblicpref:RawByteString);
 begin
    scope:=ascope[n-1];
    descope:=adescope[n-1];
@@ -571,20 +572,20 @@ function TScopeStack.empty:boolean;
 begin
     Result:=(n<=0);
 end;
-procedure TScopeStack.MakePrivate(d:integer;var s:AnsiString; id:integer);
+procedure TScopeStack.MakePrivate(d:integer;var s:RawByteString; id:integer);
 begin
     if(d>=n) or (adecl[d]<>id) then Exit;
     s:=aprivpref[d]+s;
 end;
 
-function TScopeStack.MakePrefix(pri:boolean):AnsiString;
+function TScopeStack.MakePrefix(pri:boolean):RawByteString;
 begin
    if(pri) then result:='"'+aprivpref[n-1]+'"'
    else result:='"'+apblicpref[n-1]+'"';
 end;
 
 
-function TScopeStack.GetScopeDecl(d:integer): AnsiString;
+function TScopeStack.GetScopeDecl(d:integer): RawByteString;
 begin
      if(d>=n) then begin
          Result:='';
@@ -598,7 +599,7 @@ begin
      end else
          Result:=adecl[d];
 end;
-procedure TScopeStack.MakePublic(d:integer;var s:AnsiString; id:integer);
+procedure TScopeStack.MakePublic(d:integer;var s:RawByteString; id:integer);
 begin
     if(d>=n) or (adecl[d]<>id) then Exit;
     if (s='InitTrig') then s:=s+'_'+Copy(apblicpref[d],1,Length(apblicpref[d])-1)
@@ -608,7 +609,7 @@ function TScopeStack.bottomline:integer;
 begin
     Result:=adecl[0];
 end;
-function TScopeStack.list(ignoretop:boolean=false ):AnsiString;
+function TScopeStack.list(ignoretop:boolean=false ):RawByteString;
 var
    i:integer;
 begin
@@ -628,14 +629,13 @@ end;
 //<TTextMacro>
 
 //</TTextMacro>
-
-procedure SWriteLn(var s:AnsiString; const l:AnsiString);
+procedure SWriteLn(var s:RawByteString; const l:RawByteString);
 begin
     Insert(l, s, VERYBIG);
     Insert(#13#10, s, VERYBIG);
 end;
 
-procedure SWriteLnSmart(var s:AnsiString; const l:AnsiString);
+procedure SWriteLnSmart(var s:RawByteString; const l:RawByteString);
 var len:integer;
 begin
     Insert(l, s, VERYBIG);
@@ -645,7 +645,7 @@ begin
 end;
 
 
-procedure SWrite(var s:AnsiString; const l:AnsiString);
+procedure SWrite(var s:RawByteString; const l:RawByteString);
 begin
     Insert(l, s, VERYBIG);
 end;
@@ -657,7 +657,7 @@ line : '     call    BJDebugMsg() '
 st   : 'call'
 sti  : 10
 }
-procedure GetLineWord(const  line:AnsiString; var st:AnsiString ; var sti:integer; ival:integer=1);
+procedure GetLineWord(const  line:RawByteString; var st:RawByteString ; var sti:integer; ival:integer=1);
 var
  i,L:integer;
  commprotect:boolean;
@@ -691,7 +691,7 @@ begin
    st:=Copy(line,i,sti-i);
 end;
 
-function CompareLineWord(const match:AnsiString; const  line:AnsiString; var sti:integer; ival:integer=1):boolean;
+function CompareLineWord(const match:RawByteString; const  line:RawByteString; var sti:integer; ival:integer=1):boolean;
 var
  i,L:integer;
 begin
@@ -721,7 +721,7 @@ begin
    Result:=CompareSubString(line,i,sti-1,match);
 end;
 
-function CompareLineToken(const match:AnsiString; const  line:AnsiString; var sti:integer; ival:integer=1):boolean;
+function CompareLineToken(const match:RawByteString; const  line:RawByteString; var sti:integer; ival:integer=1):boolean;
 var
  i,L:integer;
 begin
@@ -750,7 +750,7 @@ end;
 
 
 
-function nonNumeralPrefix(const s:AnsiString; p:integer):boolean;
+function nonNumeralPrefix(const s:RawByteString; p:integer):boolean;
 
 begin
     result:=false;
@@ -764,7 +764,7 @@ begin
 
 end;
 
-procedure GetLineToken(const line: AnsiString; var st:AnsiString ; out sti:integer; ival:integer=1);
+procedure GetLineToken(const line: RawByteString; var st:RawByteString ; out sti:integer; ival:integer=1);
 var
  i,L:integer;
 
@@ -816,13 +816,13 @@ begin
 end;
 
 
-function TestGetLineWord(line:AnsiString;i:integer):AnsiString;
+function TestGetLineWord(line:RawByteString;i:integer):RawByteString;
 var j:integer;
 begin
     GetLineWord(line,Result,j,i);
 end;
 
-procedure GetLineWordAlsoComma(line:AnsiString; var st:AnsiString ; var sti:integer; ival:integer=1);
+procedure GetLineWordAlsoComma(line:RawByteString; var st:RawByteString ; var sti:integer; ival:integer=1);
 var
  i,L:integer;
 begin
@@ -847,7 +847,7 @@ begin
    st:=Copy(line,i,sti-i);
 end;
 
-function IsWhitespace(const s:AnsiString; const st:integer=1):boolean;
+function IsWhitespace(const s:RawByteString; const st:integer=1):boolean;
 var i,L:integer;
 begin
     i:=st;
@@ -863,7 +863,7 @@ begin
 
 end;
 
-function GetEndOfUsefulLine(const s:AnsiString):integer;
+function GetEndOfUsefulLine(const s:RawByteString):integer;
 var i,L,j:integer;
 ctr:boolean;
 begin
@@ -906,9 +906,9 @@ begin
 
 end;
 
-// s[a] is the beginning of a AnsiString, moves a to the end of such AnsiString or b,
+// s[a] is the beginning of a string, moves a to the end of such string or b,
 // whatever comes first.
-procedure SkipString(const s:AnsiString; var a:integer; const b:integer);
+procedure SkipString(const s:RawByteString; var a:integer; const b:integer);
 var ctr:boolean;
 begin
     if(s[a]='''') then begin
@@ -932,7 +932,7 @@ begin
     end;
 end;
 
-procedure SkipUselessBrackets(const s:AnsiString; var a:integer; var b:integer);
+procedure SkipUselessBrackets(const s:RawByteString; var a:integer; var b:integer);
 var i,par,ra,rb:integer;
 
 
@@ -964,7 +964,7 @@ begin
     b:=rb;
 end;
 
-function JASSerLineException(i:integer;msg:AnsiString):JASSerException;
+function JASSerLineException(i:integer;msg:RawByteString):JASSerException;
 begin
    Result:=JASSerException.Create(msg  );
    Result.msg:=msg;
@@ -976,7 +976,7 @@ begin
 
 end;
 
-procedure VerifyEndOfLine(const s:AnsiString; const st:integer; LineNumber:integer);
+procedure VerifyEndOfLine(const s:RawByteString; const st:integer; LineNumber:integer);
 var i,L:integer;
 begin
    if(not IsWhitespace(s,st)) then begin
@@ -995,7 +995,7 @@ begin
 end;
 
 
-function JASSerLineExceptionNoTextMacro(i:integer;msg:AnsiString):JASSerException;
+function JASSerLineExceptionNoTextMacro(i:integer;msg:RawByteString):JASSerException;
 begin
    Result:=JASSerException.Create(msg);
    Result.msg:=msg;
@@ -1007,7 +1007,7 @@ begin
 end;
 
 
-function JASSerLineDoubleException(i:integer;msg:AnsiString; j:integer; msg2:AnsiString):JASSerException;
+function JASSerLineDoubleException(i:integer;msg:RawByteString; j:integer; msg2:RawByteString):JASSerException;
 begin
    Result:=JASSerException.Create(msg);
    Result.msg:=msg;
@@ -1021,7 +1021,7 @@ begin
 
 end;
 
-function JASSerLineDoubleExceptionNoTextMacro(i:integer;msg:AnsiString; j:integer; msg2:AnsiString):JASSerException;
+function JASSerLineDoubleExceptionNoTextMacro(i:integer;msg:RawByteString; j:integer; msg2:RawByteString):JASSerException;
 begin
    Result:=JASSerException.Create(msg);
    Result.msg:=msg;
@@ -1038,7 +1038,7 @@ end;
 
 
 
-procedure GetRealLine(var i:integer; var line:AnsiString );
+procedure GetRealLine(var i:integer; var line:RawByteString );
 var
  j,L,anchor, strcount:integer;
  ctl,str,raw:boolean;
@@ -1053,9 +1053,9 @@ begin
     raw:=false;
 
     { lots of threats, for example "aaa
-     aa f f"  is a valid AnsiString, also "aaa\"aaa" and "aaadf\\"
+     aa f f"  is a valid string, also "aaa\"aaa" and "aaadf\\"
 
-      There is also the infamous '"' which does not open an AnsiString
+      There is also the infamous '"' which does not open an string
      }
     anchor:=i;
 
@@ -1076,7 +1076,7 @@ begin
                 end
                 else if (c='\') then ctl:=true;
                 if (strcount>1100) then begin
-                    raise JASSerLineException(anchor,'AnsiString literal size limit exceeded /unclosed AnsiString');
+                    raise JASSerLineException(anchor,'string literal size limit exceeded /unclosed string');
                 end;
 
             end else if (raw) then begin
@@ -1098,7 +1098,7 @@ begin
         if (i<>anchor) then Insert(input[i],line, VERYBIG );
 
         if (str) then begin
-            //doh, AnsiString didn't end the line yet;
+            //doh, string didn't end the line yet;
             i:=i+1;
             Insert('\n',line, VERYBIG ); //It is handy and prevents pjass from returning the wrong line number
 
@@ -1106,7 +1106,7 @@ begin
         end
         else break;
     end;
-    if (str) then raise JASSerLineException(anchor,'Unclosed AnsiString');
+    if (str) then raise JASSerLineException(anchor,'Unclosed string');
 
 
 
@@ -1114,7 +1114,7 @@ begin
 end;
 
 
-function validScopeName(const s:AnsiString):boolean;
+function validScopeName(const s:RawByteString):boolean;
 var
    i,L:integer;
 begin
@@ -1133,7 +1133,7 @@ begin
 end;
 
 
-function validIdentifierName(const s:AnsiString):boolean;
+function validIdentifierName(const s:RawByteString):boolean;
 var
    i,L:integer;
 begin
@@ -1153,10 +1153,10 @@ end;
 
 
 // requires a,b,c,d,
-procedure parseLibrary(var line:AnsiString; var lib:TLibrary; beginp:integer; linenumber:integer; const libraryname:AnsiString);
+procedure parseLibrary(var line:RawByteString; var lib:TLibrary; beginp:integer; linenumber:integer; const libraryname:RawByteString);
 var
    j,k:integer;
-   word:AnsiString;
+   word:RawByteString;
    optional:boolean;
 begin
     lib.reqn:=0;
@@ -1221,9 +1221,9 @@ end;
 
 
 
-procedure ReplaceTokens(var hash:TStringHash; var currenthash:TStringHash; var stack:TScopeStack; var s:AnsiString; deleteprivate:boolean);
+procedure ReplaceTokens(var hash:TStringHash; var currenthash:TStringHash; var stack:TScopeStack; var s:RawByteString; deleteprivate:boolean);
 var
-  o,token:AnsiString;
+  o,token:RawByteString;
   i,L,k,x,d:integer;
   str,ctr,now:boolean;
 
@@ -1313,7 +1313,7 @@ begin
 
 end;
 
-function ReplaceIdentifier(const s:AnsiString; const orig:AnsiString; const newt:AnsiString):AnsiString;
+function ReplaceIdentifier(const s:RawByteString; const orig:RawByteString; const newt:RawByteString):RawByteString;
 var
     i,L,k:integer;
     inraw,instring,ctr, incom,add:boolean;
@@ -1355,11 +1355,11 @@ begin
 
 end;
 
-function ReplaceIdentifiersByHash(const s:AnsiString; var hash:TStringHash; const prefix:AnsiString):AnsiString;
+function ReplaceIdentifiersByHash(const s:RawByteString; var hash:TStringHash; const prefix:RawByteString):RawByteString;
 var
     i,L,k:integer;
     inraw,instring,ctr, incom,add:boolean;
-    tem:AnsiString;
+    tem:RawByteString;
 //    IDENTIFCHARS
 
 begin
@@ -1400,7 +1400,7 @@ begin
 end;
 
 
-function CompareSubString(const s:AnsiString; st:integer; en:integer; const val:AnsiString):boolean;
+function CompareSubString(const s:RawByteString; st:integer; en:integer; const val:RawByteString):boolean;
 var
   L1,L2,j:integer;
 begin
@@ -1429,9 +1429,9 @@ begin
 end;
 
 
-procedure VerifyValidForDebug(const s:AnsiString; decl:integer);
+procedure VerifyValidForDebug(const s:RawByteString; decl:integer);
 var x:integer;
-    word:AnsiString;
+    word:RawByteString;
 begin
 {s's first 'word' is debug}
 
@@ -1457,7 +1457,7 @@ var
 
  globalsdecl,anchor,structdecl:integer;
  period,nextperiod,injectpos:integer;
- word{,line},libpreffix_private,libpreffix_public,tmp,scope,declscopename,injectmain,postinjectmain,injectconfig:AnsiString;
+ word{,line},libpreffix_private,libpreffix_public,tmp,scope,declscopename,injectmain,postinjectmain,injectconfig:RawByteString;
  once,skip,ininjectmain,ininjectpostmain,usedmaininject,usedconfiginject,inconfiginject,skipfunction,validatedscopeinit:boolean;
  hash:TStringHash;
  scopehash:TStringHash;
@@ -1467,12 +1467,12 @@ var
 
  noreplacetokens,tolibrary,toglobals,add,post,inmain,privateused,onscope,ispublic{, commusedwas //! used?}:boolean;
 
- scopeinitializer:AnsiString;
+ scopeinitializer:RawByteString;
 
 
  stack:TScopeStack;
 
- ExternalBlockStdin, ExternalBlockName, ExternalBlockArgs, ExternalBlockExtension:AnsiString;
+ ExternalBlockStdin, ExternalBlockName, ExternalBlockArgs, ExternalBlockExtension:RawByteString;
  ExternalBlockLn: integer;
 
 
@@ -1517,7 +1517,7 @@ var
          end;
      end;
 
-     procedure addScopeInit( const s: AnsiString);
+     procedure addScopeInit( const s: RawByteString);
      begin
          if (length(ScopeInit)<=ScopeInitN) then begin
              SetLength(ScopeInit,1+ScopeInitN+2*(ScopeInitN div 5));
@@ -1528,7 +1528,7 @@ var
 
      procedure addpublicforparents;
      var h:integer;
-     var xword:AnsiString;
+     var xword:RawByteString;
      begin
           xword:=word;
           h:=scopelevelid-2;
@@ -2204,7 +2204,7 @@ try
     end;
     if (postmainarea='') then  begin
         if (inmain) then raise JASSerLineException(1,'Could not find call to InitBlizzard in main function!')
-        else raise JASSerLineException(1,'Could not find correct main function in file. / unclosed AnsiString');
+        else raise JASSerLineException(1,'Could not find correct main function in file. / unclosed string');
     end;
 
     for i := 0 to libraryn - 1 do begin
@@ -2270,10 +2270,10 @@ var
    i:integer;
    processed,parent: array of integer;
 
-     function buildCycle(x:integer; par:integer):AnsiString;
+     function buildCycle(x:integer; par:integer):RawByteString;
      var
         i,c,y:integer;
-        arr: array of AnsiString;
+        arr: array of RawByteString;
      begin
          c:=2;
          y:=par;
@@ -2335,12 +2335,12 @@ end;
 
 
 var removedLibrariesN:integer;
-var removedLibraries: array of AnsiString;
+var removedLibraries: array of RawByteString;
 
 
 procedure removeLibrary(i:integer);
 var
-   name:AnsiString;
+   name:RawByteString;
    lib:TLibrary;
 begin
    lib:=Libraries[i];
@@ -2384,7 +2384,7 @@ begin
    removedLibrariesN:=0;
 end;
 
-function getInvolvedLibraries:AnsiString;
+function getInvolvedLibraries:RawByteString;
 var
  i,j:integer;
 begin
@@ -2402,11 +2402,11 @@ end;
 
 
 
-procedure writeOutput(var Result:AnsiString);Overload;
+procedure writeOutput(var Result:RawByteString);Overload;
 var
    i:integer;
-   initializers:AnsiString;
-   librarycode:AnsiString;
+   initializers:RawByteString;
+   librarycode:RawByteString;
 
 begin
     Result:='';
@@ -2492,17 +2492,17 @@ begin
 end;
 
 procedure writeOutput(var ff2:textfile); overload;
-var x:AnsiString;
+var x:RawByteString;
 begin
     writeOutput(x);
     WriteLn(ff2,x);
 end;
 
-procedure DoJASSerMagic(f1:AnsiString; f2:AnsiString; debug:boolean);Overload;
+procedure DoJASSerMagic(f1:RawByteString; f2:RawByteString; debug:boolean);Overload;
 var
 
 ff2:textfile;
-inp:AnsiString;
+inp:RawByteString;
 {i:integer;}
 open2:boolean;
 
@@ -2542,7 +2542,7 @@ try
 
     if (Interf<>nil) then begin
         Interf.ProPosition(0);
-        Interf.ProStatus('Loading...');
+        Interf.ProStatus('Loading File...');
     end;
     LoadFile(f1,inp);
 
@@ -2559,8 +2559,8 @@ end;
 
 end;
 
-    function fetchPath(var path:AnsiString; const current:AnsiString=''):boolean;
-     var s:AnsiString;
+    function fetchPath(var path:RawByteString; const current:RawByteString=''):boolean;
+     var s:RawByteString;
      var x:integer;
     begin
          //import path
@@ -2585,7 +2585,7 @@ end;
          end;
     end;
 
-    function CrossExtractFolder(const filepath:AnsiString): AnsiString;
+    function CrossExtractFolder(const filepath:RawByteString): RawByteString;
      var i,L:integer;
     begin
         L:=Length(filepath);
@@ -2603,7 +2603,7 @@ end;
         result:=Copy(filepath,1,i);
 
     end;
-    function CrossExtractFilename(const filepath:AnsiString): AnsiString;
+    function CrossExtractFilename(const filepath:RawByteString): RawByteString;
      var i,L:integer;
     begin
         L:=Length(filepath);
@@ -2622,12 +2622,12 @@ end;
 
     end;
 
-    function CrossNormalizeFilename(const filepath:AnsiString): AnsiString;
+    function CrossNormalizeFilename(const filepath:RawByteString): RawByteString;
     begin
         result:= StringReplace(StringReplace(filepath,'\\','\',[rfREPLACEALL]), '\','/', [rfREPLACEALL]);
     end;
 
-function DoJASSerMagic(sinput:AnsiString; debug:boolean):AnsiString;overload;
+function DoJASSerMagic(sinput:RawByteString; debug:boolean):RawByteString;overload;
 var
 i,L,eln:integer;
 hash:TStringHash;
@@ -2636,13 +2636,13 @@ pendingline, zinc:boolean;
 localzinc:integer;
 
     // some signatures:
-    procedure addFileLine( const line:AnsiString; ignorecom:boolean=false); forward;
-    procedure importPhase(const sinput: AnsiString ); forward;
+    procedure addFileLine( const line:RawByteString; ignorecom:boolean=false); forward;
+    procedure importPhase(const sinput: RawByteString ); forward;
 
-    procedure doImport( const line: AnsiString; start:integer);
+    procedure doImport( const line: RawByteString; start:integer);
      var i, a,b, L:integer;
-         filename, shortfilename : AnsiString;
-         giantString: AnsiString;
+         filename, shortfilename : RawByteString;
+         giantString: RawByteString;
 
          usedMode:integer;
          renableZinc:integer;
@@ -2733,7 +2733,7 @@ localzinc:integer;
         localzinc:=llocalzinc;
     end;
 
-    procedure dealWithComments(line:AnsiString; var output:AnsiString);
+    procedure dealWithComments(line:RawByteString; var output:RawByteString);
      var
         i,k,L:integer;
         modify: boolean;
@@ -2795,10 +2795,10 @@ localzinc:integer;
     end;
 
 
-    procedure parseFileLine(const cline: AnsiString);
+    procedure parseFileLine(const cline: RawByteString);
      var
        i : integer;
-       word, line:AnsiString;
+       word, line:RawByteString;
        addline: boolean;
     begin
           dealWithComments(cline, line);
@@ -2845,7 +2845,7 @@ localzinc:integer;
 
     end;
 
-    procedure addFileLine ( const line:AnsiString; ignorecom:boolean = false); begin
+    procedure addFileLine ( const line:RawByteString; ignorecom:boolean = false); begin
         if(pendingline) then begin
             input[ln - 1] := input[ln-1] + line;
         end else begin
@@ -2863,10 +2863,10 @@ localzinc:integer;
 
     end;
 
-  procedure importPhase(const sinput: AnsiString);
+  procedure importPhase(const sinput: RawByteString);
      var
       k,i, L:integer;
-      line:AnsiString;
+      line:RawByteString;
 
     begin
         L:=Length(sinput);
@@ -2920,7 +2920,7 @@ begin
 
     hash.Destroy;
 
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
 
     if (Interf<>nil) then begin
         writefactor:=ln div 5+1;
@@ -2966,16 +2966,16 @@ end;
 {
    Ttextmacro = class(TObject)
    private
-       contents:array of AnsiString;
+       contents:array of RawByteString;
        contentssize:integer;
-       args:array of AnsiString;
+       args:array of RawByteString;
        argsn:integer;
    public
        decl:integer;
        constructor create;
-       procedure run(var replaceto:array of AnsiString; var copyto:array of AnsiString;var copyton:integer);
-       procedure addArgument(const s:AnsiString);
-       procedure add(const s:AnsiString);
+       procedure run(var replaceto:array of RawByteString; var copyto:array of RawByteString;var copyton:integer);
+       procedure addArgument(const s:RawByteString);
+       procedure add(const s:RawByteString);
 
    end;
 }
@@ -2991,7 +2991,7 @@ begin
     SetLength(args,1);
 end;
 
-procedure Ttextmacro.addArgument(const s:AnsiString);
+procedure Ttextmacro.addArgument(const s:RawByteString);
 var
    i:integer;
 begin
@@ -3006,14 +3006,14 @@ begin
     if(Length(contents)<s) then SetLength(contents,s);
 end;
 
-procedure Ttextmacro.add(const s:AnsiString);
+procedure Ttextmacro.add(const s:RawByteString);
 begin
     contentssize:=contentssize+1;
     if(Length(contents)<contentssize) then SetLength(contents,contentssize);
     contents[contentssize-1]:=s;
 end;
 
-   procedure findchar(const s:AnsiString; var pos:integer; const start:integer; const c:AnsiChar);
+   procedure findchar(const s:RawByteString; var pos:integer; const start:integer; const c:AnsiChar);
    var
       L:integer;
    begin
@@ -3026,7 +3026,7 @@ end;
    end;
 
 
-   procedure TextMacro_addline(const s:AnsiString);
+   procedure TextMacro_addline(const s:RawByteString);
    begin
        if(  Length(input)<=ln) then begin
             SetLength(input,ln*2+1);
@@ -3043,7 +3043,7 @@ end;
 procedure Ttextmacro.run(var replaceto:TDynamicStringArray);
 var
  i,k,L,t,j:integer;
- word:AnsiString;
+ word:RawByteString;
 
 
 
@@ -3110,22 +3110,22 @@ end;
 
 procedure processTextMacros;
 var
-   incopy : array of AnsiString;
-   word,tempish:AnsiString;
+   incopy : array of RawByteString;
+   word,tempish:RawByteString;
    i,k,h,c,wordend:integer;
    tmp,tmp2:integer;
    hash: TStringHash;
    macro:Ttextmacro;
    macros: array of TTextMacro;
    macron: integer;
-   parsedarg:array of AnsiString;
+   parsedarg:array of RawByteString;
    parsedargsn:integer;
    period,nextperiod:integer;
    once,skip,optional:boolean;
    label kkk;
 
 
-   procedure ParseCrazyCall(st:integer;const s:AnsiString);
+   procedure ParseCrazyCall(st:integer;const s:RawByteString);
    var
       L:integer;
       x:integer;
@@ -3236,7 +3236,7 @@ try
 
     //parse all of the TextMacros
     i:=0;
-    //Why care about strings? the only danger would be an AnsiString that has line breaks and in one of its lines
+    //Why care about strings? the only danger would be an string that has line breaks and in one of its lines
     //begins with //! textmacro or //! endtextmacro, you got to accept that's pretty unlikelly to happen.
 
     //First step involves fetching the textmacros. We need to do it in 2 steps to avoid issues
@@ -3437,14 +3437,14 @@ end;
 {   Tstruct = class(TObject)
    public
        decl:integer;
-       name:AnsiString;
+       name:RawByteString;
        members:TStringHash; //1:attribute, 2:private attribute, 3:method, 4:private method, 5:constructor, 6:private constructor, 7:destructor, 8:private destructor.
        constructor create;
        destructor destroy;
    end;
 }
 
-constructor Tmember.create(d:integer;const s:AnsiString;accs:integer; sta:boolean; method:boolean);
+constructor Tmember.create(d:integer;const s:RawByteString;accs:integer; sta:boolean; method:boolean);
 begin
     oninit_value:='';
     oninit_struct:='';
@@ -3468,7 +3468,7 @@ begin
     interdefault:='';
 end;
 
-procedure Tmember.addarg(const t:AnsiString; const n:AnsiString);
+procedure Tmember.addarg(const t:RawByteString; const n:RawByteString);
 begin
     if(Length(argtypes)<=argnumber) then begin
          SetLength(argtypes,argnumber+5);
@@ -3485,7 +3485,7 @@ begin
      abuseexecv:=b;
 end;
 
-function Tstruct.GetOnInit:AnsiString;
+function Tstruct.GetOnInit:RawByteString;
 var
  i,n:integer;
 
@@ -3493,7 +3493,7 @@ var
 
 
 
-    procedure add(const np:AnsiString; const ns:AnsiString; const cp:AnsiString; const cs:AnsiString);
+    procedure add(const np:RawByteString; const ns:RawByteString; const cp:RawByteString; const cs:RawByteString);
     begin
         if(Length(anamesuf)<=n) then begin
             SetLength(anamesuf,n*2+2);
@@ -3537,14 +3537,14 @@ begin
 
 end;
 
-procedure Tstruct.addModuleOnInit(const s:AnsiString);
+procedure Tstruct.addModuleOnInit(const s:RawByteString);
 begin
     SWriteLn(self.modulesOnInit,'call ExecuteFunc("s__'+Self.name+'_'+s+'")' );
 end;
 
 
 
-procedure Tstruct.dropmember(const s:AnsiString);
+procedure Tstruct.dropmember(const s:RawByteString);
 var
    h:integer;
 begin
@@ -3565,7 +3565,7 @@ begin
     dropmember('deallocate');
 end;
 
-function Tstruct.addmember(d:integer; const s:AnsiString;accs:integer; sta:boolean; method:boolean):tmember;
+function Tstruct.addmember(d:integer; const s:RawByteString;accs:integer; sta:boolean; method:boolean):tmember;
 begin
     if(membern=Length(members)) then begin
          SetLength(members,membern+5);
@@ -3585,7 +3585,7 @@ begin
     delegates[delegateN-1]:=memb;
 end;
 
-function Tstruct.getmember(const s:AnsiString; var res:Tmember):boolean;
+function Tstruct.getmember(const s:RawByteString; var res:Tmember):boolean;
 var
    h:integer;
 begin
@@ -3657,7 +3657,7 @@ begin
     maximum:=JASS_ARRAY_SIZE-1;
 end;
 
-function Tstruct.GetSuperParentName:AnsiString;
+function Tstruct.GetSuperParentName:RawByteString;
 begin
     if(parent<>-1) then result:=StructList[parent].superparentname
     else if(parentstruct<>-1) then result:=StructList[parentstruct].superparentname
@@ -3665,7 +3665,7 @@ begin
 
 end;
 
-function Tstruct.GetSuperParentNameForMethod(const methodname:AnsiString):AnsiString;
+function Tstruct.GetSuperParentNameForMethod(const methodname:RawByteString):RawByteString;
 var memb:tmember;
 begin
     self.getmember(methodname, memb);
@@ -3678,7 +3678,7 @@ begin
 
 end;
 
-procedure Tstruct.beforedestruction;
+destructor Tstruct.destroy;
 var
    i:integer;
 begin
@@ -3689,7 +3689,7 @@ end;
 //}}}}}}}}}}
 
 //assigns to r an assignment if it can be found from i.
-function GetAssigment( const s:AnsiString; var r:AnsiString; fromi:integer):boolean;
+function GetAssigment( const s:RawByteString; var r:RawByteString; fromi:integer):boolean;
 var
    i,L,j:integer;
 begin
@@ -3717,10 +3717,10 @@ begin
 end;
 
 
-procedure ConcatenateManySep(var res:AnsiString; var s:Tdynamicstringarray; const total:integer; const sep:AnsiChar);
+procedure ConcatenateManySep(var res:RawByteString; var s:Tdynamicstringarray; const total:integer; const sep:AnsiChar);
 var
   n,i,j:integer;
-//  debugstr:AnsiString;
+//  debugstr:RawByteString;
 
 begin
 
@@ -3760,11 +3760,11 @@ begin
 end;
 
 
-procedure Concatenate3(var res:AnsiString; const s1,s2,s3:AnsiString);
+procedure Concatenate3(var res:RawByteString; const s1,s2,s3:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3780,16 +3780,16 @@ begin
   add(s1);add(s2);add(s3);
 
 end;
-function RConcatenate3(const s1,s2,s3:AnsiString):AnsiString;
+function RConcatenate3(const s1,s2,s3:RawByteString):RawByteString;
 begin
     Concatenate3(result,s1,s2,s3);
 end;
 
-procedure Concatenate4(var res:AnsiString; const s1,s2,s3,s4:AnsiString);
+procedure Concatenate4(var res:RawByteString; const s1,s2,s3,s4:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3805,11 +3805,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);
 
 end;
-procedure Concatenate5(var res:AnsiString; const s1,s2,s3,s4,s5:AnsiString);
+procedure Concatenate5(var res:RawByteString; const s1,s2,s3,s4,s5:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3825,11 +3825,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);
 
 end;
-procedure Concatenate6(var res:AnsiString; const s1,s2,s3,s4,s5,s6:AnsiString);
+procedure Concatenate6(var res:RawByteString; const s1,s2,s3,s4,s5,s6:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3845,16 +3845,16 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);
 
 end;
-function RConcatenate6(const s1,s2,s3,s4,s5,s6:AnsiString):AnsiString;
+function RConcatenate6(const s1,s2,s3,s4,s5,s6:RawByteString):RawByteString;
 begin
     Concatenate6(Result,s1,s2,s3,s4,s5,s6);
 end;
 
-procedure Concatenate7(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7:AnsiString);
+procedure Concatenate7(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3870,11 +3870,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);add(s7);
 
 end;
-procedure Concatenate8(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8:AnsiString);
+procedure Concatenate8(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3891,11 +3891,11 @@ begin
 
 end;
 
-procedure Concatenate9(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9:AnsiString);
+procedure Concatenate9(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3911,11 +3911,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);add(s7);add(s8);add(s9);
 
 end;
-procedure Concatenate10(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:AnsiString);
+procedure Concatenate10(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3931,11 +3931,11 @@ begin
   add(s1);add(s2);add(s3);add(s4);add(s5);add(s6);add(s7);add(s8);add(s9);add(s10);
 
 end;
-procedure Concatenate11(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11:AnsiString);
+procedure Concatenate11(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3952,11 +3952,11 @@ begin
 
 end;
 
-procedure Concatenate12(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12:AnsiString);
+procedure Concatenate12(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3973,11 +3973,11 @@ begin
 
 end;
 
-procedure Concatenate13(var res:AnsiString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:AnsiString);
+procedure Concatenate13(var res:RawByteString; const s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13:RawByteString);
 var
   n:integer;
 
-   procedure add(const s:AnsiString);
+   procedure add(const s:RawByteString);
    var i:integer;
    begin
        for i := 1 to Length(s) do begin
@@ -3996,7 +3996,7 @@ end;
 
 
 //---
-function VerifyRedeclaration(const s:AnsiString; const ignoreglobals:boolean=false):Integer;
+function VerifyRedeclaration(const s:RawByteString; const ignoreglobals:boolean=false):Integer;
 begin
     Result:=0;
     if(LocalIdentifierTypes.ValueOf(s)<>-1) then Result:=-1
@@ -4009,7 +4009,7 @@ begin
 end;
 
 //--
-function GetHashtableKey:AnsiString;
+function GetHashtableKey:RawByteString;
 begin
     HashtableKeys := HashtableKeys + 1 +integer(GetTickCount mod 2);
     result := IntToStr(HashtableKeys);
@@ -4017,7 +4017,7 @@ end;
 
 //--
 
-procedure VerifyRedeclarationRaise(const ln: integer;const s:AnsiString; const ignoreglobals:boolean=false);
+procedure VerifyRedeclarationRaise(const ln: integer;const s:RawByteString; const ignoreglobals:boolean=false);
 var i:integer;
 begin
     i:=VerifyRedeclaration(s,ignoreglobals);
@@ -4029,13 +4029,13 @@ const ARRAYEDTYPE=1000000;
 const METHODTYPE = -5;
 const FUNCTION_NAME_TYPE = -6;
 
-function structs_evaluatecode({const} s:AnsiString; var res:AnsiString;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean; forward;
+function structs_evaluatecode({const} s:RawByteString; var res:RawByteString;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean; forward;
 //if it is a correct global declaration, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluateglobal(const s:AnsiString; var res:AnsiString; const fromstruct:integer=-1):boolean;
+function structs_evaluateglobal(const s:RawByteString; var res:RawByteString; const fromstruct:integer=-1):boolean;
 var
    constant,isarray:boolean;
-   word,name,assign, typename:AnsiString;
+   word,name,assign, typename:RawByteString;
    x,h:integer;
 begin
     // [constant] <type (possibly struct type)> [array] name [= assign]
@@ -4123,10 +4123,10 @@ end;
 
 //if it is a correct function declaration, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluatefunction(const s:AnsiString; var res:AnsiString):boolean;
+function structs_evaluatefunction(const s:RawByteString; var res:RawByteString):boolean;
 var
     x,L,k,h,indent:integer;
-    word,name,argname,argtype:AnsiString;
+    word,name,argname,argtype:RawByteString;
 begin
 
 
@@ -4229,7 +4229,7 @@ begin
 
 end;
 
-function EscapedBackSlash( const str:AnsiString; const L:integer; i:integer):boolean;
+function EscapedBackSlash( const str:RawByteString; const L:integer; i:integer):boolean;
 var
    c:integer;
 begin
@@ -4244,7 +4244,7 @@ begin
 end;
 
 
-procedure parsemethod(const s:AnsiString; var obj:AnsiString; var sid:integer; var memb:AnsiString);
+procedure parsemethod(const s:RawByteString; var obj:RawByteString; var sid:integer; var memb:RawByteString);
 var
    i,k,L:integer;
 begin
@@ -4270,8 +4270,8 @@ end;
 
 
 
-function translateDotFunctionName(const s:AnsiString; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
-var obj,memb:AnsiString;
+function translateDotFunctionName(const s:RawByteString; var res:RawByteString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
+var obj,memb:RawByteString;
     sid:integer;
 begin
     parseMethod(s,obj,sid,memb);
@@ -4281,9 +4281,9 @@ begin
     result:=true;
 end;
 
-function TranslateFunctionName(const f:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;forward;
-function translateDotMethodPointer(const s:AnsiString; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
-var obj,memb:AnsiString;
+function TranslateFunctionName(const f:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;forward;
+function translateDotMethodPointer(const s:RawByteString; var res:RawByteString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
+var obj,memb:RawByteString;
     k:integer;
     smemb:Tmember;
     sid:integer;
@@ -4319,8 +4319,8 @@ begin
 end;
 
 
-function translateDotMethodExists(const s:AnsiString; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
-var obj,memb:AnsiString;
+function translateDotMethodExists(const s:RawByteString; var res:RawByteString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;
+var obj,memb:RawByteString;
     sid:integer;
     k,r:integer;
     smemb:Tmember;
@@ -4365,16 +4365,16 @@ end;
 
 
 
-function translateDotVar(const obj:AnsiString; const memb:AnsiString; sid:integer; styp: Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:AnsiString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;forward;
+function translateDotVar(const obj:RawByteString; const memb:RawByteString; sid:integer; styp: Tvtype; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:RawByteString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;forward;
 
-function translateDotVar(const obj:AnsiString; const memb:AnsiString; sid:integer; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:AnsiString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
+function translateDotVar(const obj:RawByteString; const memb:RawByteString; sid:integer; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:RawByteString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
 begin
     resulT:=translateDotVar(obj,memb,sid,MakeType(sid),res,typ,fromstruct,pos,insetstatement,assign,assigntyp,converttocall);
 end;
 
-function translateDotVar(const obj:AnsiString; const memb:AnsiString; sid:integer; styp: Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:AnsiString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
+function translateDotVar(const obj:RawByteString; const memb:RawByteString; sid:integer; styp: Tvtype; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const assign:RawByteString; const assigntyp: Tvtype; var converttocall:boolean ):boolean;overload;
 var
-   tem:AnsiString;
+   tem:RawByteString;
    allowinstance:boolean;
    membd:Tmember;
    h:integer;
@@ -4382,7 +4382,7 @@ var
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:AnsiString;
+     var res2,res3:RawByteString;
      var converttocall3:boolean;
     begin
         if not translateDotVar(obj,dmemb.name,sid,styp,res2,typ2,{fromstruct}sid,pos,false,'',MakeType(0),converttocall) then begin
@@ -4643,16 +4643,16 @@ begin
     Result:=true;
 end;
 
-function translateDotExecuteMethod(const s:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
-var obj,memb:AnsiString;
+function translateDotExecuteMethod(const s:RawByteString; const args:RawByteString; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
+var obj,memb:RawByteString;
     sid:integer;
 begin
     parseMethod(s,obj,sid,memb);
     result:= translateDotMethod(obj,memb,args,MakeType(sid),res,typ,fromstruct,pos,true);
 end;
 
-function translateDotEvaluateMethod(const s:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
-var obj,memb:AnsiString;
+function translateDotEvaluateMethod(const s:RawByteString; const args:RawByteString; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer):boolean;
+var obj,memb:RawByteString;
     sid:integer;
 begin
     parseMethod(s,obj,sid,memb);
@@ -4660,16 +4660,16 @@ begin
 end;
 
 
-function translateDotMethod(const obj:AnsiString; const memb:AnsiString; const args:AnsiString; styp:Tvtype; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromSuper:boolean=false; const evaluate:boolean=false):boolean;
+function translateDotMethod(const obj:RawByteString; const memb:RawByteString; const args:RawByteString; styp:Tvtype; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const execute:boolean=false; const fromSuper:boolean=false; const evaluate:boolean=false):boolean;
 var
    allowinstance,usedestroy:boolean;
    membd, membd2:Tmember;
    h:integer;
-   prefix:AnsiString;
+   prefix:RawByteString;
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:AnsiString;
+     var res2,res3:RawByteString;
      var dummyvar:boolean;
     begin
         if not translateDotVar(obj,dmemb.name,styp.id, styp,res2,typ2,{fromstruct}styp.id,pos,false,'',MakeType(0),dummyvar) then begin
@@ -4991,7 +4991,7 @@ begin
 end;
 
 
-function TryStrToIntX(const s:AnsiString;var x:integer):boolean;
+function TryStrToIntX(const s:RawByteString;var x:integer):boolean;
 var
    min,num,oct:boolean;
 
@@ -5036,14 +5036,14 @@ begin
 end;
 
 
-function translateIndexSet( const obj:AnsiString; const sid:integer; const ind:AnsiString; const val:AnsiString;
-          var res:AnsiString; var typ:Tvtype;  fromstruct:integer; const pos:integer):boolean;
+function translateIndexSet( const obj:RawByteString; const sid:integer; const ind:RawByteString; const val:RawByteString;
+          var res:RawByteString; var typ:Tvtype;  fromstruct:integer; const pos:integer):boolean;
 
 var esp,h:integer;
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:AnsiString;
+     var res2,res3:RawByteString;
      var dummyvar:boolean;
     begin
         if not translateDotVar(obj,dmemb.name,sid,res2,typ2,{fromstruct}sid,pos,false,'',MakeType(0),dummyvar) then begin
@@ -5158,14 +5158,14 @@ begin
 
 end;
 
-function translateArray(const arr:AnsiString; const ind:AnsiString; sid:integer; var res:AnsiString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const allowgetstructindex:boolean=false):boolean;
+function translateArray(const arr:RawByteString; const ind:RawByteString; sid:integer; var res:RawByteString; var typ:Tvtype;   fromstruct:integer; const pos:integer; const insetstatement:boolean; const allowgetstructindex:boolean=false):boolean;
 var
    h:integer;
 
 
     function TryDelegate(const dmemb:Tmember):boolean;
      var typ2,typ3:Tvtype;
-     var res2,res3:AnsiString;
+     var res2,res3:RawByteString;
      var dummyvar:boolean;
     begin
         if not translateDotVar(arr,dmemb.name,sid,res2,typ2,{fromstruct}sid,pos,false,'',MakeType(0),dummyvar) then begin
@@ -5319,11 +5319,11 @@ begin
     Result:=true;
 end;
 
-function translateMethodCode( const clas:AnsiString; const meth:AnsiString; var res:AnsiString; fromstruct:integer; const pos:integer):boolean;
+function translateMethodCode( const clas:RawByteString; const meth:RawByteString; var res:RawByteString; fromstruct:integer; const pos:integer):boolean;
 var
   h,k:integer;
   memb:Tmember;
-  prefix:AnsiString;
+  prefix:RawByteString;
 begin
     h:=Structhash.ValueOf(clas);
     if(h=-1) then begin res:=clas+' is not an struct name'; result:=false; exit; end;
@@ -5352,7 +5352,7 @@ begin
 end;
 
 
-function translateLessThan( const m1:AnsiString; i1:integer; const m2:AnsiString; i2:integer; var res:AnsiString; fromstruct:integer; const pos:integer):boolean;
+function translateLessThan( const m1:RawByteString; i1:integer; const m2:RawByteString; i2:integer; var res:RawByteString; fromstruct:integer; const pos:integer):boolean;
 var
   h:Tvtype;
 
@@ -5374,7 +5374,7 @@ begin
 
 end;
 
-function translateEqualTo( const m1:AnsiString; i1:integer; const m2:AnsiString; i2:integer; var res:AnsiString; fromstruct:integer; const pos:integer; const negate:boolean):boolean;
+function translateEqualTo( const m1:RawByteString; i1:integer; const m2:RawByteString; i2:integer; var res:RawByteString; fromstruct:integer; const pos:integer; const negate:boolean):boolean;
 var
   h:Tvtype;
   memb:Tmember;
@@ -5420,7 +5420,7 @@ begin
 end;
 
 
-function TranslateFunctionName(const f:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function TranslateFunctionName(const f:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
 var
    h:integer;
 begin
@@ -5434,7 +5434,7 @@ begin
     end;
 end;
 
-function TryGetTypeOf(const s:AnsiString):Tvtype;
+function TryGetTypeOf(const s:RawByteString):Tvtype;
 begin
     Result:=MakeType(LocalIdentifierTypes.ValueOf(s) );
     if(Result.id=-1) then Result:=MakeType(IdentifierTypes.ValueOf(s) );
@@ -5444,11 +5444,11 @@ end;
 const
     STRUCT_STRING_LIMIT: integer = 62;
 var
- StructStrings: array of AnsiString;
+ StructStrings: array of RawByteString;
  StructStringN:integer;
 
 
-procedure addStructString(const  s:AnsiString);
+procedure addStructString(const  s:RawByteString);
 begin
    if(Length(StructStrings)<=StructStringN) then begin
        SetLength(StructStrings,StructStringN+3+(StructStringN div 3) );
@@ -5458,7 +5458,7 @@ begin
 end;
 
 
-function preprocessStructStrings(var s:AnsiString):boolean;
+function preprocessStructStrings(var s:RawByteString):boolean;
 var i,k,L:integer;
 
 begin
@@ -5497,21 +5497,22 @@ begin
             end;
 
             i:=i+1;
-        end else if(s[i]='/') and (i<L) and (s[i+1]='/') then break
-        else i:=i+1;
+        end else if(s[i]='/') and (i<L) and (s[i+1]='/') then begin
+            break;
+        end else i:=i+1;
     end;
  result:=true;
 end;
 
 
-function structStringGet(const  s:AnsiString):AnsiString;
+function structStringGet(const  s:RawByteString):RawByteString;
 begin
-  if(s='""') then result:=s
+  if(s='""') or (s='') then result:=s
   else result:=StructStrings[byte(s[2])-byte('A')];
 
 end;
 
-function structs_evaluate_terminal(tok:TToken):AnsiString;
+function structs_evaluate_terminal(tok:TToken):RawByteString;
 begin
     if(tok.Kind<>SymbolTypeNonterminal) then begin
         result:=tok.DataVar;
@@ -5524,27 +5525,33 @@ begin
     end;
 end;
 
+var
+  tvtypes : TObjectList<Tvtype> = nil;
+
 function MakeType(const id:integer):Tvtype; overload;
 begin
    Result:=Tvtype.Create;
    Result.id := id;
    Result.name:='_unknown';
+   tvtypes.Add(Result);
 end;
-function MakeType(const id:integer; const name:AnsiString):Tvtype; overload;
+function MakeType(const id:integer; const name:RawByteString):Tvtype; overload;
 begin
    Result:=Tvtype.Create;
    Result.id := id;
    Result.name:=name;
+   tvtypes.Add(Result);
 end;
-function MakeType(const id:integer; const name:AnsiString; const tag:AnsiString):Tvtype; overload;
+function MakeType(const id:integer; const name:RawByteString; const tag:RawByteString):Tvtype; overload;
 begin
    Result:=Tvtype.Create;
    Result.id := id;
    Result.name:=name;
    Result.tag := tag;
+   tvtypes.Add(Result);
 end;
 
-function evaluate_value_type( const wanted:Tvtype;  var s:AnsiString; var typ:Tvtype):boolean;
+function evaluate_value_type( const wanted:Tvtype;  var s:RawByteString; var typ:Tvtype):boolean;
 begin
     if (wanted.name ='_unknown') or (typ.name='_unknown') then begin
         result:=true;
@@ -5560,15 +5567,15 @@ begin
 end;
 
 
-function structs_evaluate_rec(tok: TToken; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload; forward;
-function structs_evaluate_JassLibArguments( const funname: AnsiString; tok:TToken; var res:AnsiString; var typ:Tvtype; fromstruct:integer; pos:integer):boolean;
+function structs_evaluate_rec(tok: TToken; var res:RawByteString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload; forward;
+function structs_evaluate_JassLibArguments( const funname: RawByteString; tok:TToken; var res:RawByteString; var typ:Tvtype; fromstruct:integer; pos:integer):boolean;
  var
     ctok:TToken;
     red:Treduction;
     func:TJassFunc;
     i:integer;
     typ1: Tvtype;
-    res1: AnsiString;
+    res1: RawByteString;
     argtok: Array of TToken;
     an : integer;
 begin
@@ -5635,9 +5642,9 @@ begin
 end;
 
 
-function structs_evaluate_rec(tok: TToken; var res:AnsiString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload;
+function structs_evaluate_rec(tok: TToken; var res:RawByteString; var typ:Tvtype; fromstruct:integer; const pos:integer):boolean;overload;
 var red:Treduction;
-var s1,s2,s3,s4:AnsiString;
+var s1,s2,s3,s4:RawByteString;
     i1,i2,i3,i4:Tvtype;
     i:integer;
     tmfunc:TJassFunc;
@@ -6194,18 +6201,86 @@ begin
  Result:=true;
 end;
 
+// x64 build requires newer compiler
+// but it also force widestring in everywhere
+// and fk'ed up gold parser
+// any byte that is (> 0x7F) will cause error
+function EncodeAnsi(const S: RawByteString): RawByteString;
+const
+  HEADER = '__JASSHELPER_STRING_BYTE_';
+var
+  i: Integer;
+  b: Byte;
+  OutStr: RawByteString;
+begin
+  OutStr := '';
+
+  for i := 1 to Length(S) do
+  begin
+    b := Byte(S[i]);
+
+    if b <= 127 then
+    begin
+      // keep ASCII as-is
+      OutStr := OutStr + AnsiChar(b);
+    end
+    else
+    begin
+      // encode each byte separately
+      OutStr := OutStr +
+        RawByteString(HEADER + IntToHex(b, 2));
+    end;
+  end;
+
+  Result := OutStr;
+end;
+function DecodeAnsi(const S: RawByteString): RawByteString;
+const
+  HEADER = '__JASSHELPER_STRING_BYTE_';
+var
+  i: Integer;
+  OutStr: RawByteString;
+  hex: string;
+  b: Byte;
+begin
+  OutStr := '';
+  i := 1;
+
+  while i <= Length(S) do
+  begin
+    if Copy(string(S), i, Length(HEADER)) = HEADER then
+    begin
+      // extract 2 hex chars after tag
+      hex := Copy(string(S), i + Length(HEADER), 2);
+      b := StrToInt('$' + hex);
+
+      OutStr := OutStr + AnsiChar(b);
+
+      Inc(i, Length(HEADER) + 2);
+    end
+    else
+    begin
+      OutStr := OutStr + S[i];
+      Inc(i);
+    end;
+  end;
+
+  Result := OutStr;
+end;
+
 //if it is a correct code chunk, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluatecode({const} s:AnsiString; var res:AnsiString;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean;
+function structs_evaluatecode({const} s:RawByteString; var res:RawByteString;   fromstruct:integer; const pos:integer; const insetstatement:boolean=false):boolean;
  var done:boolean;
      Response:Integer;
-     whitespace,tmres:AnsiString;
+     whitespace,tmres:RawByteString;
      tm,i,L:integer;
      tmt:Tvtype;
-begin
+begin;
     RecCurrentLine:=pos;
     //done:=false;
     {i:=1;}L:=Length(s);
+    SetLength(tmres, L);
     {while( (not done) and (i<=L)) do begin
         done:= done or (s[i]='.') or (s[i]='[') or (s[i]='(') ;
         i:=i+1;
@@ -6218,8 +6293,10 @@ begin
     while (i<=L) and ((s[i]=' ') or (s[i]=#9)) do i:=i+1;
     whitespace:=Copy(s,1,i-1);
 
+    s:=EncodeAnsi(s);
+
     if not preprocessStructStrings(s) then begin
-       raise  JasserLineException(pos,'[Internal error] please have less than '+IntToStR(STRUCT_STRING_LIMIT+1)+' AnsiString literals in a line.');
+       raise  JasserLineException(pos,'[Internal error] please have less than '+IntToStR(STRUCT_STRING_LIMIT+1)+' string literals in a line.');
     end;
 
     if (not Parser.OpenTextString(s)) then raise JasserLineException(pos,'Unknown internal error 1');
@@ -6251,7 +6328,6 @@ begin
             end;
     end;
 
-
     //Hehem parsed correctly!!! Now we *just* have to translate the reductions
     Result:=structs_evaluate_rec(parser.CurrentReduction.Tokens[0],tmres,tmt,   fromstruct,pos);
     res:=tmres;
@@ -6262,7 +6338,8 @@ begin
     end else begin
        res:=whitespace+tmres;
     end;
-
+    res:=DecodeAnsi(res);
+    tvtypes.Clear();
 end;
 
 
@@ -6270,10 +6347,10 @@ end;
 
 //if it is a correct local declaration, returns true and reevaluated version is in res.
 //otherwise, returns false and error is in res.
-function structs_evaluatelocal(const s:AnsiString; var res:AnsiString;  fromstruct:integer; const pos:integer):boolean;
+function structs_evaluatelocal(const s:RawByteString; var res:RawByteString;  fromstruct:integer; const pos:integer):boolean;
 var
    x,h,i:integer;
-   typen,name,assign,tem,indent:AnsiString;
+   typen,name,assign,tem,indent:RawByteString;
    arr:boolean;
 begin
 
@@ -6376,15 +6453,15 @@ begin
 end;
 
 //Actually method globals
-procedure generateFuncPassGlobals( var outp:AnsiString);
+procedure generateFuncPassGlobals( var outp:RawByteString);
 var
    i,j,k,m,c:integer;
    hash:Tstringhash;
-   types: array of AnsiString;
+   types: array of RawByteString;
    dothis:boolean;
    counts: array of integer;
 
-   typ:AnsiString;
+   typ:RawByteString;
 
    memb:Tmember;
    prot:Tfunctionprototype;
@@ -6401,7 +6478,7 @@ var
 
    end;
 
-   procedure addType(const s:AnsiString; const sc:integer);
+   procedure addType(const s:RawByteString; const sc:integer);
    var
       x:integer;
    begin
@@ -6564,9 +6641,9 @@ end;
 
 
 
-procedure writechilddefaultinit(var st:tstruct; var parentstruct:tstruct;  var os:AnsiString; const debug:boolean; const dodestroy:boolean=false );
+procedure writechilddefaultinit(var st:tstruct; var parentstruct:tstruct;  var os:RawByteString; const debug:boolean; const dodestroy:boolean=false );
 var
-    s,tem:AnsiString;
+    s,tem:RawByteString;
 
 begin
 
@@ -6633,10 +6710,10 @@ end;
 
 
 
-function GetLineIndexInt(const s:AnsiString;  var ends:integer; sti:integer ):integer;
+function GetLineIndexInt(const s:RawByteString;  var ends:integer; sti:integer ):integer;
 var
    i,L,o:integer;
-   ts:AnsiString;
+   ts:RawByteString;
 begin
     L:=Length(s);
     i:=sti;
@@ -6672,10 +6749,10 @@ begin
 
 end;
 
-procedure GetLineIndexIntCommaInt(const s:AnsiString;  sti:integer; var endofindex:integer; var result:integer; var sresult:integer);
+procedure GetLineIndexIntCommaInt(const s:RawByteString;  sti:integer; var endofindex:integer; var result:integer; var sresult:integer);
 var
    i,L,o,j,t, comma:integer;
-   ts:AnsiString;
+   ts:RawByteString;
 begin
     endofindex:=0;
     L:=Length(s);
@@ -6778,25 +6855,25 @@ function DataFunctions_New: boolean; begin
 
 end;
 
-procedure DataFunctions_Insert(const s:AnsiString); begin
+procedure DataFunctions_Insert(const s:RawByteString); begin
    Swrite(Datafunctions[datafunctions_N-1],s);
 end;
 
 //==============================================================================
 // The structs loader from slk!
 //
-procedure loadStructs(const s:AnsiString;sti:integer; linen:integer);
+procedure loadStructs(const s:RawByteString;sti:integer; linen:integer);
 
 
 var a,b,Len,h,k:integer;
 var quot,res:boolean;
-var path,conc,val:AnsiString;
+var path,conc,val:RawByteString;
 var slk:Tslk;
 
-var structtype:AnsiString;
+var structtype:RawByteString;
 var memb:Tmember;
 var struc:Tstruct;
-var membtype:array of AnsiString;
+var membtype:array of RawByteString;
 
     procedure readpath;
     begin
@@ -6821,7 +6898,7 @@ var membtype:array of AnsiString;
             end;
     end;
 
-    procedure fixInteger(var value:AnsiString);
+    procedure fixInteger(var value:RawByteString);
       var isinteger:boolean;
       var i:integer;
     begin
@@ -6833,7 +6910,7 @@ var membtype:array of AnsiString;
         if((length(value)=4) or (length(value)=1)) then value:=''''+value+'''';
 
     end;
-    procedure fixBoolean(var value:AnsiString);
+    procedure fixBoolean(var value:RawByteString);
     begin
         if(value='0') then value:='false'
         else if(value='1') then value:='true';
@@ -6841,7 +6918,7 @@ var membtype:array of AnsiString;
 
     end;
 
-    procedure fixString(var value:AnsiString);
+    procedure fixString(var value:RawByteString);
     begin
         if(Length(value)=0) then value:='""';
         if(value[Length(value)]<>'"') then value:=value+'"';
@@ -6849,7 +6926,7 @@ var membtype:array of AnsiString;
 
     end;
 
-    function isDash(const value:AnsiString):boolean;
+    function isDash(const value:RawByteString):boolean;
       var i,L:integer;
     begin
         L:=Length(value);
@@ -6951,7 +7028,7 @@ begin
            val:=slk.contents[0][a];
            if(membtype[0]='integer') then fixInteger(val)
            else if(membtype[0]='boolean') then fixBoolean(val)
-           else if(membtype[0]='AnsiString') then fixString(val);
+           else if(membtype[0]='string') then fixString(val);
            Concatenate5(conc,'    set s=s__',structtype,'_getFromKey(',val,')'#13#10);
            datafunctions_Insert(conc);
            for b := 1 to slk.LengthX - 1 do begin
@@ -6961,7 +7038,7 @@ begin
                     val:=slk.contents[b][a];
                     if(membtype[b]='integer') then fixInteger(val)
                     else if(membtype[b]='boolean') then fixBoolean(val)
-                    else if(membtype[b]='AnsiString') then fixString(val);
+                    else if(membtype[b]='string') then fixString(val);
                     Concatenate7(conc,'    set s__',structtype,'_',slk.contents[b][0],'[s]=',val,#13#10);
                     datafunctions_Insert(conc);
                end;
@@ -6987,11 +7064,12 @@ procedure initParser;
 var
   lMemStream : TMemoryStream;
   lResource : Pointer;
-  lHandle   : Cardinal;
+  lHandle   : NativeInt;
 
 begin
    if (Parser=nil) then
    begin
+       tvtypes := TObjectList<Tvtype>.Create;
 
          lHandle := FindResource(0, 'VJASSLINEGRAMMAR', RT_RCDATA);
          lResource := LockResource(LoadResource(0, lHandle));
@@ -7032,7 +7110,7 @@ var q:array of integer;
 var p:array of integer;
 var added:array of boolean;
 var reduced:boolean;
-var info:AnsiString;
+var info:RawByteString;
 begin
     n:=StructN;
     if(n=0) then exit;
@@ -7122,7 +7200,7 @@ end;
 
 //===========================================================================================================================
 procedure CompareStructInterfaceMembers(var st:Tstruct; var stmemb:Tmember; var inter:Tstruct; var itmemb:Tmember);
-var tem:AnsiString;
+var tem:RawByteString;
 begin
     if(stmemb.destruct) or (itmemb.destruct) or (stmemb.construct) or (itmemb.construct)  then exit;
 
@@ -7226,12 +7304,12 @@ end;
 
 
 //===========================================================================
-procedure DoCrazyRecursiveTriggerAssign( var iter:Tstruct; var curr: Tstruct; var memb:Tmember; var outs:AnsiString);
+procedure DoCrazyRecursiveTriggerAssign( var iter:Tstruct; var curr: Tstruct; var memb:Tmember; var outs:RawByteString);
 var
    i,n,k:integer;
-   mname:AnsiString;
-   tem:AnsiString;
-   tem2:AnsiString;
+   mname:RawByteString;
+   tem:RawByteString;
+   tem2:RawByteString;
    tememb:Tmember;
 begin
     if(not curr.gotstructchildren) and (not curr.isinterface) then Exit;
@@ -7252,10 +7330,10 @@ begin
 end;
 
 //===========================================================================
-procedure DoCrazyRecursiveNullTriggerAssign( var iter:Tstruct; var curr: Tstruct; const membname:AnsiString; var outs:AnsiString);
+procedure DoCrazyRecursiveNullTriggerAssign( var iter:Tstruct; var curr: Tstruct; const membname:RawByteString; var outs:RawByteString);
 var
    i,n,k:integer;
-   tem:AnsiString;
+   tem:RawByteString;
    tememb:Tmember;
 begin
 
@@ -7278,9 +7356,9 @@ end;
 
 
 //=========================================================================
-procedure WriteFactoryFunction(var st:Tstruct; var outs:AnsiString; debug:boolean);
+procedure WriteFactoryFunction(var st:Tstruct; var outs:RawByteString; debug:boolean);
 var
- tem:AnsiString;
+ tem:RawByteString;
  tmstruct2:Tstruct;
  childs:Array of integer;
  cn,i,c,x,b : integer;
@@ -7436,9 +7514,9 @@ end;
 
 //=========================================================================
 //TODO: make this ignore blizzard.j / common.j function calls.
-function DoesLineContainFunctionCalls(const s:AnsiString; linenumber:integer):boolean;
+function DoesLineContainFunctionCalls(const s:RawByteString; linenumber:integer):boolean;
 var k,L:integer;
-tok:AnsiString;
+tok:RawByteString;
 func:TJassFunc;
 begin
     result:=false;
@@ -7482,9 +7560,9 @@ end;
 
 procedure generateRequiredSizeHash;
 var i,h,period,nextperiod,wordend,k,p:integer;
-var word,tem:AnsiString;
+var word,tem:RawByteString;
 
-var parents,names:array of AnsiString;
+var parents,names:array of RawByteString;
 var tried: array of boolean;
 var sizes: array of integer;
 
@@ -7492,7 +7570,7 @@ var n:integer;
 var hash:TStringHash;
 
     function dfs(j:integer):integer;
-        var par:AnsiString;
+        var par:RawByteString;
     begin
 
         if((sizes[j]=-1) and not tried[j]) then begin
@@ -7606,8 +7684,8 @@ begin
 end;
 
 //=========================================================================
-    procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:AnsiString; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:AnsiString; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
-     var indentstr,tmp,tsuf, tsub:AnsiString;
+    procedure generateMultiArrayPickerBatch(const n:integer; namepref:TDynamicStringArray; namesuf:TDynamicStringArray; const indexspace:integer; const index:RawByteString; const indent:integer; commandprefix:TDynamicStringArray; commandsufix:TDynamicStringArray; var outs:RawByteString; const inioff:integer=0; const iniindex:integer = 1; const continueif:boolean = false);
+     var indentstr,tmp,tsuf, tsub:RawByteString;
          i,re,k,u:integer;
          newini, newlim:integer;
     begin
@@ -7680,7 +7758,7 @@ end;
        array_namepref,array_namesuf,array_commandprefix, array_commandsufix: TDynamicStringArray;
        generateMultiArrayPicker_doinit : boolean = true;
 
-    procedure generateMultiArrayPicker(const namepref:AnsiString; const namesuf:AnsiString; const indexspace:integer; const index:AnsiString; const indent:integer; const commandprefix:AnsiString; const commandsufix:AnsiString; var outs:AnsiString);
+    procedure generateMultiArrayPicker(const namepref:RawByteString; const namesuf:RawByteString; const indexspace:integer; const index:RawByteString; const indent:integer; const commandprefix:RawByteString; const commandsufix:RawByteString; var outs:RawByteString);
     begin
 
         if(generateMultiArrayPicker_doinit) then begin
@@ -7725,7 +7803,7 @@ end;
 
 
 //=========================================================================
-procedure addBigArray(const name:AnsiString; const typename:AnsiString; const size:integer; const line:integer; const width:integer = -1);
+procedure addBigArray(const name:RawByteString; const typename:RawByteString; const size:integer; const line:integer; const width:integer = -1);
 var t:integer;
 begin
     if(BigArrayHash.ValueOf(name)<>-1) then begin
@@ -7760,9 +7838,9 @@ begin
     BigArrayN:=BigArrayN+1;
 end;
 
-procedure parseBigArray(var line:AnsiString; const p:integer);
+procedure parseBigArray(var line:RawByteString; const p:integer);
 var i,x,y,j:integer;
-    typename,name:AnsiString;
+    typename,name:RawByteString;
 begin
     GetLineWord(line,typename,i);
     if ((typename<>'') and CompareLineWord('array',line,i,i) ) then begin
@@ -7800,7 +7878,7 @@ begin
     end;
 end;
 
-procedure GetStaticMethod(const structname:AnsiString; const methodname:AnsiString; const decl:integer; out struct:Tstruct; out memb:Tmember);
+procedure GetStaticMethod(const structname:RawByteString; const methodname:RawByteString; const decl:integer; out struct:Tstruct; out memb:Tmember);
 var
    x:integer;
 begin
@@ -7816,16 +7894,16 @@ begin
 end;
 
 //////
-procedure EvaluateHook(const s:AnsiString; const decl:integer);
+procedure EvaluateHook(const s:RawByteString; const decl:integer);
 var
- nativename, structname, funcname:AnsiString;
+ nativename, structname, funcname:RawByteString;
  func:TJassFunc;
  x:integer;
  memb:Tmember;
  struct:Tstruct;
  hook:Thook;
 
-    function dotcheck(const name:AnsiString; var first:AnsiString; var second:AnsiString):boolean;
+    function dotcheck(const name:RawByteString; var first:RawByteString; var second:RawByteString):boolean;
      var
         i:integer;
     begin
@@ -7896,14 +7974,14 @@ begin
 end;
 
 //===============
-procedure WriteHooks(var output:AnsiString);
+procedure WriteHooks(var output:RawByteString);
 var
    i,j,x:integer;
    victim: THookedNative;
    hook:Thook;
    native: TJassFunc;
-   tem:AnsiString;
-   argumentspart : AnsiString;
+   tem:RawByteString;
+   argumentspart : RawByteString;
 begin
    for i := 0 to HookedNatives.Count - 1 do begin
        victim:=HookedNatives[i];
@@ -7960,7 +8038,7 @@ begin
 end;
 
 //=========================
-function FindOddCharacters(const s:AnsiString; const abound:integer=-1):boolean;
+function FindOddCharacters(const s:RawByteString; const abound:integer=-1):boolean;
 var
     bound:integer;
 begin
@@ -7978,26 +8056,26 @@ end;
 
 //=========================================================================
 var
-   structmagic_time:AnsiString;
+   structmagic_time:RawByteString;
 
 
 
 
 // Expects a file that has been already processed by JASSHelper
-procedure DoJASSerStructMagic(sinput:AnsiString;const debug:boolean; var Result:AnsiString);overload;
+procedure DoJASSerStructMagic(sinput:RawByteString;const debug:boolean; var Result:RawByteString);overload;
 var
 i,k,L,eln,siz,wordend,membbigarr,membbigarr2:integer;
 
 h,indent,argnum,priv,currentstruct,reqsize:integer;
 
-word,typen,idn,init,tem,tem2,ind,callstuff,inilines:AnsiString;
+word,typen,idn,init,tem,tem2,ind,callstuff,inilines:RawByteString;
 glob,fun,loc,stat,stub,deleg,arr,consta,ret,useallocforname,propertyoperator:boolean;
 
-newglobals: Array of AnsiString;
-nativesblock: AnsiString;
+newglobals: Array of RawByteString;
+nativesblock: RawByteString;
 interfa:boolean;
-globalsblock,typ:AnsiString;
-funcall:AnsiString;
+globalsblock,typ:RawByteString;
+funcall:RawByteString;
 
 newglobalsgl,newglobalsfs: Array of integer;
 newglobalsn,j:integer;
@@ -8011,18 +8089,18 @@ functionLines: Tlist;
 nativeLines:Tlist;
 hookLines:Tlist;
 
-firstblock:AnsiString;
-secondblock:AnsiString;
-execblock:AnsiString;
+firstblock:RawByteString;
+secondblock:RawByteString;
+execblock:RawByteString;
 doExec:boolean;
 
 badHandlesUsed, makeMethodCopy:boolean;
 
 //DEBUGFILE:textfile;
-{DEBUGSTR:AnsiString;
+{DEBUGSTR:RawByteString;
 const DEBUGID=2614;}
 
-    procedure addglobal(const s:AnsiString;const genline:integer; const fromstruct:integer=-1);
+    procedure addglobal(const s:RawByteString;const genline:integer; const fromstruct:integer=-1);
     begin
         if( Length(newglobals)<=newglobalsn) then begin
             SetLength(newglobals,newglobalsn+20);
@@ -8036,9 +8114,9 @@ const DEBUGID=2614;}
         newglobalsn:=newglobalsn+1;
     end;
 
-    procedure generateExtraArrays(const typename:AnsiString; const pref:AnsiString; const suf:AnsiString; const indexSpace:integer; const genline:integer);
+    procedure generateExtraArrays(const typename:RawByteString; const pref:RawByteString; const suf:RawByteString; const indexSpace:integer; const genline:integer);
     var i,re:integer;
-        tmp:AnsiString;
+        tmp:RawByteString;
     begin
         if (JASS_ARRAY_SIZE>indexSpace) then Exit;
         i:=2;
@@ -8056,10 +8134,10 @@ const DEBUGID=2614;}
 
     //A good model of correct coding would be making parsetype; call this function.
     //But as you may see later, this whole structs function is totally non-correct coding...
-    procedure addArrayType(const name:AnsiString; const typ:AnsiString; const arsize:integer; const arlimit:integer);
+    procedure addArrayType(const name:RawByteString; const typ:RawByteString; const arsize:integer; const arlimit:integer);
      var
         arstruct:Tstruct;
-        artem:AnsiString;
+        artem:RawByteString;
 
     begin
         SetLength(StructList,StructN+2);
@@ -8098,8 +8176,8 @@ const DEBUGID=2614;}
     end;
 
     procedure parsetype;
-     var typename:AnsiString;
-     var arraytype:AnsiString;
+     var typename:RawByteString;
+     var arraytype:RawByteString;
      var arsize,arlimit:integer;
 
 
@@ -8233,7 +8311,7 @@ begin
 
     end;
 
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -9358,8 +9436,6 @@ begin
     generateFuncPassGlobals(globalsblock);
     inilines:='';
 
-
-
     SWriteLn(secondblock,#13#10'//Struct method generated initializers/callers:');
 
 
@@ -10217,7 +10293,7 @@ begin
     SWriteLn(result,firstblock);
     SWriteLn(result,secondblock);
 
-        Interf.ProStatus('');
+        Interf.ProStatus('Free memory');
         Interf.ProMax(1);
         Interf.ProPosition(1);
 
@@ -10239,6 +10315,11 @@ begin
      IdentifierTypes.Free;
      LocalIdentifierTypes.Free;
      CleanFunctionPrototypes;
+     if (Parser<>nil) then
+        FreeAndNil(Parser);
+     FreeAndNil(tvtypes);
+        
+     jasslib.FreeMemory;
 
 
  end;
@@ -10251,14 +10332,14 @@ end;
 // struct features
 // input: input array,
 // output : processed input array.
-var modoutput: array of AnsiString;
+var modoutput: array of RawByteString;
 var modline: array of Integer;
 var modtrace: array of Integer;
 type TModule = class
-    name:AnsiString;
+    name:RawByteString;
     decl, declend:integer;
     ImplementedStructId: integer;
-    onInit:AnsiString;
+    onInit:RawByteString;
     privateMembers:Tstringhash;
 end;
 
@@ -10269,12 +10350,12 @@ var
    ModuleN:integer;
    Modules: array of TModule;
    cmodule: TModule;
-   modname, privateprefix:AnsiString;
+   modname, privateprefix:RawByteString;
    structopen,addit,optional:boolean;
-   structname:AnsiString;
+   structname:RawByteString;
    structid:integer;
 
-      function replaceThisType(const s:AnsiString):AnsiString;
+      function replaceThisType(const s:RawByteString):RawByteString;
       begin
           if(not structopen) then
              Result:=s
@@ -10282,7 +10363,7 @@ var
               Result:=ReplaceIdentifier(s,'thistype',structname);
       end;
 
-      procedure writeOutputLine( const s:AnsiString; fromline:integer; trace:integer);
+      procedure writeOutputLine( const s:RawByteString; fromline:integer; trace:integer);
       begin
           if Length(modoutput) <= oln then begin
               SetLength(modoutput, oln+20 + (oln div 5) );
@@ -10299,7 +10380,7 @@ var
       procedure implementModule( const cmod: TModule; fromline:integer);
       var i,j,x:integer;
           optional:boolean;
-          modname: AnsiString;
+          modname: RawByteString;
       begin
           if(cmod.implementedStructId = structid) then exit;
           cmod.implementedStructId := structid;
@@ -10324,9 +10405,9 @@ var
           if(cmod.onInit<>'') then WriteOutputLine('//! ModuleOnInit '+cmod.onInit,cmod.decl, fromline);
       end;
 
-      procedure parsePrivate( const line:AnsiString; x:integer; var cmodule:Tmodule);
+      procedure parsePrivate( const line:RawByteString; x:integer; var cmodule:Tmodule);
        var
-           word:AnsiString;
+           word:RawByteString;
       begin
           GetLineWord(line,word,x,x);
           if(word='static') then begin
@@ -10360,7 +10441,7 @@ var
           end;
 
       end;
-      procedure processPrivate( var line:AnsiString; var cmodule:Tmodule);
+      procedure processPrivate( var line:RawByteString; var cmodule:Tmodule);
       begin
            line:=ReplaceIdentifiersByHash(line, cmodule.privateMembers, privateprefix);
 
@@ -10502,7 +10583,7 @@ begin
          offset[i]:=modline[i]-i;
          textmacrotrace[i]:=modtrace[i]+1;
     end;
-
+    ModuleHash.Free;
 
 
 
@@ -10511,7 +10592,7 @@ end;
 
 //<modulemagic>
 
-procedure LoadFile(const FileName: TFileName; var result:AnsiString);
+procedure LoadFile(const FileName: TFileName; var result:RawByteString);
 begin
   with TFileStream.Create(FileName,
       fmOpenRead or fmShareDenyWrite) do begin
@@ -10527,7 +10608,7 @@ begin
   end;
 end;
 
-procedure SaveFile(const FileName: TFileName; const result:AnsiString);
+procedure SaveFile(const FileName: TFileName; const result:RawByteString);
 var F:textfile;
     open:boolean;
 begin
@@ -10549,11 +10630,11 @@ begin
  end;
 end;
 
-procedure DoJASSerStructMagic(f1:AnsiString;f2:AnsiString;const debug:boolean);overload;
+procedure DoJASSerStructMagic(f1:RawByteString;f2:RawByteString;const debug:boolean);overload;
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:AnsiString;
+   i,o:RawByteString;
 begin
 
     bff2:=false;
@@ -10572,7 +10653,7 @@ begin
     end;
 end;
 
-procedure doJassHelperExternals(const maplocation:AnsiString);
+procedure doJassHelperExternals(const maplocation:RawByteString);
 begin
 
 end;
@@ -10582,7 +10663,7 @@ procedure importPathsClear;
 begin
     importpathn:=0;
 end;
-procedure addImportPath(const s:AnsiString);
+procedure addImportPath(const s:RawByteString);
 begin
     if(s='') then Exit;
     if (Length(importpaths)<=importpathn) then begin
@@ -10597,7 +10678,7 @@ begin
 end;
 
 {var
-   importpaths:array of AnsiString;
+   importpaths:array of RawByteString;
    importpathn:integer=0;}
 
 
@@ -10606,17 +10687,19 @@ function getExternalUsage(var r:Texternalusage):boolean;
 begin
     if(exter.n=0) then begin
         Result:=false;
+        FreeAndNil(exter);
         exit;
     end;
     Result:=true;
-    r:=Exter;
+    r:=exter;
+    FreeAndNil(exter);
 end;
 
 
 //===================================================
 // Functions and prototypes
 
-constructor Tfunctionprototype.Create( iargs:TDynamicStringArray; iargsn:integer; ires:AnsiString);
+constructor Tfunctionprototype.Create( iargs:TDynamicStringArray; iargsn:integer; ires:RawByteString);
 var i:integer;
 begin
     SetLength(args,iargsn);
@@ -10632,7 +10715,7 @@ begin
     childfunctions.Free;
 end;
 
-function Tfunctionprototype.GetId(const s:AnsiString):integer;
+function Tfunctionprototype.GetId(const s:RawByteString):integer;
 begin
     result:=childfunctions.ValueOf(s);
     if(result=-1) then begin
@@ -10664,8 +10747,8 @@ begin
 
 
 end;
-function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:AnsiString):integer;
-var protk:AnsiString;
+function GetFunctionPrototype( args:TDynamicStringArray; argn:integer; returntype:RawByteString):integer;
+var protk:RawByteString;
     k,i:integer;
     nargs: TDynamicStringArray;
 begin
@@ -10698,7 +10781,7 @@ begin
     Result:=k;
 end;
 
-function AddFunctionData(const name:AnsiString; const protid:integer; const decl:integer):Tfunction;
+function AddFunctionData(const name:RawByteString; const protid:integer; const decl:integer):Tfunction;
 begin
     FunctionDataN:=FunctionDataN+1;
     if (Length(FunctionData)<=FunctionDataN) then SetLength(FunctionData,FunctionDataN+1+FunctionDataN div 5);
@@ -10714,18 +10797,18 @@ begin
 end;
 //========================
 
-var argsbuff:array of AnsiString;
-procedure parseFunction(const s:AnsiString; decl:integer);
-var word:AnsiString;
-    name:AnsiString;
-    ret:AnsiString;
+var argsbuff:array of RawByteString;
+procedure parseFunction(const s:RawByteString; decl:integer);
+var word:RawByteString;
+    name:RawByteString;
+    ret:RawByteString;
     k:integer;
     a:integer;
     fun:Tfunction;
     consta:boolean;
     interf:boolean;
 
-    procedure addtype(const ss:AnsiString);
+    procedure addtype(const ss:RawByteString);
     begin
         if (Length(argsbuff)<=a) then SetLength(argsbuff,2*a+1);
         argsbuff[a]:=ss;
@@ -10804,7 +10887,7 @@ begin
     end;
 end;
 
-function translateMethodOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function translateMethodOfFunction(const f:RawByteString; const fid:integer; const memb:RawByteString; const args:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
 var
    fun:Tfunction;
    h,k:integer;
@@ -10837,7 +10920,7 @@ begin
     prototype[k].abuse:=true;
     result:=true;    FunctionDataUsed:=true;
 end;
-function translateMemberOfFunction(const f:AnsiString; const fid:integer; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function translateMemberOfFunction(const f:RawByteString; const fid:integer; const memb:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
 var
    fun:Tfunction;
    k,h:integer;
@@ -10865,7 +10948,7 @@ begin
     FunctionDataUsed:=true;
 end;
 
-function translateMethodOfFunctionPointer(const f:AnsiString; const st:Tstruct; const memb:AnsiString; const args:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function translateMethodOfFunctionPointer(const f:RawByteString; const st:Tstruct; const memb:RawByteString; const args:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
 var
    k:integer;
 begin
@@ -10894,7 +10977,7 @@ begin
     result:=true;    FunctionDataUsed:=true;
 end;
 
-function translateMemberOfFunctionInterface(const f:AnsiString; const st:tstruct; const memb:AnsiString; var res:AnsiString; var typ:Tvtype):boolean;
+function translateMemberOfFunctionInterface(const f:RawByteString; const st:tstruct; const memb:RawByteString; var res:RawByteString; var typ:Tvtype):boolean;
 var
    k,h:integer;
 begin
@@ -10945,12 +11028,12 @@ begin
     end;
 end;
 
-procedure MakeFunctionCallers(var output:AnsiString);
+procedure MakeFunctionCallers(var output:RawByteString);
 var i,j,k,c:integer;
     prot:Tfunctionprototype;
-    tem,tem2,tem3:AnsiString;
-    assigns:AnsiString;
-    return:AnsiString;
+    tem,tem2,tem3:RawByteString;
+    assigns:RawByteString;
+    return:RawByteString;
 begin
 
 
@@ -11025,13 +11108,13 @@ begin
 end;
 
 
-procedure generateFakeFunctionLocals(const fun:Tfunction; var output:AnsiString; var funcall:AnsiString; var usecall:boolean);
-var word:AnsiString;
-    name,typ,tem:AnsiString;
+procedure generateFakeFunctionLocals(const fun:Tfunction; var output:RawByteString; var funcall:RawByteString; var usecall:boolean);
+var word:RawByteString;
+    name,typ,tem:RawByteString;
 
     k,c,i:integer;
     a:integer;
-    s:AnsiString;
+    s:RawByteString;
 
     prot:Tfunctionprototype;
 
@@ -11097,9 +11180,9 @@ end;
 
 
 
-procedure buildFunctionActions(var output:AnsiString);
+procedure buildFunctionActions(var output:RawByteString);
 var i,j,e:integer;
-    tem,t2,locals,funcall:AnsiString;
+    tem,t2,locals,funcall:RawByteString;
     doret,docall:boolean;
 
     fun:Tfunction;
@@ -11159,9 +11242,9 @@ begin
     end;
 end;
 
-procedure buildIniFunctionActions(var output:AnsiString);
+procedure buildIniFunctionActions(var output:RawByteString);
 var i:integer;
-    tem,ids,xids,trig:AnsiString;
+    tem,ids,xids,trig:RawByteString;
 
     fun:Tfunction;
 begin
@@ -11217,7 +11300,7 @@ end;
 // processes a function that might be a return bug exploiter
 function inline_process_returnbugcandidate(const p:integer; const c:integer):boolean;
 var j,k:integer;
- argname,funcname, functype,argtype:AnsiString;
+ argname,funcname, functype,argtype:RawByteString;
 begin
     Result:=false;
     j:=1;
@@ -11250,7 +11333,7 @@ end;
 // replace data. p:function declaration line. c: function content line.
 procedure inline_process_inleanable(const p:integer; const c:integer);
 var start,j,k,r:integer;
-    funcname,aname,atype,tok,nonarg:AnsiString;
+    funcname,aname,atype,tok,nonarg:RawByteString;
     ArgumentHash:TStringHash;
     F,T,x,L,an:integer;
     ctr:boolean;
@@ -11369,13 +11452,13 @@ end;
 
 
 //====================================================================================================
-//memo-ized bracket-AnsiString handling:
+//memo-ized bracket-string handling:
 //
 var
    InlineBracketEnds: array of integer;
    TEMPDEBUG2:boolean=false;
 
-function inline_dobracket(const s:AnsiString;const p:integer; i:integer; L:integer; bend:AnsiChar):integer;
+function inline_dobracket(const s:RawByteString;const p:integer; i:integer; L:integer; bend:AnsiChar):integer;
 var j:integer;
 ctr:boolean;
 begin
@@ -11415,7 +11498,7 @@ begin
 end;
 
 // This calls and prepares the ground for the above function.
-procedure inline_dobracketStuff(const s:AnsiString;const p:integer; ini:integer; L:integer);
+procedure inline_dobracketStuff(const s:RawByteString;const p:integer; ini:integer; L:integer);
 var i:integer;
 begin
 
@@ -11440,14 +11523,14 @@ end;
 function Inline_IsInlineableFunc(const p:integer; const c:integer):boolean;
 var start,j,k:integer;
 
-    funcname,aname,atype,tok:AnsiString;
+    funcname,aname,atype,tok:RawByteString;
     ArgumentHash:TStringHash;
     L,an:integer;
     usedarguments:integer;
 
         function rec(a:integer; b:integer):boolean;
         var ri,rj,rk,rx:integer;
-            rtok:AnsiString;
+            rtok:RawByteString;
         begin
             result:=false;
             ri:=a;
@@ -11570,7 +11653,7 @@ end;
 //
 function canInlineInstance(const F:integer; argcontents:TDynamicStringArray; incall:boolean):boolean;
 var k,i,L,par:integer;
-s:AnsiString;
+s:RawByteString;
 begin
     result:=false;
     if(incall) then begin //is it good for a call?
@@ -11609,10 +11692,10 @@ end;
 
 var TEMP_DEBUG_INLINE:boolean;
 
-function inlineMaximus(const s:AnsiString; const p:integer; const funcname:AnsiString; const a:integer; const b:integer):AnsiString;
+function inlineMaximus(const s:RawByteString; const p:integer; const funcname:RawByteString; const a:integer; const b:integer):RawByteString;
 var i,j,k,r,t,F,last,cN:integer;
 argcontents:TDynamicStringArray;
-tem,TEMFNAME:AnsiString;
+tem,TEMFNAME:RawByteString;
 incall:boolean;
 whitespc:boolean;
 begin
@@ -11721,7 +11804,7 @@ begin
 end;
 
 
-procedure inline_handle_line(var s:AnsiString; const p:integer; const funcname:AnsiString);
+procedure inline_handle_line(var s:RawByteString; const p:integer; const funcname:RawByteString);
 var L:integer;
 begin
     L:=GetEndOfUsefulLine(s)-1;
@@ -11737,11 +11820,11 @@ end;
 //===========================================================================
 // Process a function (line #p), does inline, and verifies if the function
 // Can be inlined later.
-procedure inline_handle_function( var p:integer; var output:AnsiString);
+procedure inline_handle_function( var p:integer; var output:RawByteString);
 var
    fend,i,j,k,goodlines,content:integer;
    caninline:boolean;
-   funcname:AnsiString;
+   funcname:RawByteString;
 
 
 begin
@@ -11890,10 +11973,10 @@ NoStateFunctionsHash.Add('HaveSavedHandle', 1);
 end;
 
 // More inliner stuff:
-procedure InlineDo( var Result:AnsiString);
+procedure InlineDo( var Result:RawByteString);
 // var inlinefunc
  var i,j,period,nextperiod:integer;
-     word:AnsiString;
+     word:RawByteString;
      printit:boolean;
      globals:boolean;
 
@@ -11957,7 +12040,7 @@ period:=0;
 
 end;
 
-procedure DoJASSerInlineMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerInlineMagicS(sinput:RawByteString; var Result:RawByteString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -12008,7 +12091,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -12023,11 +12106,11 @@ begin
 
 end;
 
-procedure DoJASSerInlineMagicF(const f1:AnsiString;const f2:AnsiString);
+procedure DoJASSerInlineMagicF(const f1:RawByteString;const f2:RawByteString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:AnsiString;
+   i,o:RawByteString;
 begin
 
     bff2:=false;
@@ -12046,7 +12129,7 @@ begin
     end;
 end;
 
-function ArrayStringContains(const arr: array of AnsiString; const value: AnsiString): Boolean;
+function ArrayStringContains(const arr: array of RawByteString; const value: RawByteString): Boolean;
 var
     i: integer;
 begin
@@ -12074,29 +12157,29 @@ end;
 
 type TLocalArrayVariable = class
 public
-    name: AnsiString;
+    name: RawByteString;
     usedIndex: array of integer;
-    constructor Create(varName: AnsiString);
+    constructor Create(varName: RawByteString);
 end;
 type TLocalArrayVariableStorage = class
 public
     arr: array of TLocalArrayVariable;
-    function GenerateNull(): AnsiString;
-    function Exist(const varName: AnsiString): boolean;
-    procedure Add(const varName: AnsiString);
-    procedure AddIndex(const varName: AnsiString; index: integer);
+    function GenerateNull(): RawByteString;
+    function Exist(const varName: RawByteString): boolean;
+    procedure Add(const varName: RawByteString);
+    procedure AddIndex(const varName: RawByteString; index: integer);
     procedure Clear();
 end;
 
-constructor TLocalArrayVariable.Create(varName: AnsiString);
+constructor TLocalArrayVariable.Create(varName: RawByteString);
 begin
     inherited Create;
     name := varName;
 end;
-function TLocalArrayVariableStorage.GenerateNull(): AnsiString;
+function TLocalArrayVariableStorage.GenerateNull(): RawByteString;
 var
     i,j: integer;
-    ret: AnsiString;
+    ret: RawByteString;
 begin
     ret := '';
     for i := Low(arr) to High(arr) do begin
@@ -12106,7 +12189,7 @@ begin
     end;
     Result := ret;
 end;
-function TLocalArrayVariableStorage.Exist(const varName: AnsiString): boolean;
+function TLocalArrayVariableStorage.Exist(const varName: RawByteString): boolean;
 var
     i: integer;
 begin
@@ -12119,12 +12202,12 @@ begin
     Result := false;
     exit;
 end;
-procedure TLocalArrayVariableStorage.add(const varName: AnsiString);
+procedure TLocalArrayVariableStorage.add(const varName: RawByteString);
 begin
     SetLength(arr, Length(arr) + 1);
     arr[High(arr)] := TLocalArrayVariable.Create(varName);
 end;
-procedure TLocalArrayVariableStorage.AddIndex(const varName: AnsiString; index: integer);
+procedure TLocalArrayVariableStorage.AddIndex(const varName: RawByteString; index: integer);
 var
     i: integer;
 begin
@@ -12139,13 +12222,18 @@ begin
     end;
 end;
 procedure TLocalArrayVariableStorage.Clear();
+var
+    i: integer;
 begin
+    for i := Low(arr) to High(arr) do begin
+        arr[i].Free;
+    end;
     SetLength(arr, 0);
 end;
 
 // snip prefix whitespace, suffix whitespace and comment
 { need fix
-function SnipUselessWhitespace(s: AnsiString): AnsiString;
+function SnipUselessWhitespace(s: RawByteString): RawByteString;
 var
     i, subStringStart, subStringEnd: integer;
 begin
@@ -12175,13 +12263,13 @@ begin
 end;
 }
 
-procedure NullLocalDo( var Result:AnsiString);
+procedure NullLocalDo( var Result:RawByteString);
 var
     i, j, k, period, nextperiod, endglobals, lastValidLine, arrayIndex: integer;
-    word, origLine, arrayIndexStr, functionCall: AnsiString;
+    word, origLine, arrayIndexStr, functionCall: RawByteString;
     globals, inFunction, cannotResolveArrayIndex: boolean;
-    returnHandleType, localVariable, globalVariable: array of AnsiString;
-    generatedNull, currentFuncReturnType: AnsiString;
+    returnHandleType, localVariable, globalVariable: array of RawByteString;
+    generatedNull, currentFuncReturnType: RawByteString;
     localArrayVariable: TLocalArrayVariableStorage;
     savedReturnLoc: array of integer;
 begin
@@ -12401,6 +12489,7 @@ period:=0;
     end;
     
  finally
+     localArrayVariable.Free;
      InlineFuncHash.Destroy;
      NoStateFunctionsHash.Destroy;
  end;
@@ -12408,7 +12497,7 @@ period:=0;
 
 end;
 
-procedure DoJASSerNullLocalMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerNullLocalMagicS(sinput:RawByteString; var Result:RawByteString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -12459,7 +12548,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -12474,11 +12563,11 @@ begin
 
 end;
 
-procedure DoJASSerNullLocalMagicF(const f1:AnsiString;const f2:AnsiString);
+procedure DoJASSerNullLocalMagicF(const f1:RawByteString;const f2:RawByteString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:AnsiString;
+   i,o:RawByteString;
 begin
 
     bff2:=false;
@@ -12507,10 +12596,10 @@ var
     ParseFunctionSignature_ArgNamesBuf:TDynamicStringArray;
     ParseFunctionSignature_ArgTypesBuf:TDynamicStringArray;
 
-procedure ParseFunctionSignature( const s:AnsiString; out constant: boolean; out name:AnsiString; out argn:integer; out returntype:AnsiString);
+procedure ParseFunctionSignature( const s:RawByteString; out constant: boolean; out name:RawByteString; out argn:integer; out returntype:RawByteString);
 var
     x,y:integer;
-    word:AnsiString;
+    word:RawByteString;
 begin
     GetLineWord(s, word, x);
     constant:=(word = 'constant');
@@ -12553,10 +12642,10 @@ end;
 var
     ShadowHelper_GlobalsHash: TStringHash;
 
-procedure ShadowHelper_ReadGlobal(const s:AnsiString);
+procedure ShadowHelper_ReadGlobal(const s:RawByteString);
 var
    x:integer;
-   word:AnsiString;
+   word:RawByteString;
 
 begin
     //[constant] <type> [array] <name> [=value]
@@ -12570,10 +12659,10 @@ begin
 
 end;
 
-function ShadowHelper_HelpIt(const ModHash:TstringHash; const s:AnsiString):AnsiString;
+function ShadowHelper_HelpIt(const ModHash:TstringHash; const s:RawByteString):RawByteString;
 var
-   tem:AnsiString;
-   tok:AnsiString;
+   tem:RawByteString;
+   tok:RawByteString;
    i,j,k,L:integer;
 begin
     if( (ModHash=nil) or IsWhiteSpace(s) )  then begin
@@ -12628,14 +12717,14 @@ begin
 end;
 
 
-procedure ShadowHelper_HandleFunction( const fstart:integer; var Result:AnsiString);
+procedure ShadowHelper_HandleFunction( const fstart:integer; var Result:RawByteString);
 var
-    tem, lname, ltype, name,returntype: AnsiString;
+    tem, lname, ltype, name,returntype: RawByteString;
     constant:boolean;
     i,argn,x:integer;
     ModHash: TStringHash;
 
-       procedure addLocal(const s:AnsiString);
+       procedure addLocal(const s:RawByteString);
        begin
            if(ModHash = nil) then begin
                ModHash := TStringHash.create;
@@ -12703,10 +12792,10 @@ begin
 end;
 
 
-procedure ShadowHelperDo( var Result:AnsiString);
+procedure ShadowHelperDo( var Result:RawByteString);
 // var inlinefunc
  var i,j,period,nextperiod:integer;
-     word:AnsiString;
+     word:RawByteString;
      printit:boolean;
      globals:boolean;
 
@@ -12776,7 +12865,7 @@ end;
 
 
 
-procedure DoJASSerShadowHelperMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerShadowHelperMagicS(sinput:RawByteString; var Result:RawByteString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -12827,7 +12916,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -12842,11 +12931,11 @@ begin
 
 end;
 
-procedure DoJASSerShadowHelperMagicF(const f1:AnsiString;const f2:AnsiString);
+procedure DoJASSerShadowHelperMagicF(const f1:RawByteString;const f2:RawByteString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:AnsiString;
+   i,o:RawByteString;
 begin
 
     bff2:=false;
@@ -12868,13 +12957,13 @@ end;
 ////////////////////////////////////////////////
 // Return fixer begins here
 var
-    ReturnFixer_Globals: AnsiString;
+    ReturnFixer_Globals: RawByteString;
     ReturnFixer_GlobalsHash: TStringHash;
 
 //
-procedure ReturnFixer_AddGlobal(const typename:AnsiString);
+procedure ReturnFixer_AddGlobal(const typename:RawByteString);
 var
-   tem:AnsiString;
+   tem:RawByteString;
 begin
     if(ReturnFixer_GlobalsHash.ValueOf(typename) = -1) then begin
         ReturnFixer_GlobalsHash.Add(typename,1);
@@ -12887,8 +12976,8 @@ function ReturnFixer_ParseFunction( const fstart:integer; out fend:integer): boo
 var
    constant:boolean;
    rec:boolean;
-   typename:AnsiString;
-   funcname,tok,tem:AnsiString;
+   typename:RawByteString;
+   funcname,tok,tem:RawByteString;
    i,x, returncount:integer;
 begin
     ParseFunctionSignature( input[fstart], constant, funcname, x, typename);
@@ -12932,18 +13021,18 @@ begin
 
 end;
 
-function FirstNoWhiteSpace( const s:AnsiString; const x:integer=1): integer;
+function FirstNoWhiteSpace( const s:RawByteString; const x:integer=1): integer;
 begin
     Result:=x;
     while ( (Result<=Length(s)) and (s[Result] in WHITESPACE_SEPARATORS ) ) do
         Result:=Result+1;
 end;
 
-procedure ReturnFixer_FixFunction( const fstart:integer; const fend:integer; var Result:AnsiString);
+procedure ReturnFixer_FixFunction( const fstart:integer; const fend:integer; var Result:RawByteString);
 var
     constant:boolean;
     argn, i, x,y,z: integer;
-    name, tem, returntype,takes,arguments, word: AnsiString;
+    name, tem, returntype,takes,arguments, word: RawByteString;
     recpattern:boolean;
 begin
     ParseFunctionSignature(input[fstart], constant, name, argn, returntype);
@@ -13033,7 +13122,7 @@ begin
 
 end;
 
-procedure ReturnFixer_HandleFunction( const fstart: integer; var Result:AnsiString);
+procedure ReturnFixer_HandleFunction( const fstart: integer; var Result:RawByteString);
  var
     fend:integer;
 
@@ -13046,10 +13135,10 @@ begin
 
 end;
 
-procedure ReturnFixDo( var Result:AnsiString);
+procedure ReturnFixDo( var Result:RawByteString);
 // var inlinefunc
  var i,j,period,nextperiod:integer;
-     tem,word, insideGlobals:AnsiString;
+     tem,word, insideGlobals:RawByteString;
      printit:boolean;
      globals:boolean;
 
@@ -13127,7 +13216,7 @@ end;
 
 
 
-procedure DoJASSerReturnFixMagicS(sinput:AnsiString; var Result:AnsiString);
+procedure DoJASSerReturnFixMagicS(sinput:RawByteString; var Result:RawByteString);
 var i,L,eln,period,nextperiod,k:integer;
 begin
 
@@ -13178,7 +13267,7 @@ begin
         i:=i+1;
 
     end;
-    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed AnsiString issues');
+    if (ln<2) then raise Exception.Create('Input file seems too small / unclosed string issues');
 
     SetLength(offset,ln);
     SetLength(textmacrotrace,ln);
@@ -13193,11 +13282,11 @@ begin
 
 end;
 
-procedure DoJASSerReturnFixMagicF(const f1:AnsiString;const f2:AnsiString);
+procedure DoJASSerReturnFixMagicF(const f1:RawByteString;const f2:RawByteString);
 var
    ff2:textfile;
    bff2:boolean;
-   i,o:AnsiString;
+   i,o:RawByteString;
 begin
 
     bff2:=false;
@@ -13219,15 +13308,15 @@ end;
 //=============================================================================
 // Code blocks magic!!111
 const CONDBLOCKS_MAXDEPTH: integer = 50;
-var CondBlocks_CurrentStruct: AnsiString='';
+var CondBlocks_CurrentStruct: RawByteString='';
 var
     CondBlocks_ConstantsHash: TStringHash;
     CondBlocks_Stack: array[0 .. 50{CONDBLOCKS_MAXDEPTH}] of integer;
 
-procedure CondBlocks_ReadGlobal(const s:AnsiString; linenum:integer );
+procedure CondBlocks_ReadGlobal(const s:RawByteString; linenum:integer );
 var
    x:integer;
-   word, value:AnsiString;
+   word, value:RawByteString;
 
 begin
     //[constant] <type> [array] <name> [=value]
@@ -13249,9 +13338,9 @@ begin
     end;
 end;
 
-procedure CondBlocks_ReadMethodExistence( const s:AnsiString; const sname:AnsiString; linenum:integer; const nstart:integer; const priv:boolean);
+procedure CondBlocks_ReadMethodExistence( const s:RawByteString; const sname:RawByteString; linenum:integer; const nstart:integer; const priv:boolean);
 var
-    name:AnsiString;
+    name:RawByteString;
     i:integer;
 begin
     GetLineWord(s,name,i, nstart);
@@ -13261,10 +13350,10 @@ begin
 end;
 
 
-procedure CondBlocks_ReadStaticMember(const s:AnsiString; const sname: AnsiString; linenum:integer );
+procedure CondBlocks_ReadStaticMember(const s:RawByteString; const sname: RawByteString; linenum:integer );
 var
    x:integer;
-   word, value:AnsiString;
+   word, value:RawByteString;
    priv:boolean;
 
 begin
@@ -13303,11 +13392,11 @@ begin
 end;
 
 
-function CondBlocks_AcceptedBlock(const s:AnsiString; const linenum:integer; const start:integer):boolean;
+function CondBlocks_AcceptedBlock(const s:RawByteString; const linenum:integer; const start:integer):boolean;
 var
    x,y, len:integer;
    nt, reqvalue:boolean;
-   reqname,word, reqmember, reqmembermember:AnsiString;
+   reqname,word, reqmember, reqmembermember:RawByteString;
 begin
 
     //parse the requirement list :( this is hard :(
@@ -13388,18 +13477,18 @@ end;
 procedure DoJasserBlocksMagic;
 // var inlinefunc
  var i,j,k,x,siz,period,nextperiod:integer;
-     word,redo:AnsiString;
+     word,redo:RawByteString;
      printit, priv:boolean;
      globals:boolean;
-     structname:AnsiString;
+     structname:RawByteString;
      label MEH;
 
 
-     procedure verifySupported(const s:AnsiString; const lin:integer);
+     procedure verifySupported(const s:RawByteString; const lin:integer);
       var
          i:integer;
      begin
-         for i := 0 to  Length(s) do begin
+         for i := 1 to  Length(s) do begin
              //beware of comments
              if (s[i] = '/') and (i<Length(s)) and (s[i+1] = '/') then
                  break;
@@ -13500,6 +13589,8 @@ period:=0;
                 if(word='static') and CompareLineToken('if',input[i],j,j) then begin
                     input[i]:=StringReplace(input[i],'(',' ',[]);
                     input[i]:=StringReplace(input[i],')',' ',[]);
+
+                    word:=input[i];
                     VerifySupported(input[i],i);
 
                     if(siz= CondBlocks_MAXDEPTH ) then
@@ -13602,12 +13693,12 @@ end;
 procedure ProcessZinc(const debug:boolean);
 var
     i,j,k,x:integer;
-    word:AnsiString;
-    output:Array of AnsiString;
+    word:RawByteString;
+    output:Array of RawByteString;
     source,trace: Array of integer;
     outn: integer;
 
-    procedure writeOutput(const s:AnsiString; const from:integer);
+    procedure writeOutput(const s:RawByteString; const from:integer);
     begin
         if( Length(output) <= outn ) then begin
             SetLength(output, outn+1+outn div 5);

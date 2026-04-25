@@ -9,8 +9,8 @@ uses
   jasshelper in 'jasshelper.pas';
 
 var
-   f1:AnsiString='';
-   f2:AnsiString='';
+   f1:RawByteString='';
+   f2:RawByteString='';
    debug:boolean=false;
    struct:boolean=false;
    temi:integer;

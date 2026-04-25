@@ -8,7 +8,7 @@
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Console</AppType>
         <FrameworkType>None</FrameworkType>
-        <ProjectVersion>20.2</ProjectVersion>
+        <ProjectVersion>20.4</ProjectVersion>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -92,8 +92,9 @@
         <Icon_MainIcon>clijasshelper_Icon.ico</Icon_MainIcon>
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-        <Debugger_RunParams>--scriptonly common.j blizzard.j 5_template.j war3map.j</Debugger_RunParams>
+        <Debugger_RunParams> --scriptonly &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\common.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\blizzard.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\war3map.j&quot; a.j</Debugger_RunParams>
         <DCC_DebugInformation>2</DCC_DebugInformation>
+        <Debugger_CWD>D:\QQ\2045028024\FileRecv\starwe</Debugger_CWD>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -122,7 +123,8 @@
         <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
         <DCC_SymbolReferenceInfo>2</DCC_SymbolReferenceInfo>
         <DCC_MapFile>3</DCC_MapFile>
-        <Debugger_RunParams>--scriptonly common.j blizzard.j 5_template.j war3map.j</Debugger_RunParams>
+        <Debugger_RunParams> --scriptonly &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\common.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\plugin\jasshelper\blizzard.j&quot; &quot;D:\QQ\2045028024\FileRecv\starwe\war3map.j&quot; a.j</Debugger_RunParams>
+        <Debugger_CWD>D:\QQ\2045028024\FileRecv\starwe</Debugger_CWD>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

@@ -5,9 +5,9 @@ uses SysUtils, Classes, Windows,
 
 procedure ResetInput;
 procedure Parse;
-procedure AddInputLine(const s:AnsiString);
+procedure AddInputLine(const s:RawByteString);
 function  GetOutputLineCount:integer;
-function  GetOutputLine(const i:integer):AnsiString;
+function  GetOutputLine(const i:integer):RawByteString;
 function  GetOutputLineSource(const i:integer):integer;
 
 type
@@ -16,11 +16,11 @@ type
 
    public
       linen:integer;
-      msg:AnsiString;
+      msg:RawByteString;
    end;
 
 var
-  GRAMMAR_PATH:AnsiString='zinc.cgt';
+  GRAMMAR_PATH:RawByteString='zinc.cgt';
   DEBUG_MODE:boolean=false;
 
  
@@ -30,18 +30,84 @@ implementation
 var
    ln: integer;
    anoncount:integer;
-   input: array of AnsiString;
-   inputcomment: array of AnsiString;
+   input: array of RawByteString;
+   inputcomment: array of RawByteString;
    oln: integer;
-   output: array of AnsiString;
+   output: array of RawByteString;
    outputfrom: array of integer;
    Parser:TGoldParser=nil;
 
 type TAccessModifier = ( ACCESS_PRIVATE, ACCESS_PUBLIC, ACCESS_DEFAULT );
 
+// x64 build requires newer compiler
+// but it also force widestring in everywhere
+// and fk'ed up gold parser
+// any byte that is (> 0x7F) will cause error
+function EncodeAnsi(const S: RawByteString): RawByteString;
+const
+  HEADER = '__JASSHELPER_STRING_BYTE_';
+var
+  i: Integer;
+  b: Byte;
+  OutStr: RawByteString;
+begin
+  OutStr := '';
+
+  for i := 1 to Length(S) do
+  begin
+    b := Byte(S[i]);
+
+    if b <= 127 then
+    begin
+      // keep ASCII as-is
+      OutStr := OutStr + AnsiChar(b);
+    end
+    else
+    begin
+      // encode each byte separately
+      OutStr := OutStr +
+        RawByteString(HEADER + IntToHex(b, 2));
+    end;
+  end;
+
+  Result := OutStr;
+end;
+function DecodeAnsi(const S: RawByteString): RawByteString;
+const
+  HEADER = '__JASSHELPER_STRING_BYTE_';
+var
+  i: Integer;
+  OutStr: RawByteString;
+  hex: string;
+  b: Byte;
+begin
+  OutStr := '';
+  i := 1;
+
+  while i <= Length(S) do
+  begin
+    if Copy(string(S), i, Length(HEADER)) = HEADER then
+    begin
+      // extract 2 hex chars after tag
+      hex := Copy(string(S), i + Length(HEADER), 2);
+      b := StrToInt('$' + hex);
+
+      OutStr := OutStr + AnsiChar(b);
+
+      Inc(i, Length(HEADER) + 2);
+    end
+    else
+    begin
+      OutStr := OutStr + S[i];
+      Inc(i);
+    end;
+  end;
+
+  Result := OutStr;
+end;
 
 //=====================
-function TranslateTerminal(tok:Ttoken):AnsiString;
+function TranslateTerminal(tok:Ttoken):RawByteString;
 begin
     while(tok.kind = SymbolTypeNonTerminal) do begin
         if(tok.Reduction.TokenCount=0) then begin
@@ -50,11 +116,11 @@ begin
         end;
         tok:=tok.Reduction.Tokens[0];
     end;
-    result:=tok.DataVar;
+    result:=DecodeAnsi(tok.DataVar);
 end;
 
 //======
-function ZincLineError( const i:integer;  const msg:AnsiString):ZincSyntaxError;
+function ZincLineError( const i:integer;  const msg:RawByteString):ZincSyntaxError;
 begin
     Result:=ZincSyntaxError.create('Syntax error');
     Result.linen:=i;
@@ -79,13 +145,13 @@ end;
 
 
 //=====================
-function TranslateExpressionNot(tok:Ttoken):AnsiString; forward;
-function TranslateExpression(tok:Ttoken):AnsiString;
+function TranslateExpressionNot(tok:Ttoken):RawByteString; forward;
+function TranslateExpression(tok:Ttoken):RawByteString;
 var
     red:Treduction;
     i:integer;
 
-    function join(const s1:AnsiString; const s2: AnsiString):AnsiString;
+    function join(const s1:RawByteString; const s2: RawByteString):RawByteString;
     begin
         if(  (Length(s1)=0) or (s1[Length(s1)] in Jasshelper.SEPARATORS)
            or(Length(s2)=0) or (s2[1] in Jasshelper.SEPARATORS) ) then
@@ -97,7 +163,7 @@ var
 
 begin
     if(tok.kind <> SymbolTypeNonTerminal) then begin
-        result:=tok.DataVar;
+        result:=DecodeAnsi(tok.DataVar);
         exit;
     end;
     result:='-possible error-';
@@ -141,7 +207,7 @@ begin
         end;
         RULE_ANONYMOUSFUNCTION_LPARAN_RPARAN: begin
         (* <AnonymousFunction> ::= <AnonymousTag> ( <FunctionArgumentList> ) <ReturnType> <CodeBlock> *)
-            Result:=tok.DataVar;
+            Result:=DecodeAnsi(tok.DataVar);
         end
         else begin
             Result:='';
@@ -156,15 +222,15 @@ begin
 end;
 
 
-function TranslateExpressionNot(tok:Ttoken):AnsiString;
+function TranslateExpressionNot(tok:Ttoken):RawByteString;
 var
     red:Treduction;
-    tem:AnsiString;
+    tem:RawByteString;
 begin
     if(tok.kind <> SymbolTypeNonTerminal) then begin
-        if     (tok.DataVar ='true') then result:='false'
-        else if(tok.DataVar ='false') then result:='true'
-        else    result:='not '+tok.DataVar;
+        if     (DecodeAnsi(tok.DataVar) ='true') then result:='false'
+        else if(DecodeAnsi(tok.DataVar) ='false') then result:='true'
+        else    result:='not '+DecodeAnsi(tok.DataVar);
         exit;
     end;
     result:='-possible error-';
@@ -218,7 +284,7 @@ end;
 
 
 function TranslatePublicPrivate(const tok:Ttoken; const def:TAccessModifier= ACCESS_DEFAULT): TAccessModifier;
-var s:AnsiString;
+var s:RawByteString;
 begin
     s:=TranslateTerminal(tok);
     if(s='private') then Result:=ACCESS_PRIVATE
@@ -226,7 +292,7 @@ begin
     else Result:=def;
 end;
 
-function TranslateReturnType(const tok:Ttoken): AnsiString;
+function TranslateReturnType(const tok:Ttoken): RawByteString;
 var red:Treduction;
 begin
    red:=Tok.Reduction;
@@ -247,8 +313,8 @@ end;
 
 
 var
-   indent_str: array of AnsiString;
-procedure WriteOutputLine(const s:AnsiString; const from:integer = 1; const indent:integer=0);
+   indent_str: array of RawByteString;
+procedure WriteOutputLine(const s:RawByteString; const from:integer = 1; const indent:integer=0);
 var x:integer;
 begin
     if(Length(indent_str) <= indent+1) then begin
@@ -271,10 +337,10 @@ end;
 
 
 //--------
-function TranslateFunctionArgumentList(const tok:Ttoken):AnsiString;
+function TranslateFunctionArgumentList(const tok:Ttoken):RawByteString;
  var
    red:Treduction;
-       function TranslateArgDef(const tok:ttoken): AnsiString;
+       function TranslateArgDef(const tok:ttoken): RawByteString;
         var
             red:Treduction;
        begin
@@ -291,7 +357,7 @@ function TranslateFunctionArgumentList(const tok:Ttoken):AnsiString;
 
        end;
 
-       function TranslateArgument(const tok:ttoken): AnsiString;
+       function TranslateArgument(const tok:ttoken): RawByteString;
         var
             red:Treduction;
        begin
@@ -348,7 +414,7 @@ end;
 procedure TranslateWhile( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
-   cond:AnsiString;
+   cond:RawByteString;
 begin
 (* <While> ::= while <Parenthesis> <StatementOrBlock> *)
     AllowLocals:=false;
@@ -365,7 +431,7 @@ end;
 procedure TranslateDoWhile( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
-   cond:AnsiString;
+   cond:RawByteString;
 begin
 (* <DoWhile> ::= do <StatementOrBlock> while <Parenthesis> ; *)
     AllowLocals:=false;
@@ -386,8 +452,8 @@ procedure TranslateFor( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
    x:integer;
-   tem, vr, c1, c2, start, inc:AnsiString;
-      function opos(const s:AnsiString): AnsiString;
+   tem, vr, c1, c2, start, inc:RawByteString;
+      function opos(const s:RawByteString): RawByteString;
       begin
           if     (s='>') then result:='<='
           else if(s='<') then result:='>='
@@ -466,7 +532,7 @@ procedure TranslateIfElse( tok:ttoken; const indent:integer=0);
 var
    red,red2:Treduction;
    tok2:Ttoken;
-   tem,cond:AnsiString;
+   tem,cond:RawByteString;
    iselseif:boolean;
    label repeatit;
 
@@ -553,7 +619,7 @@ end;
 procedure TranslateIf( const tok:ttoken; const indent:integer=0; const iselseif:boolean=false);
 var
    red:Treduction;
-   tem,cond:AnsiString;
+   tem,cond:RawByteString;
 
 begin
     AllowLocals:=false;
@@ -575,7 +641,7 @@ end;
 procedure TranslateExitwhen( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
-   cond:AnsiString;
+   cond:RawByteString;
 begin
     AllowLocals:=false;
    (* <Exitwhen> ::= if <Parenthesis> break ; *)
@@ -608,7 +674,7 @@ end;
 procedure TranslateAssignment( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
-   ex,tem:AnsiString;
+   ex,tem:RawByteString;
 begin
     AllowLocals:=false;
     red:=tok.Reduction;
@@ -661,7 +727,7 @@ end;
 procedure TranslateFunctionCallStatement( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
-   tem:AnsiString;
+   tem:RawByteString;
 begin
     AllowLocals:=false;
     red:=tok.Reduction;
@@ -674,7 +740,7 @@ end;
 procedure TranslateMethodCallStatement( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
-   tem:AnsiString;
+   tem:RawByteString;
 begin
     AllowLocals:=false;
     red:=tok.Reduction;
@@ -688,7 +754,7 @@ end;
 procedure TranslateStaticIf( const tok:ttoken; const indent:integer=0);
 var
    red:Treduction;
-   cond,tem:AnsiString;
+   cond,tem:RawByteString;
    loc:boolean;
 begin
     red:=tok.Reduction;
@@ -724,12 +790,12 @@ end;
 procedure TranslateLocalVariables(const tok:TToken; const indent:integer=0);
 var
     red:Treduction;
-    typ, tem: AnsiString;
+    typ, tem: RawByteString;
 
        procedure TranslateSingleVariable(const tok:Ttoken);
         var
             red:Treduction;
-            name, v1, right,left:AnsiString;
+            name, v1, right,left:RawByteString;
        begin
 
            red:=tok.Reduction.Tokens[0].Reduction;
@@ -947,7 +1013,7 @@ end;
 //----
 
 procedure TranslatePreprocessor(tok:TToken);
-var s:AnsiString;
+var s:RawByteString;
     len:integer;
 begin
     s:=TranslateTerminal(tok);
@@ -961,9 +1027,9 @@ end;
 //----------------------------------
 var
    lib_privates:integer;
-   lib_private: array of AnsiString;
+   lib_private: array of RawByteString;
 
-procedure AddLibraryPrivate(const s:AnsiString);
+procedure AddLibraryPrivate(const s:RawByteString);
 begin
     if(Length(lib_private) <= lib_privates) then begin
          SetLength(lib_private, lib_privates+10+lib_privates div 10);
@@ -980,7 +1046,7 @@ procedure TranslateAnonymousFunction(const tok:TToken; const indent:integer=0; f
 var
     red:Treduction;
     id:integer;
-    tem,priv,name,typ,takes:AnsiString;
+    tem,priv,name,typ,takes:RawByteString;
     AllowLocalsBack, stat:boolean;
 
     function IsTagStatic(const tok:Ttoken):boolean;
@@ -1073,7 +1139,7 @@ end;
 procedure TranslateFunction(const tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    tem,priv,name,typ,takes:AnsiString;
+    tem,priv,name,typ,takes:RawByteString;
 begin
 (* <Function> ::= <PrivatePublic> function Identifier ( <FunctionArgumentList> ) <ReturnType> <CodeBlock> *)
 
@@ -1109,7 +1175,7 @@ procedure TranslateStructBody( tok:TToken; const defacc:Taccessmodifier; const i
 procedure TranslateImplement( tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    tem:AnsiString;
+    tem:RawByteString;
 
 begin
     red:=tok.Reduction;
@@ -1122,7 +1188,7 @@ end;
 procedure TranslateStructPP( tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    tem:AnsiString;
+    tem:RawByteString;
 
 begin
     red:=tok.Reduction;
@@ -1142,13 +1208,13 @@ procedure TranslateStructVariables( tok:TToken; const defacc:Taccessmodifier; co
 var
     red:Treduction;
     acc:Taccessmodifier;
-    stat, constant, delegate: AnsiString;
-    typ, tem, priv: AnsiString;
+    stat, constant, delegate: RawByteString;
+    typ, tem, priv: RawByteString;
 
        procedure TranslateSingleVariable(const tok:Ttoken);
         var
             red:Treduction;
-            name, v1,v2, right,left:AnsiString;
+            name, v1,v2, right,left:RawByteString;
        begin
 
            red:=tok.Reduction.Tokens[0].Reduction;
@@ -1241,7 +1307,7 @@ end;
 
 //***************************************************************************
 // Struct Method
-function TranslateMethodName(const tok:Ttoken):AnsiString;
+function TranslateMethodName(const tok:Ttoken):RawByteString;
 begin
     result:=TranslateExpression(tok);
 end;
@@ -1249,7 +1315,7 @@ end;
 procedure TranslateStructMethod(const tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    tem,priv,stat, name,typ,takes:AnsiString;
+    tem,priv,stat, name,typ,takes:RawByteString;
 begin
     (* <StructMethod> ::=
     <PrivatePublic> <Static> method <MethodName> ( <FunctionArgumentList> ) <ReturnType> <CodeBlock> *)
@@ -1277,9 +1343,9 @@ end;
 procedure TranslateInterfaceMethod(const tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    tem,priv,stat, name,typ,takes, defs:AnsiString;
+    tem,priv,stat, name,typ,takes, defs:RawByteString;
 
-    function TranslateInterfaceDefaults(const tok:Ttoken):AnsiString;
+    function TranslateInterfaceDefaults(const tok:Ttoken):RawByteString;
      var
         red:Treduction;
     begin
@@ -1401,9 +1467,9 @@ end;
 procedure TranslateStruct(const tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    priv,name,lim, ext,tem,arr:AnsiString;
+    priv,name,lim, ext,tem,arr:RawByteString;
 
-    function TranslateArrayStruct( const tok:Ttoken): AnsiString;
+    function TranslateArrayStruct( const tok:Ttoken): RawByteString;
      var
         red:Treduction;
     begin
@@ -1459,7 +1525,7 @@ end;
 procedure TranslateModule(const tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    priv,name, tem:AnsiString;
+    priv,name, tem:RawByteString;
 
 begin
 (* <Module> ::= <PrivatePublic> module Identifier { <StructBody> } *)
@@ -1486,7 +1552,7 @@ end;
 procedure TranslateInterface(const tok:TToken; const defacc:Taccessmodifier; const indent:integer=0);
 var
     red:Treduction;
-    priv,name,lim, tem:AnsiString;
+    priv,name,lim, tem:RawByteString;
 
 
 begin
@@ -1517,12 +1583,12 @@ procedure TranslateGlobalVariables(const tok:TToken; const DefaultAccess:Taccess
 var
     red:Treduction;
     acc:Taccessmodifier;
-    typ, tem, priv, constant: AnsiString;
+    typ, tem, priv, constant: RawByteString;
 
        procedure TranslateSingleVariable(const tok:Ttoken);
         var
             red:Treduction;
-            name, v1,v2, right,left:AnsiString;
+            name, v1,v2, right,left:RawByteString;
        begin
 
            red:=tok.Reduction.Tokens[0].Reduction;
@@ -1609,12 +1675,12 @@ end;
 //******************************************
 // type statement:
 //
-procedure TranslateDynamicArray(const tok:Ttoken; const acc:TAccessModifier; const name:AnsiString; const indent:integer);
+procedure TranslateDynamicArray(const tok:Ttoken; const acc:TAccessModifier; const name:RawByteString; const indent:integer);
 var
     red:Treduction;
-    tem, siz, lim, priv, typ:AnsiString;
+    tem, siz, lim, priv, typ:RawByteString;
 
-      function storageLimit(const tok:Ttoken): AnsiString;
+      function storageLimit(const tok:Ttoken): RawByteString;
        var
           red:Treduction;
       begin
@@ -1651,12 +1717,12 @@ begin
 
 end;
 
-procedure TranslateFunctionInterface(const tok:Ttoken; const acc:TAccessModifier; const name:AnsiString; const indent:integer);
+procedure TranslateFunctionInterface(const tok:Ttoken; const acc:TAccessModifier; const name:RawByteString; const indent:integer);
 var
     red:Treduction;
-    priv, ret, takes, tem:AnsiString;
+    priv, ret, takes, tem:RawByteString;
 
-    function TranslateTakes(const tok:Ttoken; const id:integer=0):AnsiString;
+    function TranslateTakes(const tok:Ttoken; const id:integer=0):RawByteString;
     var
         red:Treduction;
     begin
@@ -1697,7 +1763,7 @@ end;
 
 
 
-procedure TranslateTypeExtends(const tok:Ttoken; const acc:TAccessModifier; const name:AnsiString; const indent:integer);
+procedure TranslateTypeExtends(const tok:Ttoken; const acc:TAccessModifier; const name:RawByteString; const indent:integer);
 var
     red:Treduction;
 begin
@@ -1718,7 +1784,7 @@ procedure TranslateTypeDef(tok:TToken; const defacc:Taccessmodifier; const inden
 var
     red:Treduction;
     acc:TAccessModifier;
-    name:AnsiString;
+    name:RawByteString;
 begin
     red:=tok.Reduction;
     case RuleConstants(Red.ParentRule.TableIndex) of
@@ -1738,7 +1804,7 @@ procedure TranslateLibraryPP(tok:TToken; const indent:integer=0);
 var
    red:Treduction;
    acc:TaccessModifier;
-   modi:AnsiString;
+   modi:RawByteString;
 
 begin
 (* <LibraryPPBlock> ::= <PrivatePublic> { <LibraryMembers> } *)
@@ -1821,7 +1887,7 @@ begin
 end;
 
 //**********************************************************************
-function TranslateSingleRequirement(tok:TToken):AnsiString;
+function TranslateSingleRequirement(tok:TToken):RawByteString;
 var
    red:TReduction;
 begin
@@ -1837,10 +1903,10 @@ begin
 
 end;
 
-function TranslateLibraryRequirementList(tok:TToken; out reqall:boolean):AnsiString;
+function TranslateLibraryRequirementList(tok:TToken; out reqall:boolean):RawByteString;
 var
    red:TReduction;
-   tem:AnsiString;
+   tem:RawByteString;
    label restart;
 begin
    reqall:=false;
@@ -1868,7 +1934,7 @@ begin
    end;
 end;
 
-function TranslateLibraryRequirements(tok:TToken; out reqall:boolean):AnsiString;
+function TranslateLibraryRequirements(tok:TToken; out reqall:boolean):RawByteString;
 var
    red:TReduction;
 begin
@@ -1891,7 +1957,7 @@ procedure TranslateLibrary(tok:TToken);
 var
     red:Treduction;
 (* <Library> ::= library Identifier <LibraryRequirements> { <LibraryMembers> } *)
-    tem,name,reqs:AnsiString;
+    tem,name,reqs:RawByteString;
     x,i:integer;
     reqall:boolean;
 
@@ -1973,7 +2039,7 @@ procedure initParser;
 var
   lMemStream : TMemoryStream;
   lResource : Pointer;
-  lHandle   : Cardinal;
+  lHandle   : NativeInt;
 
 begin
    if (Parser=nil) then
@@ -2017,7 +2083,8 @@ procedure Parse;
  var done:boolean;
      Response:Integer;
      i:integer;
-     inputtext:AnsiString;
+     inputtext,a,b:RawByteString;
+var  tStart: integer;
 begin
      initParser;
      oln:=0;
@@ -2026,7 +2093,7 @@ begin
          SWriteLn(inputtext, input[i]);
      end;
 
-
+    inputtext:=EncodeAnsi(inputtext);
 
     if (not Parser.OpenTextString(inputtext)) then raise ZincLineError(0,'Unknown internal error 1');
 
@@ -2038,10 +2105,10 @@ begin
             case Response of
                 gpMsgLexicalError:
                 begin
-                    raise ZincLineError(Parser.CurrentLineNumber, 'Unexpected : '+Parser.CurrentToken.DataVar);
+                    raise ZincLineError(Parser.CurrentLineNumber, 'Unexpected : '+DecodeAnsi(Parser.CurrentToken.DataVar));
                 end;
                 gpMsgSyntaxError: begin
-                    raise ZincLineError(Parser.CurrentLineNumber, 'Syntax Error (Unexpected: "'+Parser.CurrentToken.Datavar+'"?');
+                    raise ZincLineError(Parser.CurrentLineNumber, 'Syntax Error (Unexpected: "'+DecodeAnsi(Parser.CurrentToken.DataVar)+'"?');
                 end;
                 gpMsgAccept:
                     Done := True;
@@ -2059,11 +2126,13 @@ begin
             end;
     end;
 
-
     //Hehem parsed correctly!!! Now we *just* have to translate the reductions
     TranslateZinc(parser.CurrentReduction);
 
-
+    if (Parser<>nil) then begin
+         Parser.Free;
+         Parser:=nil;
+    end;
 end;
 
 var lastseen:integer;
@@ -2072,7 +2141,7 @@ procedure ResetInput; begin
    ln:=0;
    anoncount := 0;
 end;
-function GetComment(const s:AnsiString): AnsiString;
+function GetComment(const s:RawByteString): RawByteString;
 var
    i,len:integer;
 begin
@@ -2087,7 +2156,7 @@ begin
 
 end;
 
-procedure AddInputLine(const s:AnsiString); begin
+procedure AddInputLine(const s:RawByteString); begin
    if(Length(input) <= ln) then begin
        SetLength(input, ln+20+ln div 5 );
        SetLength(inputcomment, Length(input) );
@@ -2102,9 +2171,9 @@ begin
 end;
 
 
-function GetOutputLine(const i:integer):AnsiString;
+function GetOutputLine(const i:integer):RawByteString;
 var x,j:integer;
-    comm:AnsiString;
+    comm:RawByteString;
 begin
    x:=outputfrom[i];
    comm:='';

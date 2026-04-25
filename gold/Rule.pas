@@ -47,10 +47,10 @@ type
      constructor Create(aTableIndex : integer; aNonTerminal : TSymbol);
      destructor Destroy; override;
      procedure AddItem(Item: TSymbol);
-     function Name: AnsiString;
-     function Definition: AnsiString;
+     function Name: RawByteString;
+     function Definition: RawByteString;
      function ContainsOneNonTerminal: Boolean;
-     function Text: AnsiString;
+     function Text: RawByteString;
      // Returns the Backus-Noir representation of the rule.
      property SymbolCount: Integer read GetSymbolCount;
      // Returns the number of symbols that consist the body (right-hand-side) of the rule.
@@ -100,7 +100,7 @@ begin
   Result := FRuleSymbols.Count;
 end;
 
-function TRule.Name: AnsiString;
+function TRule.Name: RawByteString;
 begin
   Result := '<' + FRuleNonterminal.Name + '>';
 end;
@@ -115,7 +115,7 @@ begin
   FRuleSymbols.Add(Item);
 end;
 
-function TRule.Definition: AnsiString;
+function TRule.Definition: RawByteString;
 var i : integer;
 begin
   Result := '';
@@ -133,7 +133,7 @@ begin
   Result := FRuleSymbols[Index] as TSymbol;
 end;
 
-function TRule.Text: AnsiString;
+function TRule.Text: RawByteString;
 begin
   Result := Name + ' ::= ' + Definition;
 end;

@@ -8,11 +8,11 @@ type
   FileSpec = array [0..32767] of AnsiChar;
 
 
-function StartApp(AppName, ArgStr, workdir :AnsiString; Visibility : integer; input,output,error:AnsiString):integer;
+function StartApp(AppName, ArgStr, workdir :RawByteString; Visibility : integer; input,output,error:RawByteString):integer;
 
 implementation
 { TWinExec }
-function StartApp(AppName, ArgStr, workdir :AnsiString; Visibility : integer; input,output,error:AnsiString):integer;
+function StartApp(AppName, ArgStr, workdir :RawByteString; Visibility : integer; input,output,error:RawByteString):integer;
 var
   zAppName : FileSpec;
 
@@ -62,7 +62,7 @@ begin
 
   if not CreateProcess(
     nil,                           { pointer to executable}
-    (pwidechar(widestring(zAppName))),                      { pointer to command line AnsiString }
+    (pwidechar(widestring(zAppName))),                      { pointer to command line string }
     nil,                           { pointer to process security attributes }
     nil,                           { pointer to thread security attributes }
     true,                         { handle inheritance flag }

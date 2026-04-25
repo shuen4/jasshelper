@@ -38,18 +38,18 @@ type
   private
     MemberList: TStringList;
     function GetCount: Integer;
-    function GetValue(Name: AnsiString): AnsiString;
-    procedure SetValue(Name: AnsiString; Value: AnsiString);
-    function GetName(Index: Integer): AnsiString;
+    function GetValue(Name: RawByteString): RawByteString;
+    procedure SetValue(Name: RawByteString; Value: RawByteString);
+    function GetName(Index: Integer): RawByteString;
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Add(Name: AnsiString; Value: AnsiString);
+    procedure Add(Name: RawByteString; Value: RawByteString);
 
     procedure Clear;
     property Count: Integer read GetCount;
-    property Value[Name: AnsiString]: AnsiString read GetValue write SetValue;
-    property Names[Index : integer] : AnsiString read GetName;
+    property Value[Name: RawByteString]: RawByteString read GetValue write SetValue;
+    property Names[Index : integer] : RawByteString read GetName;
   end;
 
 implementation
@@ -66,7 +66,7 @@ begin
    inherited Destroy;
 end;
 
-procedure TVariableList.Add(Name: AnsiString; Value: AnsiString);
+procedure TVariableList.Add(Name: RawByteString; Value: RawByteString);
 begin
   MemberList.Values[Name] := Value;
 end;
@@ -81,17 +81,17 @@ begin
    Result := MemberList.Count;
 end;
 
-function TVariableList.GetName(Index: Integer): AnsiString;
+function TVariableList.GetName(Index: Integer): RawByteString;
 begin
   Result := MemberList.Names[Index];
 end;
 
-function TVariableList.GetValue(Name: AnsiString): AnsiString;
+function TVariableList.GetValue(Name: RawByteString): RawByteString;
 begin
   Result := MemberList.Values[Name];
 end;
 
-procedure TVariableList.SetValue(Name: AnsiString; Value: AnsiString);
+procedure TVariableList.SetValue(Name: RawByteString; Value: RawByteString);
 begin
   MemberList.Values[Name] := Value;
 end;

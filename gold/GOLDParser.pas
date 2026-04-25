@@ -10,7 +10,7 @@ unit GOLDParser;
 '
 ' Purpose:
 '    This is the main class in the GOLD Parser Engine and is used to perform
-'    all duties required to the parsing of a source text AnsiString. This class
+'    all duties required to the parsing of a source text string. This class
 '    contains the LALR(1) State Machine code, the DFA State Machine code,
 '    character table (used by the DFA algorithm) and all other structures and
 '    methods needed to interact with the developer.
@@ -211,25 +211,25 @@ type
     procedure PushInputToken(TheToken: TToken);
     // Pushes the token onto the front of the GOLDParser's internal input queue.
     // It will be the next token analyzed by the parsing engine.
-    function LoadCompiledGrammar(const FileName : AnsiString) : boolean; overload;
+    function LoadCompiledGrammar(const FileName : RawByteString) : boolean; overload;
     function LoadCompiledGrammar(const Stream : TStream) : boolean; overload;
     // If the Compiled Grammar Table file is successfully loaded
     // the method returns True; otherwise False. This method must
     // be called before any Parse calls are made.
-    function OpenTextString(Text: AnsiString): Boolean;
+    function OpenTextString(Text: RawByteString): Boolean;
     // Opens the SourceString for parsing. If successful the method returns True; otherwise False.
-    function ReadTextString: AnsiString;
+    function ReadTextString: RawByteString;
     function Parse: Integer;
     // Executes a parse.  When this method is called, the parsing engine
-    // reads information from the source text (either a AnsiString or a file)
+    // reads information from the source text (either a string or a file)
     // and then reports what action was taken. This ranges from a token
     // being read and recognized from the source, a parse reduction, or a type of error.
-    function Parameter(ParamName: AnsiString): AnsiString;
-    // Returns a AnsiString containing the value of the specified parameter.
+    function Parameter(ParamName: RawByteString): RawByteString;
+    // Returns a string containing the value of the specified parameter.
     // The ParameterName is the same as the parameters entered in the
     // grammar's description. These include: Name, Version, Author, About,
     // Case Sensitive and Start Symbol. If the name specified is invalid,
-    // this method will return an empty AnsiString.
+    // this method will return an empty string.
     function PopInputToken: TToken;
     // Removes the next token from the front of the parser's internal input queue.
     property TrimReductions: Boolean read FTrimReductions write FTrimReductions;
@@ -339,7 +339,7 @@ end;
 
 procedure TGOLDParser.PrepareSets;
 var i,j:integer;
-    s:AnsiString;
+    s:RawByteString;
 begin
   SetLength(FActualCharacterSetTable,FCharacterSetTable.count);
   SetLength(FActualCharacterSetTableAllCaps,FCharacterSetTable.count);
@@ -356,7 +356,7 @@ begin
 
 end;
 
-function TGOLDParser.LoadCompiledGrammar(const FileName : AnsiString) : boolean;
+function TGOLDParser.LoadCompiledGrammar(const FileName : RawByteString) : boolean;
       // If the Compiled Grammar Table file is successfully loaded
       // the method returns True; otherwise False. This method must
       // be called before any Parse calls are made.
@@ -370,7 +370,7 @@ begin
   
 end;
 
-function TGOLDParser.OpenTextString(Text: AnsiString): Boolean;
+function TGOLDParser.OpenTextString(Text: RawByteString): Boolean;
     // Opens the SourceString for parsing. If successful the method returns True; otherwise False.
 begin
   Reset;
@@ -379,7 +379,7 @@ begin
   Result := True;
 end;
 
-function TGOLDParser.ReadTextString: AnsiString;
+function TGOLDParser.ReadTextString: RawByteString;
 begin
   Result := FSource.Text;
 end;
@@ -398,7 +398,7 @@ end;
 
 function TGOLDParser.Parse: Integer;
     // Executes a parse.  When this method is called, the parsing engine
-    // reads information from the source text (either a AnsiString or a file)
+    // reads information from the source text (either a string or a file)
     // and then reports what action was taken. This ranges from a token
     // being read and recognized from the source, a parse reduction, or a type of error.
 var Done : Boolean;
@@ -507,7 +507,7 @@ begin
   Done := False;
   CurrentDFA := FInitialDFAState;           //The first state is almost always #1.
   CurrentPosition := 1;                    //Next byte in the input LookaheadStream
-  LastAcceptState := -1;                   //We have not yet accepted a character AnsiString
+  LastAcceptState := -1;                   //We have not yet accepted a character string
   LastAcceptPosition := -1;
 
   Target := 0;
@@ -584,7 +584,7 @@ begin
 end;
 
 procedure TGOLDParser.DiscardRestOfLine;
-var sTemp: AnsiString;
+var sTemp: RawByteString;
 begin
   //Kill the current line - basically for line comments
   sTemp := FSource.ReadLine;
@@ -703,12 +703,12 @@ begin
   if FHaveReduction then FStack.Top.Reduction := NewReduction;
 end;
 
-function TGOLDParser.Parameter(ParamName: AnsiString): AnsiString;
-    // Returns a AnsiString containing the value of the specified parameter.
+function TGOLDParser.Parameter(ParamName: RawByteString): RawByteString;
+    // Returns a string containing the value of the specified parameter.
     // The ParameterName is the same as the parameters entered in the
     // grammar's description. These include: Name, Version, Author, About,
     // Case Sensitive and Start Symbol. If the name specified is invalid,
-    // this method will return an empty AnsiString.
+    // this method will return an empty string.
 begin
   Result := FVariableList.Value[ParamName];
 end;

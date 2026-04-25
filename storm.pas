@@ -224,8 +224,8 @@ procedure MPQCloseArchive(hMPQ: THandle);
 function MPQOpenFile(hMPQ: THandle; sMPQFileName: PAnsiChar): THandle;
 procedure MPQCloseFile(hMPQFile: THandle);
 function MPQGetFileSize(hMPQFile: THandle): DWORD;
-procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PAnsiChar; sPath: AnsiString);
-procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PAnsiChar; targetfile: AnsiString; dwbf:dword=0);
+procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PAnsiChar; sPath: RawByteString);
+procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PAnsiChar; targetfile: RawByteString; dwbf:dword=0);
 function MPQGetInternalList(hMPQ: THandle): TStringList;
 function MPQListFiles(hMPQ: THandle): TStringList; overload;
 function MPQListFiles(hMPQ: THandle; List: TStringList; bUseInternal: Boolean): TStringList; overload;
@@ -353,7 +353,7 @@ end;
 
 
 //By Vexorian, slight variation of last function:
-procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PAnsiChar; targetfile: AnsiString; dwbf:dword=0);
+procedure MPQExtractFileTo(hMPQ: THandle; sMPQFileName: PAnsiChar; targetfile: RawByteString; dwbf:dword=0);
 var
  MemSt:TMemoryStream;
  FileStream:TFileStream;
@@ -371,7 +371,7 @@ end;
 
 
 
-procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PAnsiChar; sPath: AnsiString);
+procedure MPQExtractFile(hMPQ: THandle; sMPQFileName: PAnsiChar; sPath: RawByteString);
 begin
     MPQExtractFileTo(hMPQ, sMPQFileName, sPath+'\'+sMPQFileName);
 end;
@@ -427,11 +427,11 @@ begin
     for i:=0 to (l1.Count-1) do if Result.IndexOf(l2[i])=-1 then Result.Add(l2[i]);
 end;
 
-procedure MergeListFiles(l1,l2,target:AnsiString);
+procedure MergeListFiles(l1,l2,target:RawByteString);
 var
  f1,f2,t:TextFile;
  res:TStrings;
- s: AnsiString;
+ s: RawByteString;
  i:integer;
 begin
     res:=TStrings.Create;

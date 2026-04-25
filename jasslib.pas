@@ -8,44 +8,45 @@ interface
 
    JassLibException = class(Exception)
        public
-          msg : AnsiString;
+          msg : RawByteString;
           line: integer;
    end;
 
    TJassType = class(TObject)
    public
-       name   : AnsiString;
-       extends: AnsiString;
+       name   : RawByteString;
+       extends: RawByteString;
    end;
 
    TJassVar = class(TObject)
    public
-       name : AnsiString;
-       typename : AnsiString;
+       name : RawByteString;
+       typename : RawByteString;
        isconstant : boolean;
        isarray : boolean;
-       initialvalue : AnsiString;
+       initialvalue : RawByteString;
    end;
 
    TJassFunc = class(TObject)
    public
        isnative : boolean;
-       name : AnsiString;
-       arguments: Array of AnsiString;
+       name : RawByteString;
+       arguments: Array of RawByteString;
        argumentn : integer;
-       returntype : AnsiString;
+       returntype : RawByteString;
        isconstant : boolean;
    end;
 
 
 procedure Init;
-function VerifyJassFunc( const name:AnsiString; out tpoint:TJassFunc ): boolean;
-function VerifyJassVar( const name:AnsiString; out tpoint:TJassVar ): boolean;
-function VerifyJassType( const name:AnsiString; out tpoint:TJassType ): boolean;
+procedure FreeMemory;
+function VerifyJassFunc( const name:RawByteString; out tpoint:TJassFunc ): boolean;
+function VerifyJassVar( const name:RawByteString; out tpoint:TJassVar ): boolean;
+function VerifyJassType( const name:RawByteString; out tpoint:TJassType ): boolean;
 procedure parseFile( const filename: TFileName);
 
 // Adds a native line, returns false if the native was already known...
-function AddNativeLine( const s:AnsiString): boolean;
+function AddNativeLine( const s:RawByteString): boolean;
 
 implementation
 uses Jasshelper;
@@ -82,9 +83,32 @@ begin
     interf := Jasshelper.Interf;
 end;
 
+procedure FreeMemory;
+var
+  i: integer;
+begin
+    VarHash.Free;
+    TypeHash.Free;
+    FuncHash.Free;
+    
+    for i := Low(VarArray) to High(VarArray) do
+        VarArray[i].Free;
+    SetLength(VarArray, 0);
+    
+    for i := Low(FuncArray) to High(FuncArray) do
+        FuncArray[i].Free;
+    SetLength(FuncArray, 0);
+    
+    for i := Low(TypeArray) to High(TypeArray) do
+        TypeArray[i].Free;
+    SetLength(input, 0);
+    
+    interf := nil;
+end;
+
 procedure LoadLines( const filename: TFileName);
  var
-    buf, line:AnsiString;
+    buf, line:RawByteString;
     i,k,L: integer;
 begin
     if(interf<>nil) then begin
@@ -128,10 +152,10 @@ begin
 
 end;
 
-procedure ParseVariableLine( const line:AnsiString);
+procedure ParseVariableLine( const line:RawByteString);
 var
     nextStartPos:integer;
-    typename, variablename, value:AnsiString;
+    typename, variablename, value:RawByteString;
 begin
     // try to find out JASS_MAX_ARRAY_SIZE (it should be safe if we only check the first occurrence since more than one is a syntax error)
     // although the script may have JASS_ARRAY_SIZE with value 0 but who cares
@@ -168,10 +192,10 @@ begin
         exit;
     JassHelper.JASS_ARRAY_SIZE := nextStartPos - 1;
 end;
-procedure ParseTypeLine( const line:AnsiString);
+procedure ParseTypeLine( const line:RawByteString);
 var
     nextStartPos:integer;
-    typename, parentname {used as a temporary variable until actual use}:AnsiString;
+    typename, parentname {used as a temporary variable until actual use}:RawByteString;
 begin
     nextStartPos:=1;
     GetLineToken(line,typename,nextStartPos,nextStartPos);
@@ -196,12 +220,12 @@ begin
 end;
 
 var
-argumentsbuf:array of AnsiString;
+argumentsbuf:array of RawByteString;
 
-function ParseFuncLine( const constant:boolean ; const native:boolean; const s:AnsiString; var x:integer):boolean;
+function ParseFuncLine( const constant:boolean ; const native:boolean; const s:RawByteString; var x:integer):boolean;
 var
     y:integer;
-    name, word:AnsiString;
+    name, word:RawByteString;
     func: TJassFunc;
 begin
 
@@ -249,9 +273,9 @@ begin
 end;
 
 
-function AddNativeLine( const s:AnsiString): boolean;
+function AddNativeLine( const s:RawByteString): boolean;
 var x:integer;
-    word:AnsiString;
+    word:RawByteString;
     constant:boolean;
 begin
     GetLineWord(s, word, x);
@@ -266,7 +290,7 @@ procedure parseStuff;
 var
  i,x:integer;
  glob, constant:boolean;
- word:AnsiString;
+ word:RawByteString;
 
 
 begin
@@ -316,13 +340,13 @@ begin
 end;
 
 
-function VerifyJassType( const name:AnsiString; out tpoint:TJassType ): boolean;
+function VerifyJassType( const name:RawByteString; out tpoint:TJassType ): boolean;
 begin
     Result := false;
 end;
 
 
-function VerifyJassFunc( const name:AnsiString; out tpoint:TJassFunc ): boolean;
+function VerifyJassFunc( const name:RawByteString; out tpoint:TJassFunc ): boolean;
 var k:integer;
 begin
     k:=FuncHash.ValueOf(name);
@@ -333,7 +357,7 @@ begin
 
 end;
 
-function VerifyJassVar( const name:AnsiString; out tpoint:TJassVar ): boolean;
+function VerifyJassVar( const name:RawByteString; out tpoint:TJassVar ): boolean;
 begin
     Result := false;
 end;

@@ -3,7 +3,7 @@ unit SourceFeeder;
 interface
 
 uses
-   Classes;
+   Classes, Windows, SysUtils;
 
 type
 
@@ -50,9 +50,10 @@ end;
 
 
 function TSourceFeeder.ReadCharFromBuffer(Pos: Integer; var r: AnsiChar):boolean;
-var SavePos : integer;
+var idx : integer;
+      var p: PAnsiChar;
 
-begin
+begin         {
   SavePos := Stream.Position;
 
 
@@ -60,16 +61,29 @@ begin
       result:=false;
   end else begin
       result:=true;
-      r := AnsiChar(Stream.DataString[Stream.Position+Pos]);
+//      r := AnsiChar(Stream.DataString[Stream.Position+Pos]);
+      r := AnsiChar(Stream.Bytes[Stream.Position+Pos-1]);
   end;
 
   Stream.Position := SavePos;
+
+  }
+  idx := Stream.Position + Pos - 1;
+
+  if idx >= Stream.Size then
+      Result := false
+  else begin
+      p := PAnsiChar(Stream.Bytes);
+      r := p[Stream.Position + Pos - 1];
+      Result := True;
+  end;
 end;
 
 
 function TSourceFeeder.ReadFromBuffer(Size: Integer; DiscardReadText: Boolean; ReturnAllText: Boolean): AnsiString;
 var SavePos : integer;
     Available: Integer;
+      var p: PAnsiChar;
 begin
   SavePos := Stream.Position;
 
@@ -78,7 +92,12 @@ begin
   else Available := Size;
 
   if ReturnAllText then Result := Stream.ReadString(Available)
-  else Result := Copy(Stream.DataString, Stream.Position + Size, 1);
+  else begin
+//    Result := Copy(Stream.DataString, Stream.Position + Size, 1);
+    p := PAnsiChar(Stream.DataString);
+    SetLength(Result, 1);
+    Result[1] := p[Stream.Position + Size - 1];
+  end;
 
   if not DiscardReadText then Stream.Position := SavePos;
 end;
@@ -101,7 +120,9 @@ end;
 procedure TSourceFeeder.SetText(const Value: AnsiString);
 begin
   FStream.Size := 0;
-  FStream.WriteString(Value);
+//  FStream.WriteString(Value);
+  if Length(Value) > 0 then
+    FStream.WriteBuffer(PAnsiChar(Value)^, Length(Value));
   FStream.Position := 0;
 end;
 

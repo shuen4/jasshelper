@@ -27,9 +27,9 @@ lib:PFunctionLibrary;
 propos:integer;
 promaximum:integer;
 
-PRENAME:AnsiString;
-PRELONGNAME:AnsiString;
-PATHS:AnsiString;
+PRENAME:RawByteString;
+PRELONGNAME:RawByteString;
+PATHS:RawByteString;
 
 
 procedure ProPosition(p:integer); stdcall;
@@ -50,13 +50,13 @@ function GetProPosition:integer ; stdcall;
 begin
     Result:=propos;
 end;
-procedure StatusMessage(const msg:AnsiString); stdcall;
+procedure StatusMessage(const msg:RawByteString); stdcall;
 begin
     lib.ProgressWndTitle(pchar('JASSHelper - '+msg));
 end;
 
 
-function GetSuffixedName(x,suf:AnsiString):AnsiString;
+function GetSuffixedName(x,suf:RawByteString):RawByteString;
 var
    i,L:integer;
 begin
@@ -77,9 +77,9 @@ begin
     MessageBox(0,'A WEHelper error is making it remove war3map.j','WEHelper error detected',MB_TOPMOST+MB_ICONERROR)
 end;
 
-procedure doTool(const map:AnsiString; const name:AnsiString; const prog:AnsiString; const args:AnsiString);
+procedure doTool(const map:RawByteString; const name:RawByteString; const prog:RawByteString; const args:RawByteString);
 var
-   s,f,f1,f2,f3:AnsiString;
+   s,f,f1,f2,f3:RawByteString;
    temi:integer;
 begin
     f1:=TempFile;
@@ -101,7 +101,7 @@ begin
 
 end;
 
-procedure doExternalThings(const map:AnsiString;exter:TExternalusage);
+procedure doExternalThings(const map:RawByteString;exter:TExternalusage);
 var
    i,j:integer;
 
@@ -144,9 +144,9 @@ end;
 procedure Process(Info: PPreprocessorProcessInfo); stdcall;
 var
   mpq:THandle;
-//  f1:AnsiString;
-//  f2,f3:AnsiString;
-  input,output,tm:AnsiString;
+//  f1:RawByteString;
+//  f2,f3:RawByteString;
+  input,output,tm:RawByteString;
   pinput:pchar;
   errordialogopened:boolean;
   i:integer;
@@ -173,7 +173,7 @@ begin
   pinput:=lib.MpqLockFile(mpq,'war3map.j');
 
 
-  input:=AnsiString(pinput);
+  input:=RawByteString(pinput);
 
 
   lib.MpqFreeFile(pinput);
@@ -372,7 +372,7 @@ begin
  if Info.Enabled then begin
      New(PreprocInfo);
      PRENAME:='JASSHELPER';
-     PRELONGNAME:='Jass Helper - Libraries, global merge, debug mode and AnsiString fix';
+     PRELONGNAME:='Jass Helper - Libraries, global merge, debug mode and string fix';
      PreprocInfo.Process:=Process;
      PreprocInfo.CodeName:=PCHAR(PRENAME);
      PreprocInfo.LongName:=PCHAR(PRELONGNAME);

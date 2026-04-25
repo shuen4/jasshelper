@@ -7,7 +7,7 @@ uses
 
 type
   TLexicalError = procedure(Sender: TObject) of Object;
-  TSyntaxError = procedure(Sender: TObject; Expected: AnsiString) of Object;
+  TSyntaxError = procedure(Sender: TObject; Expected: RawByteString) of Object;
   TMsgInternalError = procedure(Sender: TObject) of Object;
   TMsgCommentError = procedure(Sender: TObject) of Object;
   TMsgReduction = procedure(Sender: TObject) of Object;
@@ -45,7 +45,7 @@ type
     procedure Reset;
     procedure Clear;
     procedure PushInputToken(TheToken: TToken);
-    function Parameter(ParamName: AnsiString): AnsiString;
+    function Parameter(ParamName: RawByteString): RawByteString;
     function PopInputToken: TToken;
     property CurrentLineNumber: Integer read FCurrentLineNumber;
     property CurrentReduction: TReduction read FCurrentReduction write SetCurrentReduction;
@@ -107,7 +107,7 @@ var
    Done: Boolean;
    Response: Integer;
    ReductionNumber: Integer;
-   txt: AnsiString;
+   txt: RawByteString;
    n: Integer;
 begin
 
@@ -232,7 +232,7 @@ begin
    FGOLDParser.Clear;
 end;
 
-function TGOLDParserCMP.Parameter(ParamName: AnsiString): AnsiString;
+function TGOLDParserCMP.Parameter(ParamName: RawByteString): RawByteString;
 begin
 
    Result := FGOLDParser.Parameter(ParamName);

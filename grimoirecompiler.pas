@@ -42,11 +42,11 @@ var
   filevar: textfile;
   errorn:integer=0;
   IsANSI: boolean=true;
-  ANSI_text, UTF8_text: AnsiString;
+  ANSI_text, UTF8_text: RawByteString;
 
 
-procedure start(const f:AnsiString; const title:AnsiString);
-procedure add(const line:integer; const msg:AnsiString; error:boolean);
+procedure start(const f:RawByteString; const title:RawByteString);
+procedure add(const line:integer; const msg:RawByteString; error:boolean);
 procedure show;
 
 procedure load;
@@ -55,8 +55,8 @@ procedure clear;
 implementation
 
 uses jasshelper,ShellApi,about,progress;
-procedure start(const f:AnsiString; const title:AnsiString);
-//var x:AnsiString;
+procedure start(const f:RawByteString; const title:RawByteString);
+//var x:RawByteString;
 
 begin
 
@@ -75,7 +75,7 @@ begin
 
 end;
 
-procedure add(const line:integer; const msg:AnsiString; error:boolean);
+procedure add(const line:integer; const msg:RawByteString; error:boolean);
 begin
     WriteLn(filevar,'Line '+IntToStr(line)+': '+msg);
     if(error) then errorn:=errorn+1;
@@ -95,10 +95,10 @@ end;
 // Longer characters will be truncated to new lines
 // Leading to incorrect line calculations
 // This limitation may related to hardcoded values in Windows Multiline Edit Control
-function fix_long_line(input:AnsiString): AnsiString;
+function fix_long_line(input:RawByteString): RawByteString;
 var
     i,L,k,ln:integer;
-    lines: array of AnsiString;
+    lines: array of RawByteString;
 begin
 
     i:=1;
@@ -132,9 +132,9 @@ begin
 end;
 
 // UTF8 to ANSI
-// Utf8ToAnsi returns an empty AnsiString if one or more bytes are malformed
+// Utf8ToAnsi returns an empty string if one or more bytes are malformed
 // Windows MultiByteToWideChar + WideCharToMultiByte simply replace these with '?'
-function u2a(str:AnsiString): AnsiString;
+function u2a(str:RawByteString): RawByteString;
 var
     len:integer;
     wstr:widestring;
@@ -153,8 +153,8 @@ end;
 
 procedure load;
 var
-   title:AnsiString;
-   f,x:AnsiString;
+   title:RawByteString;
+   f,x:RawByteString;
 begin
 
     if(not FileExists('logs\compileerrors.txt')) then begin
@@ -274,7 +274,7 @@ begin
 end;
 
 procedure TForm4.ListBox1Click(Sender: TObject);
-var s:AnsiString;
+var s:RawByteString;
     i:integer;
 
 begin
