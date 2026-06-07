@@ -300,6 +300,7 @@ begin
 
 
     end;
+    FreeAndNil(exter);
 
 end;
 

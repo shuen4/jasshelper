@@ -2,6 +2,6 @@
 <BorlandProject>
 	<Transactions/>
 	<Default.Personality>
-		<Projects ActiveProject="grimoirejasshelper.exe"/>
+		<Projects ActiveProject="jasshelperdll.dll"/>
 	</Default.Personality>
 </BorlandProject>

@@ -8,6 +8,11 @@ move /y wehelper\jasshelperdll.dll output\jasshelper.dll
 move /y wehelper\jasshelperdll.rsm output\jasshelper.rsm
 move /y wehelper\jasshelperinstaller.exe output
 copy /y jasshelper.cgt output
+@REM large address adware
+where make_LAA >nul 2>&1
+if %errorlevel%==0 (
+    call make_LAA output\consolejasser.exe output\clijasshelper.exe output\jasshelper.exe output\grimoirecaller.exe output\jasshelper.dll output\jasshelperinstaller.exe
+)
 @REM sign
 where sign >nul 2>&1
 if %errorlevel%==0 (
